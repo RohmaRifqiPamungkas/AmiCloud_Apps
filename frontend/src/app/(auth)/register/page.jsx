@@ -3,7 +3,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 
-const Login = () => {
+const Register = () => {
   const { register, handleSubmit } = useForm();
 
   const onSubmit = (data) => {
@@ -14,6 +14,20 @@ const Login = () => {
     <div className="flex items-center justify-center ">
       <div className="p-8 bg-white rounded-md shadow-md w-96">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              E-mail:
+            </label>
+            <input
+              type="email"
+              id="email"
+              {...register("email", { required: true })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
           <div>
             <label
               htmlFor="username"
@@ -55,38 +69,23 @@ const Login = () => {
               htmlFor="remember"
               className="ml-2 block text-sm text-gray-900"
             >
-              Remember Me
+             I agree to the <span className="text-blue-600">Term of Use</span> and <span className="text-blue-600">Privacy Policy</span>
             </label>
           </div>
 
-          <div className="text-center">
-            <a
-              href="/forgot-password"
-              className="text-sm text-blue-600 hover:underline"
-            >
-              Forgot password?
-            </a>
-          </div>
 
           <button
             type="submit"
             className="w-full py-2 px-4 bg-primary text-white font-bold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            SIGN IN
+            SIGN UP
           </button>
         </form>
 
-        <div className="mt-4 text-center">
-          <a
-            href="/create-account"
-            className="text-sm text-blue-600 hover:underline"
-          >
-            Create an Account
-          </a>
-        </div>
+       
       </div>
     </div>
   );
 };
 
-export default Login;
+export default Register;
