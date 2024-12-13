@@ -1,14 +1,14 @@
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
-import { Transition } from '@headlessui/react';
-import { Link, useForm, usePage } from '@inertiajs/react';
+import InputError from "@/Components/InputError";
+import InputLabel from "@/Components/InputLabel";
+import PrimaryButton from "@/Components/PrimaryButton";
+import TextInput from "@/Components/TextInput";
+import { Transition } from "@headlessui/react";
+import { Link, useForm, usePage } from "@inertiajs/react";
 
 export default function UpdateProfileInformation({
     mustVerifyEmail,
     status,
-    className = '',
+    className = "",
 }) {
     const user = usePage().props.auth.user;
 
@@ -16,12 +16,16 @@ export default function UpdateProfileInformation({
         useForm({
             name: user.name,
             email: user.email,
+            username: user.username || "",
+            full_name: user.full_name || "",
+            phone: user.phone || "",
+            birthday_date: user.birthday_date || "",
         });
 
     const submit = (e) => {
         e.preventDefault();
 
-        patch(route('profile.update'));
+        patch(route("profile.update"));
     };
 
     return (
@@ -44,9 +48,8 @@ export default function UpdateProfileInformation({
                         id="name"
                         className="mt-1 block w-full"
                         value={data.name}
-                        onChange={(e) => setData('name', e.target.value)}
+                        onChange={(e) => setData("name", e.target.value)}
                         required
-                        isFocused
                         autoComplete="name"
                     />
 
@@ -61,7 +64,7 @@ export default function UpdateProfileInformation({
                         type="email"
                         className="mt-1 block w-full"
                         value={data.email}
-                        onChange={(e) => setData('email', e.target.value)}
+                        onChange={(e) => setData("email", e.target.value)}
                         required
                         autoComplete="username"
                     />
@@ -69,12 +72,74 @@ export default function UpdateProfileInformation({
                     <InputError className="mt-2" message={errors.email} />
                 </div>
 
+                <div>
+                    <InputLabel htmlFor="username" value="Username" />
+
+                    <TextInput
+                        id="username"
+                        className="mt-1 block w-full"
+                        value={data.username}
+                        onChange={(e) => setData("username", e.target.value)}
+                        autoComplete="username"
+                    />
+
+                    <InputError className="mt-2" message={errors.username} />
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="full_name" value="Full Name" />
+
+                    <TextInput
+                        id="full_name"
+                        className="mt-1 block w-full"
+                        value={data.full_name}
+                        onChange={(e) => setData("full_name", e.target.value)}
+                    />
+
+                    <InputError className="mt-2" message={errors.full_name} />
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="phone" value="Phone" />
+
+                    <TextInput
+                        id="phone"
+                        type="tel"
+                        className="mt-1 block w-full"
+                        value={data.phone}
+                        onChange={(e) => setData("phone", e.target.value)}
+                        autoComplete="tel"
+                    />
+
+                    <InputError className="mt-2" message={errors.phone} />
+                </div>
+
+                <div>
+                    <InputLabel htmlFor="birthday_date" value="Birthday" />
+
+                    <TextInput
+                        id="birthday_date"
+                        type="date"
+                        className="mt-1 block w-full"
+                        value={data.birthday_date}
+                        onChange={(e) =>
+                            setData("birthday_date", e.target.value)
+                        }
+                        autoComplete="bday"
+                    />
+
+                    <InputError
+                        className="mt-2"
+                        message={errors.birthday_date}
+                    />
+                </div>
+
                 {mustVerifyEmail && user.email_verified_at === null && (
                     <div>
                         <p className="mt-2 text-sm text-gray-800 dark:text-gray-200">
                             Your email address is unverified.
                             <Link
-                                href={route('verification.send')}
+                                href={route("verification.send")}
                                 method="post"
                                 as="button"
                                 className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
@@ -83,7 +148,7 @@ export default function UpdateProfileInformation({
                             </Link>
                         </p>
 
-                        {status === 'verification-link-sent' && (
+                        {status === "verification-link-sent" && (
                             <div className="mt-2 text-sm font-medium text-green-600 dark:text-green-400">
                                 A new verification link has been sent to your
                                 email address.
