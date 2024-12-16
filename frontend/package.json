@@ -14,7 +14,8 @@
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.54.0",
-    "react-icons": "^5.4.0"
+    "react-icons": "^5.4.0",
+    "swr": "^2.2.5"
   },
   "devDependencies": {
     "eslint": "^8",
