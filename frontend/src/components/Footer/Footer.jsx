@@ -3,7 +3,8 @@ import { FaFacebookF, FaTwitter, FaInstagram } from "react-icons/fa";
 export default function Footer() {
   return (
     <footer className="bg-gray-100 text-gray-700">
-      <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="container mx-auto px-12">
+        <div className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-4 gap-6">
         {/* Logo Section */}
         <div>
           <h2 className="font-bold text-lg">Amicloud Logo</h2>
@@ -59,6 +60,8 @@ export default function Footer() {
       <div className="text-center py-4 text-sm">
         Copyright © 2024 Amicloud. All Rights Reserved
       </div>
+        </div>
+     
     </footer>
   );
 }

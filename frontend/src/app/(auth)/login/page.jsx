@@ -1,17 +1,34 @@
+
+
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useAuth } from "@/hooks/auth"; 
 
 const Login = () => {
   const { register, handleSubmit } = useForm();
+  const { login } = useAuth(); 
+  const [errors, setErrors] = useState([]);
+  const [status, setStatus] = useState(null);
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit = async (data) => {
+    try {
+      await login({
+        ...data,
+        setErrors,
+        setStatus,
+      });
+
+     
+      window.location.href = "/dashboard";
+    } catch (err) {
+      console.error("Login failed:", err);
+    }
   };
 
   return (
-    <div className="flex items-center justify-center ">
+    <div className="flex items-center justify-center">
       <div className="p-8 bg-white rounded-md shadow-md w-96">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
@@ -59,14 +76,13 @@ const Login = () => {
             </label>
           </div>
 
-          <div className="text-center">
-            <a
-              href="/forgot-password"
-              className="text-sm text-blue-600 hover:underline"
-            >
-              Forgot password?
-            </a>
-          </div>
+          {errors.length > 0 && (
+            <div className="text-red-500 text-sm">
+              {errors.map((error, index) => (
+                <p key={index}>{error}</p>
+              ))}
+            </div>
+          )}
 
           <button
             type="submit"
