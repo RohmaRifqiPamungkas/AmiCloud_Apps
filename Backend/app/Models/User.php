@@ -49,4 +49,14 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
         ];
     }
+    public function markEmailAsVerified()
+    {
+        parent::markEmailAsVerified();
+
+        // Pastikan update is_active hanya terjadi jika email berhasil diverifikasi
+        if (!$this->is_active) {
+            $this->update(['is_active' => 1]);
+        }
+    }
+
 }
