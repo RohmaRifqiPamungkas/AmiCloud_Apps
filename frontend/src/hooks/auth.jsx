@@ -8,9 +8,14 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     const router = useRouter();
     const params = useParams();
 
+   
     const { data: user, error, mutate } = useSWR('/api/user', async () => {
         try {
-            const res = await axios.get('/api/user');
+            const res = await axios.get('/api/user', {
+                headers: {
+                    'X-XSRF-TOKEN': getCookie('XSRF-TOKEN') 
+                }
+            });
             return res.data;
         } catch (error) {
             if (error.response?.status === 409) {
@@ -19,10 +24,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
             throw error;
         }
     });
-
-    // const csrf = async () => {
-    //     await axios.get('/sanctum/csrf-cookie');  
-    // };
+    
 
     const csrf = async () => {
         try {
@@ -34,7 +36,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     };
     
 
-    const register = async ({ setErrors, ...props }) => {
+const register = async ({ setErrors, ...props }) => {
         await csrf();
         setErrors([]);
 

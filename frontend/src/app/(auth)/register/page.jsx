@@ -78,6 +78,21 @@ const Register = () => {
             />
           </div>
 
+          <div>
+            <label
+              htmlFor="passwordConfirmation"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Confirm Password:
+            </label>
+            <input
+              type="passwordConfirmation"
+              id="password"
+              {...register("passwordConfirmation", { required: true })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
           <div className="flex items-center">
             <input
               type="checkbox"

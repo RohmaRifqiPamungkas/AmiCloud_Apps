@@ -1,14 +1,13 @@
-
-
 "use client";
 
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useAuth } from "@/hooks/auth"; 
+import { useAuth } from "@/hooks/auth";
+import Link from "next/link";
 
 const Login = () => {
   const { register, handleSubmit } = useForm();
-  const { login } = useAuth(); 
+  const { login } = useAuth();
   const [errors, setErrors] = useState([]);
   const [status, setStatus] = useState(null);
 
@@ -20,7 +19,6 @@ const Login = () => {
         setStatus,
       });
 
-     
       window.location.href = "/dashboard";
     } catch (err) {
       console.error("Login failed:", err);
@@ -84,6 +82,15 @@ const Login = () => {
             </div>
           )}
 
+          <div className="mt-4 text-center">
+            <Link
+              href="/forgot-password"
+              className="text-sm text-blue-600 hover:underline"
+            >
+              Forgot Password
+            </Link>
+          </div>
+
           <button
             type="submit"
             className="w-full py-2 px-4 bg-primary text-white font-bold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -93,12 +100,12 @@ const Login = () => {
         </form>
 
         <div className="mt-4 text-center">
-          <a
-            href="/create-account"
+          <Link
+            href="/register"
             className="text-sm text-blue-600 hover:underline"
           >
             Create an Account
-          </a>
+          </Link>
         </div>
       </div>
     </div>
