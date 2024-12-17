@@ -29,12 +29,12 @@ export default function Navbar() {
 
         {/* Buttons dekstop */}
         <div className="hidden md:flex space-x-4">
-          <button className="bg-black text-white py-2 px-4 rounded hover:bg-gray-800">
+          <Link href="/register" className="bg-black text-white py-2 px-4 rounded hover:bg-gray-800">
             Create Account
-          </button>
-          <button className="bg-primary text-white py-2 px-4 rounded hover:bg-purple-800">
+          </Link>
+          <Link href="/login" className="bg-primary text-white py-2 px-4 rounded hover:bg-purple-800">
             Sign In
-          </button>
+          </Link>
         </div>
 
       
@@ -80,12 +80,12 @@ export default function Navbar() {
         </ul>
      
         <div className="mt-6 flex flex-col space-y-4">
-          <button className="bg-black text-white py-2 px-4 rounded hover:bg-gray-800">
+          <Link href="/register" className="bg-black text-white py-2 px-4 rounded hover:bg-gray-800">
             Create Account
-          </button>
-          <button className="bg-primary text-white py-2 px-4 rounded hover:bg-purple-800">
+          </Link>
+          <Link href="/login" className="bg-primary text-white py-2 px-4 rounded hover:bg-purple-800">
             Sign In
-          </button>
+          </Link>
         </div>
       </div>
     </nav>
