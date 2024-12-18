@@ -10,9 +10,13 @@ class PermissionController extends Controller
 {
     public function index()
     {
-        $permissions = Permission::all();
-        return view('permissions.list');
+        $permissions = Permission::orderBy('created_at', 'desc')->paginate(10);
+
+        return view('permissions.list', [
+            'permissions' => $permissions,
+        ]);
     }
+
 
     public function create()
     {
@@ -22,51 +26,61 @@ class PermissionController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:permissions|min:3',
+            'name' => 'required|unique:permissions,name|min:3'
         ]);
 
-        if ($validator->fails()) {
-            return redirect()->route('permissions.create')
-                ->withInput()
-                ->withErrors($validator);
+        if ($validator->passes()) {
+            Permission::create([
+                'name' => $request->name
+            ]);
+
+            return redirect()->route('permissions.index')->with('success', 'Permission successfully added.');
+        } else {
+            return redirect()->route('permissions.create')->withInput()->withErrors($validator);
         }
-
-        Permission::create([
-            'name' => $request->input('name'),
-        ]);
-
-        return redirect()->route('permissions.index')
-            ->with('success', 'Permission successfully added.');
     }
 
-    // public function edit($id)
-    // {
-    //     $permission = Permission::findOrFail($id);
-    //     return view('permissions.edit', compact('permission'));
-    // }
+    public function edit($id)
+    {
+        $permission = Permission::findOrFail($id);
 
-    // public function update(Request $request, $id)
-    // {
-    //     $permission = Permission::findOrFail($id);
+        return view('permissions.edit', [
+            'permission' => $permission
+        ]);
+    }
 
-    //     $request->validate([
-    //         'name' => 'required|unique:permissions,name,' . $id . '|min:3',
-    //     ]);
 
-    //     $permission->update([
-    //         'name' => $request->input('name'),
-    //     ]);
+    public function update($id, Request $request)
+    {
+        $permission = Permission::findOrFail($id);
 
-    //     return redirect()->route('permissions.index')
-    //         ->with('success', 'Permission berhasil diperbarui.');
-    // }
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|min:3|unique:permissions,name,' . $id . ',id'
+        ]);
 
-    // public function destroy($id)
-    // {
-    //     $permission = Permission::findOrFail($id);
-    //     $permission->delete();
+        if ($validator->passes()) {
+            $permission->name = $request->name;
+            $permission->save();
 
-    //     return redirect()->route('permissions.index')
-    //         ->with('success', 'Permission berhasil dihapus.');
-    // }
+            return redirect()->route('permissions.index')->with('success', 'Permission update successfully.');
+        } else {
+            return redirect()->route('permissions.edit', $id)->withInput()->withErrors($validator);
+        }
+    }
+
+    public function destroy(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:permissions,id',
+        ]);
+
+        $permission = Permission::findOrFail($request->id);
+
+        $permission->delete();
+
+        session()->flash('success', 'Permission deleted successfully.');
+        return response()->json([
+            'status' => true
+        ]);
+    }
 }
