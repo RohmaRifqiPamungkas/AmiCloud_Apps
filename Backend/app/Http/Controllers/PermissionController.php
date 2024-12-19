@@ -5,9 +5,21 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Permission;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class PermissionController extends Controller
+class PermissionController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:view permissions', only: ['index']),
+            new Middleware('permission:edit permissions', only: ['edit']),
+            new Middleware('permission:create permissions', only: ['create']),
+            new Middleware('permission:delete permissions', only: ['destroy']),
+        ];
+    }
+
     public function index()
     {
         $permissions = Permission::orderBy('created_at', 'desc')->paginate(10);
@@ -16,7 +28,6 @@ class PermissionController extends Controller
             'permissions' => $permissions,
         ]);
     }
-
 
     public function create()
     {
@@ -49,7 +60,6 @@ class PermissionController extends Controller
         ]);
     }
 
-
     public function update($id, Request $request)
     {
         $permission = Permission::findOrFail($id);
@@ -68,19 +78,15 @@ class PermissionController extends Controller
         }
     }
 
-    public function destroy(Request $request)
+    public function destroy($id)
     {
-        $request->validate([
-            'id' => 'required|exists:permissions,id',
-        ]);
+        $permission = Permission::findOrFail($id);
 
-        $permission = Permission::findOrFail($request->id);
-
-        $permission->delete();
-
-        session()->flash('success', 'Permission deleted successfully.');
-        return response()->json([
-            'status' => true
-        ]);
+        try {
+            $permission->delete();
+            return response()->json(['message' => 'Permission deleted successfully.'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to delete permission.', 'error' => $e->getMessage()], 500);
+        }
     }
 }

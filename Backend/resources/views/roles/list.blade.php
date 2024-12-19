@@ -14,52 +14,64 @@
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
 
-                    <div class="flex justify-end mb-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-medium text-gray-700 dark:text-gray-200">
+                            {{ __('Roles List') }}
+                        </h3>
                         <a href="{{ route('roles.create') }}">
                             <x-primary-button>{{ __('Add New Role') }}</x-primary-button>
                         </a>
                     </div>
 
                     <div class="overflow-x-auto">
-                        <table class="w-full table-auto border-collapse border border-gray-300 dark:border-gray-700">
+                        <table class="w-full border-collapse border border-gray-300 dark:border-gray-700 rounded-lg">
                             <thead>
-                                <tr class="bg-gray-100 dark:bg-gray-700">
-                                    <th class="border px-4 py-2 text-left dark:text-gray-100">{{ __('ID') }}</th>
-                                    <th class="border px-4 py-2 text-left dark:text-gray-100">{{ __('Name') }}</th>
-                                    <th class="border px-4 py-2 text-left dark:text-gray-100">{{ __('Permission') }}
-                                    </th>
-                                    <th class="border px-4 py-2 text-left dark:text-gray-100">{{ __('Created') }}</th>
-                                    <th class="border px-4 py-2 text-center dark:text-gray-100">{{ __('Actions') }}</th>
+                                <tr class="bg-gray-100 dark:bg-gray-700 text-left">
+                                    <th class="border px-6 py-3 font-bold text-sm text-gray-700 dark:text-gray-300">
+                                        {{ __('ID') }}</th>
+                                    <th class="border px-6 py-3 font-bold text-sm text-gray-700 dark:text-gray-300">
+                                        {{ __('Name') }}</th>
+                                    <th class="border px-6 py-3 font-bold text-sm text-gray-700 dark:text-gray-300">
+                                        {{ __('Permissions') }}</th>
+                                    <th class="border px-6 py-3 font-bold text-sm text-gray-700 dark:text-gray-300">
+                                        {{ __('Created') }}</th>
+                                    <th class="border px-6 py-3 font-bold text-sm text-gray-700 dark:text-gray-300 text-center">
+                                        {{ __('Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse ($roles as $role)
-                                    <tr class="hover:bg-gray-100 dark:hover:bg-gray-700">
-                                        <td class="border px-4 py-2">{{ $role->id }}</td>
-                                        <td class="border px-4 py-2">{{ $role->name }}</td>
-                                        <td class="border px-4 py-2">
-                                            {{ $role->permissions->pluck('name')->isNotEmpty()
-                                                ? $role->permissions->pluck('name')->implode(', ')
-                                                : __('No permissions') }}
+                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                        <td class="border px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                                            {{ $role->id }}</td>
+                                        <td class="border px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                                            {{ $role->name }}</td>
+                                        <td class="border px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                                            {{ $role->permissions->isNotEmpty() ? $role->permissions->pluck('name')->implode(', ') : __('No permissions') }}
                                         </td>
-                                        <td class="border px-4 py-2">
-                                            {{ \Carbon\Carbon::parse($role->created_at)->format('d M, Y') }}
+                                        <td class="border px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
+                                            {{ $role->created_at->format('d M, Y') }}
                                         </td>
-                                        <td class="border px-4 py-2 text-center flex justify-center space-x-2">
-                                            <a href="{{ route('roles.edit', $role->id) }}"
-                                                class="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded">
-                                                {{ __('Edit') }}
-                                            </a>
-                                            <button type="button" onclick="deleteRole({{ $role->id }})"
-                                                class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded">
-                                                {{ __('Delete') }}
-                                            </button>
+                                        <td class="border px-6 py-4 text-center flex justify-center space-x-3">
+                                            @can('edit roles')
+                                                <a href="{{ route('roles.edit', $role->id) }}"
+                                                    class="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded">
+                                                    {{ __('Edit') }}
+                                                </a>
+                                            @endcan
+
+                                            @can('delete roles')
+                                                <button type="button" onclick="deleteRole({{ $role->id }})"
+                                                    class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded">
+                                                    {{ __('Delete') }}
+                                                </button>
+                                            @endcan
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
                                         <td colspan="5"
-                                            class="border px-4 py-2 text-center text-gray-500 dark:text-gray-400">
+                                            class="border px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                                             {{ __('No roles found.') }}
                                         </td>
                                     </tr>

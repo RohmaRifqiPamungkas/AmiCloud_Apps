@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Users') }}
+            {{ __('Articles') }}
         </h2>
     </x-slot>
 
@@ -15,8 +15,8 @@
                 <div class="p-6 text-gray-900 dark:text-gray-100">
 
                     <div class="flex justify-end mb-4">
-                        <a href="{{ route('users.create') }}">
-                            <x-primary-button>{{ __('Add New Users') }}</x-primary-button>
+                        <a href="{{ route('articles.create') }}">
+                            <x-primary-button>{{ __('Add New Article') }}</x-primary-button>
                         </a>
                     </div>
 
@@ -25,46 +25,46 @@
                             <thead>
                                 <tr class="bg-gray-100 dark:bg-gray-700">
                                     <th class="border px-4 py-2 text-left dark:text-gray-100">{{ __('ID') }}</th>
-                                    <th class="border px-4 py-2 text-left dark:text-gray-100">{{ __('Name') }}</th>
-                                    <th class="border px-4 py-2 text-left dark:text-gray-100">{{ __('Roles') }}</th>
-                                    <th class="border px-4 py-2 text-left dark:text-gray-100">{{ __('Email') }}
-                                    </th>
+                                    <th class="border px-4 py-2 text-left dark:text-gray-100">{{ __('Title') }}</th>
+                                    <th class="border px-4 py-2 text-left dark:text-gray-100">{{ __('Text') }}</th>
+                                    <th class="border px-4 py-2 text-left dark:text-gray-100">{{ __('Author') }}</th>
                                     <th class="border px-4 py-2 text-left dark:text-gray-100">{{ __('Created') }}</th>
                                     <th class="border px-4 py-2 text-center dark:text-gray-100">{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($users as $user)
+                                @forelse ($articles as $article)
                                     <tr class="hover:bg-gray-100 dark:hover:bg-gray-700">
-                                        <td class="border px-4 py-2">{{ $user->id }}</td>
-                                        <td class="border px-4 py-2">{{ $user->name }}</td>
-                                        <td class="border px-4 py-2">{{ $user->roles->pluck('name')->implode(', ') }}
-                                        </td>
-                                        <td class="border px-4 py-2">{{ $user->email }}</td>
+                                        <td class="border px-4 py-2">{{ $article->id }}</td>
+                                        <td class="border px-4 py-2">{{ $article->title }}</td>
+                                        <td class="border px-4 py-2">{{ $article->text }}</td>
+                                        <td class="border px-4 py-2">{{ $article->author }}</td>
                                         <td class="border px-4 py-2">
-                                            {{ \Carbon\Carbon::parse($user->created_at)->format('d M, Y') }}
+                                            {{ \Carbon\Carbon::parse($article->created_at)->format('d M, Y') }}
                                         </td>
                                         <td class="border px-4 py-2 text-center flex justify-center space-x-2">
-                                            @can('edit users')
-                                                <a href="{{ route('users.edit', $user->id) }}"
+
+                                            @can('edit articles')
+                                                <a href="{{ route('articles.edit', $article->id) }}"
                                                     class="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded">
                                                     {{ __('Edit') }}
                                                 </a>
                                             @endcan
 
-                                            @can('delete users')
-                                                <button type="button" onclick="deleteUser({{ $user->id }})"
+                                            @can('delete articles')
+                                                <button type="button" onclick="deleteArticle({{ $article->id }})"
                                                     class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded">
                                                     {{ __('Delete') }}
                                                 </button>
                                             @endcan
+
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5"
+                                        <td colspan="6"
                                             class="border px-4 py-2 text-center text-gray-500 dark:text-gray-400">
-                                            {{ __('No users found.') }}
+                                            {{ __('No articles found.') }}
                                         </td>
                                     </tr>
                                 @endforelse
@@ -72,7 +72,7 @@
                         </table>
 
                         <div class="mt-4">
-                            {{ $users->links() }}
+                            {{ $articles->links() }}
                         </div>
                     </div>
                 </div>
@@ -82,10 +82,10 @@
 
     <x-slot name="script">
         <script>
-            async function deleteUser(id) {
-                if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+            async function deleteArticle(id) {
+                if (confirm('Are you sure you want to delete this article? This action cannot be undone.')) {
                     try {
-                        const response = await fetch(`/users/${id}`, {
+                        const response = await fetch(`/articles/${id}`, {
                             method: 'DELETE',
                             headers: {
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
@@ -94,15 +94,15 @@
                         });
 
                         if (response.ok) {
-                            alert('User deleted successfully.');
+                            alert('Article deleted successfully.');
                             location.reload();
                         } else {
                             const data = await response.json();
-                            alert(data.message || 'Failed to delete user.');
+                            alert(data.message || 'Failed to delete article.');
                         }
                     } catch (error) {
                         console.error('Error:', error);
-                        alert('An error occurred while deleting user.');
+                        alert('An error occurred while deleting article.');
                     }
                 }
             }
