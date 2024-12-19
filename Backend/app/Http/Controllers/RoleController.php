@@ -6,9 +6,21 @@ use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class RoleController extends Controller
+class RoleController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:view roles', only: ['index']),
+            new Middleware('permission:edit roles', only: ['edit']),
+            new Middleware('permission:create roles', only: ['create']),
+            new Middleware('permission:delete roles', only: ['destroy']),
+        ];
+    }
+
     public function index()
     {
         $roles = Role::orderBy('name', 'DESC')->paginate(10);
@@ -43,7 +55,7 @@ class RoleController extends Controller
                 }
             }
 
-            return redirect()->route('roles.index')->with('success', 'Roles berhasil ditambahkan.');
+            return redirect()->route('roles.index')->with('success', 'Roles add successfully.');
         } else {
             return redirect()->route('roles.create')->withInput()->withErrors($validator);
         }
@@ -91,23 +103,15 @@ class RoleController extends Controller
         return redirect()->route('roles.index')->with('success', 'Role updated successfully.');
     }
 
-    public function destroy(request $request)
+    public function destroy($id)
     {
-        $id = $request->id;
-        $role = Role::find($id);
+        $role = Role::findOrFail($id);
 
-        if ($role == null) {
-            session()->flash('error', 'Role not found.');
-            return response()->json([
-                'status' => false
-            ]);
+        try {
+            $role->delete();
+            return response()->json(['message' => 'Role deleted successfully.'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to delete role.', 'error' => $e->getMessage()], 500);
         }
-
-        $role->delete();
-
-        session()->flash('success', 'Role deleted successfully.');
-        return response()->json([
-            'status' => true
-        ]);
     }
 }

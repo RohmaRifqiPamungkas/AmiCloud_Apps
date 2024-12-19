@@ -19,13 +19,18 @@
                     </div>
 
                     <div class="overflow-x-auto">
-                        <table class="w-full table-auto border-collapse">
+                        <table class="w-full border-collapse border border-gray-300 dark:border-gray-700 rounded-lg">
                             <thead>
-                                <tr class="bg-gray-100 dark:bg-gray-700">
-                                    <th class="border px-4 py-2 text-left dark:text-gray-100">ID</th>
-                                    <th class="border px-4 py-2 text-left dark:text-gray-100">Name</th>
-                                    <th class="border px-4 py-2 text-left dark:text-gray-100">Created</th>
-                                    <th class="border px-4 py-2 text-left dark:text-gray-100">Actions</th>
+                                <tr class="bg-gray-100 dark:bg-gray-700 text-left">
+                                    <th class="border px-6 py-3 font-bold text-sm text-gray-700 dark:text-gray-300">
+                                        {{ __('ID') }}</th>
+                                    <th class="border px-6 py-3 font-bold text-sm text-gray-700 dark:text-gray-300">
+                                        {{ __('Name') }}</th>
+                                    <th class="border px-6 py-3 font-bold text-sm text-gray-700 dark:text-gray-300">
+                                        {{ __('Created') }}</th>
+                                    <th class="border px-6 py-3 font-bold text-sm text-gray-700 dark:text-gray-300 text-center">
+                                        {{ __('Actions') }}</th>
+                                </tr>
                                 </tr>
                             </thead>
                             <tbody>
@@ -35,19 +40,22 @@
                                         <td class="border px-4 py-2">{{ $permission->name }}</td>
                                         <td class="border px-4 py-2">
                                             {{ \Carbon\Carbon::parse($permission->created_at)->format('d M, Y') }}</td>
-                                        <td class="border px-4 py-2 flex space-x-2">
+                                        <td class="border px-6 py-4 text-center flex justify-center space-x-3">
+                                            @can('edit permissions')
+                                                <a href="{{ route('permissions.edit', $permission->id) }}">
+                                                    <button type="button"
+                                                        class="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded">
+                                                        Edit
+                                                    </button>
+                                                </a>
+                                            @endcan
 
-                                            <a href="{{ route('permissions.edit', $permission->id) }}">
-                                                <button type="button"
-                                                    class="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded">
-                                                    Edit
+                                            {{-- @can('delete permissions') --}}
+                                                <button type="button" onclick="deletePermission({{ $permission->id }})"
+                                                    class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded">
+                                                    Delete
                                                 </button>
-                                            </a>
-
-                                            <button type="button" onclick="deletePermission({{ $permission->id }})"
-                                                class="px-3 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded">
-                                                Delete
-                                            </button>
+                                            {{-- @endcan --}}
                                         </td>
                                     </tr>
                                 @empty
