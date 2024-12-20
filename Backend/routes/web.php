@@ -5,6 +5,8 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\Features\ImageUploadController;
+use App\Http\Controllers\Features\LinkReuploadController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -35,7 +37,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/roles/{id}/edit', [RoleController::class, 'edit'])->name('roles.edit');
     Route::put('/roles/{id}', [RoleController::class, 'update'])->name('roles.update');
     Route::delete('/roles/{id}', [RoleController::class, 'destroy'])->name('roles.destroy');
-    
+
     // Route Articles
     Route::get('/articles', [ArticleController::class, 'index'])->name('articles.index');
     Route::get('/articles/create', [ArticleController::class, 'create'])->name('articles.create');
@@ -51,6 +53,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+
+    // Features Routes for Image Upload and Link Reupload
+    Route::get('/features', function () {
+        return view('features.landing'); // Displays landing page for features
+    })->name('features.landing');
+
+    Route::post('/file/upload/image', [ImageUploadController::class, 'upload'])->name('file.upload.image');
+    Route::post('/file/reupload/link/{fileLink}', [LinkReuploadController::class, 'reupload'])->name('file.reupload.link');
+    Route::post('/file/link-upload', [LinkReuploadController::class, 'createLink'])->name('file.link.create');
 });
 
 require __DIR__ . '/auth.php';
