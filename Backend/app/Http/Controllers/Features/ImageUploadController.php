@@ -17,23 +17,19 @@ class ImageUploadController extends Controller
         ]);
 
         $image = $request->file('image');
-
         $originalName = $image->getClientOriginalName();
-
         $extension = $image->getClientOriginalExtension();
-
         $uniqueCode = Str::random(8);
         $uniqueFileName = "amicloud_{$uniqueCode}.{$extension}";
-
         $fileSize = $image->getSize();
 
         $image->move(public_path('images'), $uniqueFileName);
 
         $fileUpload = new FileUpload();
-        $fileUpload->user_id = Auth::id();
+        $fileUpload->user_id = Auth::check() ? Auth::id() : null; // User ID jika login, null jika tidak
         $fileUpload->filename = $originalName;
         $fileUpload->file_path = 'images/' . $uniqueFileName;
-        $fileUpload->file_size = $fileSize; 
+        $fileUpload->file_size = $fileSize;
         $fileUpload->upload_type = $extension;
         $fileUpload->save();
 
@@ -43,6 +39,5 @@ class ImageUploadController extends Controller
             'success' => 'File berhasil diunggah.',
             'image_url' => $imageUrl,
         ]);
-
     }
 }
