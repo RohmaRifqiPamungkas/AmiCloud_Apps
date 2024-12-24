@@ -50,7 +50,6 @@ class LinkReuploadController extends Controller
                 $fileLink->parsed_url = $newFileName;
                 $fileLink->save();
 
-                // Buat URL file untuk akses
                 $imageUrl = url('images/' . $newFileName);
 
                 return back()->with('url_image', 'Akses file di: <a href="' . $imageUrl . '" target="_blank" class="text-blue-500 underline">' . $imageUrl . '</a>');

@@ -13,9 +13,24 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+// Route Features Not Login
+Route::get('/features/not_login/', function () {
+    return view('features.not_login.landing');
+})->name('features.not_login.landing');
+
+Route::middleware(['auth.optional', 'upload.limiter'])->group(function () {
+    // Image Upload Feature
+    Route::post('/file/upload/image', [ImageUploadController::class, 'upload'])->name('file.upload.image');
+
+    // Link Reupload Features
+    Route::post('/file/reupload/link/{fileLink}', [LinkReuploadController::class, 'reupload'])->name('file.reupload.link');
+    Route::post('/file/link-upload', [LinkReuploadController::class, 'createLink'])->name('file.link.create');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
