@@ -17,15 +17,15 @@ class UserSeeder extends Seeder
             'username' => 'adminuser',
             'email' => 'admin@example.com',
             'password' => Hash::make('password'), // ganti dengan password yang aman
-            'is_active' => 1,
+            'is_active' => 0,
         ]);
 
         $user = User::create([
-            'name' => 'Regular User',
+            'name' => 'User',
             'username' => 'regularuser',
             'email' => 'user@example.com',
             'password' => Hash::make('password'),
-            'is_active' => 1,
+            'is_active' => 0,
         ]);
 
         $public = User::create([
@@ -33,7 +33,7 @@ class UserSeeder extends Seeder
             'username' => 'publicuser',
             'email' => 'public@example.com',
             'password' => Hash::make('password'),
-            'is_active' => 1,
+            'is_active' => 0,
         ]);
 
         // Menambahkan Role ke Users
