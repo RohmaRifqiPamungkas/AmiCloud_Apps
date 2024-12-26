@@ -56,7 +56,7 @@
                             @if ($roles->isNotEmpty())
                                 @foreach ($roles as $role)
                                     <div class="mt-3">
-                                        <input type="checkbox" id="role-{{ $role->id }}" name="role[]"
+                                        <input type="checkbox" id="role-{{ $role->id }}" name="roles[]"
                                             value="{{ $role->id }}"
                                             {{ $user->hasRole($role->name) ? 'checked' : '' }}>
                                         <label for="role-{{ $role->id }}" class="ml-2 dark:text-gray-100">

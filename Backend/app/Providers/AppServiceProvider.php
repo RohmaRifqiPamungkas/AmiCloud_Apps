@@ -23,14 +23,28 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Gate untuk role admin
+        // Gate untuk memberikan akses prioritas kepada admin
         Gate::before(function ($user, $ability) {
             return $user->hasRole('admin') ? true : null;
         });
 
-        // Rate limiter untuk fitur upload image dan reupload link
+        // Rate limiter untuk fitur unggahan gambar (upload-image)
+        RateLimiter::for('upload-image', function (Request $request) {
+            return $request->user()
+                ? Limit::none() // Tanpa batas untuk pengguna login
+                : Limit::perDay(3)->by($request->ip()); // Maksimal 3 unggahan/hari per IP untuk pengguna publik
+        });
+
+        // Rate limiter untuk fitur lain (reupload atau fitur publik lainnya)
         RateLimiter::for('features.limiter', function (Request $request) {
-            return Limit::perMinute(10)->by(optional($request->user())->id ?: $request->ip());
+            return Limit::perMinute(10)->by(
+                optional($request->user())->id ?: $request->ip()
+            );
+        });
+
+        // Contoh rate limiter tambahan untuk rute admin spesifik
+        RateLimiter::for('admin-panel', function (Request $request) {
+            return Limit::perMinute(20)->by($request->user()?->id ?: $request->ip());
         });
     }
 }

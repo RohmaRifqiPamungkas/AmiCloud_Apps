@@ -4,14 +4,26 @@ namespace App\Http\Controllers\Features;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\FileUpload;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use App\Models\FileUpload;
 
 class ImageUploadController extends Controller
 {
     public function upload(Request $request)
     {
+        // if (!Auth::check()) {
+        //     // Jika pengguna adalah publik
+        //     if (RateLimiter::tooManyAttempts('upload|' . $request->ip(), 3)) {
+        //         return redirect('/login')
+        //             ->withErrors(['error' => 'Batas unggahan Anda tercapai. Silakan masuk untuk melanjutkan.']);
+        //     }
+
+        //     // Lakukan tracking jumlah unggahan
+        //     RateLimiter::hit('upload|' . $request->ip());
+        // }
+
         $request->validate([
             'image' => 'required|image|mimes:jpg,png,jpeg,gif,webp|max:5240',
         ]);

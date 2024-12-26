@@ -7,37 +7,48 @@ use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Features\ImageUploadController;
 use App\Http\Controllers\Features\LinkReuploadController;
+use App\Http\Middleware\HandleRateLimit;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Http\Request;
+
+// Rate Limiting: Batasi unggahan file hanya untuk pengguna publik
+RateLimiter::for('upload-image', function (Request $request) {
+    return $request->user()
+        ? \Illuminate\Cache\RateLimiting\Limit::none() // Tanpa batas untuk pengguna login
+        : \Illuminate\Cache\RateLimiting\Limit::perDay(3)->by($request->ip()); // Maksimal 3 unggahan/hari berdasarkan IP
+});
 
 Route::get('/', function () {
     return view('welcome');
 });
 
+// Rute untuk pengguna belum login (tanpa autentikasi)
+Route::get('/features/not-login', function () {
+    return view('features.not_login.landing');
+})->name('features.not_login.landing');
 
+// Rute untuk mengunggah gambar
+Route::post(
+    '/file/upload/image',
+    [ImageUploadController::class, 'upload']
+)
+    ->middleware('throttle:upload-image') 
+    ->name('file.upload.image');
+
+// Rute dashboard dengan autentikasi
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-// Route Features Not Login
-Route::get('/features/not_login/', function () {
-    return view('features.not_login.landing');
-})->name('features.not_login.landing');
-
-Route::middleware(['auth.optional', 'upload.limiter'])->group(function () {
-    // Image Upload Feature
-    Route::post('/file/upload/image', [ImageUploadController::class, 'upload'])->name('file.upload.image');
-
-    // Link Reupload Features
-    Route::post('/file/reupload/link/{fileLink}', [LinkReuploadController::class, 'reupload'])->name('file.reupload.link');
-    Route::post('/file/link-upload', [LinkReuploadController::class, 'createLink'])->name('file.link.create');
-});
-
+// Rute yang membutuhkan autentikasi
 Route::middleware('auth')->group(function () {
+    // Profil Pengguna
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Route Permissions
+    // Rute Permissions
     Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index');
     Route::get('/permissions/create', [PermissionController::class, 'create'])->name('permissions.create');
     Route::post('/permissions', [PermissionController::class, 'store'])->name('permissions.store');
@@ -45,7 +56,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/permissions/{id}', [PermissionController::class, 'update'])->name('permissions.update');
     Route::delete('/permissions/{id}', [PermissionController::class, 'destroy'])->name('permissions.destroy');
 
-    // Route Roles
+    // Rute Roles
     Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
     Route::get('/roles/create', [RoleController::class, 'create'])->name('roles.create');
     Route::post('/roles', [RoleController::class, 'store'])->name('roles.store');
@@ -53,7 +64,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/roles/{id}', [RoleController::class, 'update'])->name('roles.update');
     Route::delete('/roles/{id}', [RoleController::class, 'destroy'])->name('roles.destroy');
 
-    // Route Articles
+    // Rute Articles
     Route::get('/articles', [ArticleController::class, 'index'])->name('articles.index');
     Route::get('/articles/create', [ArticleController::class, 'create'])->name('articles.create');
     Route::post('/articles', [ArticleController::class, 'store'])->name('articles.store');
@@ -61,7 +72,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/articles/{id}', [ArticleController::class, 'update'])->name('articles.update');
     Route::delete('/articles/{id}', [ArticleController::class, 'destroy'])->name('articles.destroy');
 
-    // User Roles
+    // Rute Users
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
     Route::post('/users', [UserController::class, 'store'])->name('users.store');
@@ -69,12 +80,12 @@ Route::middleware('auth')->group(function () {
     Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
 
-    // Features Routes for Image Upload and Link Reupload
-    Route::get('/features', function () {
-        return view('features.landing'); // Displays landing page for features
-    })->name('features.landing');
+    Route::get('/features/', function () {
+        return view('features.landing');
+    })->middleware('throttle:features.limiter') // Rate limiter global untuk fitur
+        ->name('features.landing');
 
-    Route::post('/file/upload/image', [ImageUploadController::class, 'upload'])->name('file.upload.image');
+    // Rute untuk file reupload/link upload
     Route::post('/file/reupload/link/{fileLink}', [LinkReuploadController::class, 'reupload'])->name('file.reupload.link');
     Route::post('/file/link-upload', [LinkReuploadController::class, 'createLink'])->name('file.link.create');
 });
