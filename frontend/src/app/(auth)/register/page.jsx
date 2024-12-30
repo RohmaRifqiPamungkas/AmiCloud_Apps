@@ -32,12 +32,7 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="p-8 bg-white rounded-md shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">
-          Create an Account
-        </h1>
-
+    <div>
    
         {serverErrors.length > 0 && (
           <div className="text-red-600 text-sm mb-4">
@@ -50,11 +45,11 @@ const Register = () => {
      
         {status && <div className="text-green-600 text-sm mb-4">{status}</div>}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">    
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">    
           <div>
             <label
               htmlFor="name"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm md:text-2xl font-medium text-gray-700 mb-2"
             >
               Name:
             </label>
@@ -62,7 +57,7 @@ const Register = () => {
               type="text"
               id="name"
               {...register("name", { required: "Name is required" })}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-2xl text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-tertiary-25" placeholder="Enter your Name"
             />
             {errors.name && (
               <span className="text-red-500 text-xs">
@@ -74,7 +69,8 @@ const Register = () => {
                  <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm md:text-2xl font-medium text-gray-700 mb-2"
+
             >
               E-mail:
             </label>
@@ -82,7 +78,7 @@ const Register = () => {
               type="email"
               id="email"
               {...register("email", { required: "E-mail is required" })}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-2xl text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-tertiary-25" placeholder="Enter your E-mail"
             />
             {errors.email && (
               <span className="text-red-500 text-xs">
@@ -94,7 +90,8 @@ const Register = () => {
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm md:text-2xl font-medium text-gray-700 mb-2"
+             
             >
               Password:
             </label>
@@ -102,7 +99,7 @@ const Register = () => {
               type="password"
               id="password"
               {...register("password", { required: "Password is required" })}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-2xl text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-tertiary-25" 
             />
             {errors.password && (
               <span className="text-red-500 text-xs">
@@ -114,7 +111,7 @@ const Register = () => {
           <div>
             <label
               htmlFor="confirm-password"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm md:text-2xl font-medium text-gray-700 mb-2"
             >
               Confirm Password:
             </label>
@@ -126,7 +123,7 @@ const Register = () => {
                 validate: (value) =>
                   value === watch("password") || "Passwords do not match",
               })}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-2xl text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-tertiary-25"
             />
             {errors.confirmPassword && (
               <span className="text-red-500 text-xs">
@@ -137,9 +134,9 @@ const Register = () => {
 
           <button
             type="submit"
-            className="w-full py-2 px-4 bg-primary text-white font-bold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full py-2 px-4 bg-secondary text-reguler text-black font-bold rounded-2xl shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            SIGN UP
+            Create Account
           </button>
         </form>
 
@@ -150,7 +147,7 @@ const Register = () => {
           </Link>
         </div>
       </div>
-    </div>
+
   );
 };
 

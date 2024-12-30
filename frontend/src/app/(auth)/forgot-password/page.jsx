@@ -1,66 +1,94 @@
 'use client'
 
+import React, { useState } from "react";
 import { useAuth } from '@/hooks/auth';
-import { useState } from 'react';
-import { FaEnvelope } from "react-icons/fa";
+import { useForm } from "react-hook-form";
 
+const ForgotPassword = () => {
+  const { forgotPassword } = useAuth();
+  const [status, setStatus] = useState(null);
 
-const Page = () => {
-    const { forgotPassword } = useAuth({
-        middleware: 'guest',
-        redirectIfAuthenticated: '/dashboard',
-    })
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setError,
+  } = useForm();
 
-    const [email, setEmail] = useState('')
-    const [errors, setErrors] = useState([])
-    const [status, setStatus] = useState(null)
+  const onSubmit = async (data) => {
+    setStatus(null);
 
-    const submitForm = event => {
-        event.preventDefault()
-
-        forgotPassword({ email, setErrors, setStatus })
+    try {
+      await forgotPassword({
+        email: data.email,
+        setErrors: (serverErrors) => {
+          if (Array.isArray(serverErrors)) {
+            serverErrors.forEach((err) => {
+              setError("email", { type: "server", message: err });
+            });
+          }
+        },
+        setStatus,
+      });
+    } catch (error) {
+      console.error("Failed to send forgot password email:", error);
     }
+  };
 
-    return (
-        <>
-      <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-        <div className="flex justify-center mb-4">
-          <div className="w-16 h-16 bg-gray-300 rounded-full"></div>
+  return (
+
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <p className="mt-4 text-gray-700 text-left md:text-xl">
+          Forgot your password? No problem. Just let us know your email
+          address, and we will email you a password reset link that will allow
+          you to choose a new one.
+        </p>
+
+        {status && (
+          <p className="mt-4 text-green-600 text-left">{status}</p>
+        )}
+
+        <div className="mt-6">
+          <label
+            htmlFor="email"
+            className="block text-sm md:text-2xl font-medium text-gray-700"
+          >
+            Email*
+          </label>
+          <input
+            id="email"
+            type="email"
+            {...register("email", {
+              required: "Email is required",
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: "Enter a valid email address",
+              },
+            })}
+            className={`mt-1 block w-full px-5 py-3  rounded-2xl shadow-sm bg-tertiary-25 focus:ring-purple-500 focus:border-purple-500 ${
+              errors.email ? "border-red-500" : "border-primary"
+            }`}
+            placeholder="Enter your email"
+          />
+          {errors.email && (
+            <p className="mt-2 text-sm text-red-600">
+              {errors.email.message}
+            </p>
+          )}
         </div>
-            <div className="mb-4 text-sm text-gray-600">
-                Forgot your password? No problem. Just let us know your email
-                address and we will email you a password reset link that
-                will allow you to choose a new one.
-            </div>
-         
-            <form onSubmit={submitForm}>
-            <span>
-              <FaEnvelope/>
-            </span>
-            <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              E-mail:
-            </label>
-            <input
-              type="email"
-              id="email"
-              {...register("email", { required: true })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
 
-                <div className="flex items-center justify-end mt-4">
-                    <button className='bg-primary hover:bg-blue-500 p'>Email Password Reset Link</button>
-                </div>
-            </form>
-            </div>
-            </div>
-        </>
-    )
-}
+        <div className="mt-6 flex justify-center">
+          <button
+            type="submit"
+            className="bg-secondary text-foreground font-semibold py-3 px-4 rounded-2xl hover:bg-secondary w-full"
+          >
+            Email Password Reset Link
+          </button>
+        </div>
+      </form>
+ 
+  );
+};
 
-export default Page
+export default ForgotPassword;
+

@@ -1,36 +1,25 @@
 
-
-import useSWR from "swr";
-import axios from "@/lib/axios";
-import { useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-
+import useSWR from 'swr';
+import axios from '@/lib/axios';
+import { useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 
 export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
-  const router = useRouter();
-  const params = useParams();
+    const router = useRouter();
+    const params = useParams();
 
-  const {
-    data: user,
-    error,
-    mutate,
-  } = useSWR("/api/user", async () => {
-    try {
-      const res = await axios.get("/api/user", {
-        headers: {
-          "X-XSRF-TOKEN": getCookie("XSRF-TOKEN"),
-        },
-      });
-      return res.data;
-    } catch (error) {
-      if (error.response?.status === 409) {
-        router.push("/verify-email");
-      }
-      throw error;
-    }
-  });
-
-
+     const { data: user, error, mutate } = useSWR('/api/user', async () => {
+        try {
+            const res = await axios.get('/api/user');
+            return res.data;
+        } catch (error) {
+            if (error.response?.status === 409) {
+                router.push('/verify-email');
+            }
+            throw error;
+        }
+    });
+  
   
 
   const csrf = async () => {
@@ -74,43 +63,22 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     }
   };
 
-  const login = async ({ email, password, remember, setErrors, setStatus }) => {
-    await csrf(); 
-  
-    try {
-      const response = await axios.post("/login", {
-        email,
-        password,
-        remember: remember === true || remember === 'on', 
-      });
 
-      console.log("Login Response:", response);
-  
-      if (response.status === 200) {
-        setStatus("Login successful!");
-        await mutate(); 
-        router.push("/dashboard"); 
-      } else {
-        setErrors(["Invalid login attempt."]); 
-      }
+  const login = async ({ setErrors, ...props }) => {
+    await csrf();
+    setErrors([]);
+
+    try {
+        await axios.post('/login', props);
+        await mutate();
     } catch (error) {
-      if (error.response) {
-        switch (error.response.status) {
-          case 422:
-            setErrors(Object.values(error.response.data.errors).flat());
-            break;
-          case 401:
-            setErrors(["Invalid credentials."]);
-            break;
-          default:
-            setErrors(["An unexpected error occurred."]);
-            break;
+        if (error.response?.status === 422) {
+            setErrors(error.response.data.errors);
+        } else {
+            setErrors(['An unexpected error occurred.']);
         }
-      } else {
-        setErrors(["Failed to connect to the server. Please try again."]);
-      }
     }
-  };
+};
 
 
   const forgotPassword = async ({ setErrors, setStatus, email }) => {
@@ -151,6 +119,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
   };
 
   const resendEmailVerification = async ({ setStatus }) => {
+    // await csrf();
     try {
       const response = await axios.post("/email/verification-notification");
       console.log("Resend Email Verification Response:", response); 

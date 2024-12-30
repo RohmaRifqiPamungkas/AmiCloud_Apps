@@ -1,101 +1,180 @@
+"use client";
+
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import Image from "next/image";
+import Upload from "../../public/Feature/Upload.png";
 
-export default function Home() {
+export default function FileUpload() {
+  const [uploadedImage, setUploadedImage] = useState(null);
+  const [uploadedUrl, setUploadedUrl] = useState("");
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    formState: { errors },
+  } = useForm();
+
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("File size exceeds 5MB. Please upload a smaller file.");
+        return;
+      }
+      const imageUrl = URL.createObjectURL(file);
+      setUploadedImage(imageUrl);
+      setValue("file", file);
+    }
+  };
+
+  const handleUrlUpload = () => {
+    const url = watch("url");
+    if (url && /^(https?:\/\/.*\.(?:png|jpg|jpeg|gif))$/.test(url)) {
+      setUploadedUrl(url);
+      alert("File uploaded from URL successfully!");
+    } else {
+      alert("Invalid URL. Please check the format.");
+    }
+  };
+
+  const removeFile = () => {
+    setUploadedImage(null);
+    setValue("file", null);
+  };
+
+  const onSubmit = (data) => {
+    console.log("Form Data:", data);
+    alert("File uploaded successfully!");
+    reset();
+    setUploadedImage(null);
+    setUploadedUrl("");
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
+      <h1 className="text-2xl font-bold text-center text-black mb-4 md:text-4xl mt-20">
+        Quick Reupload, <span className="text-primary">Instant Links!</span>
+      </h1>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="bg-white p-6 rounded-lg shadow-md max-w-4xl w-full px-20"
+      >
+        <div className="pt-10">
+          <h3>Upload File</h3>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        {/* Container Upload */}
+        <div className="border-dashed border-2 border-purple-400 px-6 py-6 rounded-lg mt-6 relative bg-purple-100">
+          {uploadedImage ? (
+            <div className="flex flex-col items-center">
+              <img
+                src={uploadedImage}
+                alt="Uploaded preview"
+                className="w-32 h-32 object-cover mb-4"
+              />
+              <button
+                type="button"
+                onClick={removeFile}
+                className="bg-red-500 text-white px-4 py-2 rounded-lg"
+              >
+                Remove File
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="flex flex-col items-center space-y-6">
+                <div className="w-3/4 max-w-md h-auto flex justify-center text-center items-center">
+                  <Image src={Upload} alt="Upload" />
+                </div>
+                <div>
+                  <h5>or drag and drop them here</h5>
+                </div>
+                <label
+                  htmlFor="file-upload"
+                  className="cursor-pointer bg-secondary text-black px-4 py-2 rounded-xl"
+                >
+                  Choose Files
+                </label>
+                <input
+                  id="file-upload"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  {...register("file", { required: "File is required" })}
+                  onChange={handleFileUpload}
+                />
+                {errors.file && (
+                  <p className="text-red-500 text-sm mt-2">
+                    {errors.file.message}
+                  </p>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+        <div className="flex flex-row justify-between mt-2">
+          <p className="text-gray-500 text-sm text-center">
+            Supported formats: JPG, PNG, JPEG, GIF.
+          </p>
+          <p className="text-gray-500 text-sm text-center">Maximum size: 5MB</p>
+        </div>
+
+        {/* Upload from URL */}
+        <div className="mt-6">
+          <div className="flex items-center space-x-4 text-foreground">
+            <hr className="flex-grow border-black" />
+            <p className="text-black font-medium">OR Upload from URL</p>
+            <hr className="flex-grow border-black" />
+          </div>
+
+          <div className="pt-4">
+          <h3>Reupload Link</h3>
+        </div>
+
+          <div className="relative mt-4">
+            <input
+              id="url-upload"
+              type="text"
+              placeholder="Upload from URL"
+              className="border-gray-300 rounded-2xl border focus:ring-purple-500 focus:border-purple-500 w-full py-4 pl-4 pr-16"
+              {...register("url", {
+                pattern: {
+                  value: /^(https?:\/\/.*\.(?:png|jpg|jpeg|gif))$/,
+                  message: "Invalid URL format",
+                },
+              })}
+            />
+            <button
+              type="button"
+              onClick={handleUrlUpload}
+              className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-purple-500 text-white px-4 py-2 rounded-2xl"
+            >
+              Upload
+            </button>
+          </div>
+          {errors.url && (
+            <p className="text-red-500 text-sm mt-2">{errors.url.message}</p>
+          )}
+          {uploadedUrl && (
+            <p className="text-green-500 text-sm mt-2">
+              Uploaded URL: {uploadedUrl}
+            </p>
+          )}
+        </div>
+
+        {/* Submit Button */}
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            className="mt-6 max-w-40 bg-secondary text-black font-bold py-2 px-4 rounded-xl hover:bg-tertiary"
+          >
+            Get Link
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
