@@ -6,20 +6,14 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Auth\Events\Verified;
 
-
 class User extends Authenticatable implements MustVerifyEmail
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable, HasRoles, HasApiTokens;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'email',
@@ -31,21 +25,11 @@ class User extends Authenticatable implements MustVerifyEmail
         'upload_count',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -53,6 +37,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
         ];
     }
+
     public function markEmailAsVerified()
     {
         if (!$this->hasVerifiedEmail()) {
@@ -63,5 +48,23 @@ class User extends Authenticatable implements MustVerifyEmail
 
             event(new Verified($this));
         }
+    }
+
+    /**
+     * Create a personal access token for the user.
+     *
+     * @param  string  $tokenName
+     * @return string
+     */
+    public function createApiToken($tokenName)
+    {
+        // Ensure user is authenticated
+        if ($this->isAuthenticated()) {
+            $token = $this->createToken($tokenName);
+
+            return $token->plainTextToken; // Return plain token string
+        }
+
+        return null; // In case no token could be generated (unauthorized)
     }
 }

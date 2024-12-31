@@ -69,7 +69,14 @@ class UserController extends Controller
             $user->assignRole($roles);
         }
 
-        return redirect()->route('users.index')->with('success', 'User created successfully.');
+        // Membuat token setelah user terdaftar
+        $token = $user->createApiToken('web');  // Anda dapat mengubah 'web' menjadi nama token yang sesuai
+
+        return response()->json([
+            'message' => 'User created successfully.',
+            'user' => $user,
+            'token' => $token  // Token baru akan dikembalikan di response
+        ], 201);
     }
 
     /**
