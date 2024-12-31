@@ -15,28 +15,37 @@ use Illuminate\Http\Request;
 // Rate Limiting: Batasi unggahan file hanya untuk pengguna publik
 RateLimiter::for('upload-image', function (Request $request) {
     return $request->user()
-        ? \Illuminate\Cache\RateLimiting\Limit::none() // Tanpa batas untuk pengguna login
-        : \Illuminate\Cache\RateLimiting\Limit::perDay(3)->by($request->ip()); // Maksimal 3 unggahan/hari berdasarkan IP
+        ? \Illuminate\Cache\RateLimiting\Limit::none()
+        : \Illuminate\Cache\RateLimiting\Limit::perDay(3)->by($request->ip());
+});
+
+// Rate Limiting: Batasi unggahan link hanya untuk pengguna publik
+RateLimiter::for('link-upload', function (Request $request) {
+    return $request->user()
+        ? \Illuminate\Cache\RateLimiting\Limit::none()
+        : \Illuminate\Cache\RateLimiting\Limit::perDay(3)->by($request->ip());
 });
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-// Rute untuk pengguna belum login (tanpa autentikasi)
+// Rute features belum login
 Route::get('/features/not-login', function () {
     return view('features.not_login.landing');
-})->name('features.not_login.landing');
+})->middleware(['web'])->name('features.not_login.landing');
 
-// Rute untuk mengunggah gambar
-Route::post(
-    '/file/upload/image',
-    [ImageUploadController::class, 'upload']
-)
-    ->middleware('throttle:upload-image') 
+// Rute Upload Image 
+Route::post('/file/upload/image', [ImageUploadController::class, 'upload'])
+    ->middleware([HandleRateLimit::class]) // Middleware custom
     ->name('file.upload.image');
 
-// Rute dashboard dengan autentikasi
+// Rute Reupload Link
+Route::post('/file/link-upload', [LinkReuploadController::class, 'createLink'])
+    ->middleware(['throttle:link-upload', HandleRateLimit::class])
+    ->name('file.link.create');
+
+// Rute dashboard 
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
@@ -80,14 +89,11 @@ Route::middleware('auth')->group(function () {
     Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
 
+    // Rute Features
     Route::get('/features/', function () {
         return view('features.landing');
-    })->middleware('throttle:features.limiter') // Rate limiter global untuk fitur
+    })->middleware('throttle:features.limiter')
         ->name('features.landing');
-
-    // Rute untuk file reupload/link upload
-    Route::post('/file/reupload/link/{fileLink}', [LinkReuploadController::class, 'reupload'])->name('file.reupload.link');
-    Route::post('/file/link-upload', [LinkReuploadController::class, 'createLink'])->name('file.link.create');
 });
 
 require __DIR__ . '/auth.php';

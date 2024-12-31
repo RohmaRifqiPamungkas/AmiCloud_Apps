@@ -31,8 +31,15 @@ class AppServiceProvider extends ServiceProvider
         // Rate limiter untuk fitur unggahan gambar (upload-image)
         RateLimiter::for('upload-image', function (Request $request) {
             return $request->user()
-                ? Limit::none() // Tanpa batas untuk pengguna login
-                : Limit::perDay(3)->by($request->ip()); // Maksimal 3 unggahan/hari per IP untuk pengguna publik
+                ? Limit::none() 
+                : Limit::perDay(3)->by($request->ip()); 
+        });
+
+        // Rate limiter untuk unggahan link (link-upload)
+        RateLimiter::for('link-upload', function (Request $request) {
+            return $request->user()
+                ? Limit::none() 
+                : Limit::perMinute(5)->by($request->ip()); 
         });
 
         // Rate limiter untuk fitur lain (reupload atau fitur publik lainnya)
