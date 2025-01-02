@@ -18,7 +18,7 @@ export default function Navbar() {
         </div>
 
         {/* Nav dekstop */}
-        <div className="hidden md:flex md:space-x-8 text-reguler text-black font-semibold justify-center">
+        <div className="hidden lg:flex lg:space-x-8 text-reguler text-black font-semibold justify-center">
           <Link className="hover:text-blue-500" href="/">
             Home
           </Link>
@@ -31,7 +31,7 @@ export default function Navbar() {
         </div>
 
         {/* Buttons dekstop */}
-        <div className="hidden md:flex space-x-4">
+        <div className="hidden lg:flex space-x-4">
           <Link href="/register" className="bg-primary text-reguler text-white py-2 px-4 rounded-lg hover:bg-tertiary-25 hover:text-primary">
             Create Account
           </Link>
@@ -41,7 +41,7 @@ export default function Navbar() {
         </div>
 
       
-        <div className="md:hidden">
+        <div className="lg:hidden">
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="text-black text-2xl focus:outline-none"
@@ -55,7 +55,7 @@ export default function Navbar() {
       <div
         className={`${
           isOpen ? 'block' : 'hidden'
-        } fixed inset-0 bg-white p-6 z-40 md:hidden`}
+        } fixed inset-0 bg-white p-6 z-40 lg:hidden`}
       >
         <button
           onClick={() => setIsOpen(false)}

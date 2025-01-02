@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
-import Upload from "../../public/Feature/Upload.png";
+import Upload from "../../../public/Feature/Upload.png";
 import { FaRegTrashCan } from "react-icons/fa6";
 
 export default function FileUpload() {
@@ -62,11 +62,8 @@ export default function FileUpload() {
   };
 
   return (
-    <div className="container mx-auto px-20 ">
-      <div className="min-h-screen flex flex-col items-center justify-center  ">
-        <h1 className="text-2xl font-bold text-center text-black mb-4 md:text-4xl mt-20">
-          Quick Reupload, <span className="text-primary">Instant Links!</span>
-        </h1>
+    <div className="container mx-auto ">
+      <div className="min-h-screen flex flex-col items-center justify-center  ">       
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="bg-white py-10 rounded-lg shadow-md max-w-4xl w-full px-20 mt-16"
