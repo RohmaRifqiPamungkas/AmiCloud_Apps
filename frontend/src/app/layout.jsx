@@ -1,13 +1,13 @@
 
+
 import "./globals.css";
 import { Inter } from "next/font/google";
-import Navbar from "@/components/Navbar/Navbar"; 
-import Footer from "@/components/Footer/Footer";
+import LayoutHandler from "@/components/Layout/Layouthandler"; 
 
 const inter = Inter({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'], 
-  variable: '--font-inter', 
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-inter",
 });
 
 export const metadata = {
@@ -18,13 +18,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body
-        className={`${inter.variable} antialiased `}
-      >
-        <Navbar /> 
-        <main>{children}</main> 
-        <Footer /> 
+      <body className={`${inter.variable} antialiased`}>
+        <LayoutHandler>{children}</LayoutHandler> 
       </body>
     </html>
   );
 }
+
