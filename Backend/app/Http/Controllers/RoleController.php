@@ -21,23 +21,45 @@ class RoleController extends Controller implements HasMiddleware
         ];
     }
 
-    public function index()
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
     {
         $roles = Role::orderBy('name', 'DESC')->paginate(10);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'roles' => $roles,
+            ]);
+        }
+
         return view('roles.list', [
             'roles' => $roles
         ]);
     }
 
-
-    public function create()
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create(Request $request)
     {
         $permissions = Permission::orderBy('name', 'ASC')->get();
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'permissions' => $permissions,
+            ]);
+        }
+
         return view('roles.create', [
             'permissions' => $permissions,
         ]);
     }
 
+    /**
+     * Store a newly created resource in storage.
+     */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -55,39 +77,82 @@ class RoleController extends Controller implements HasMiddleware
                 }
             }
 
-            return redirect()->route('roles.index')->with('success', 'Roles add successfully.');
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Role created successfully.',
+                    'role' => $role,
+                ], 201);
+            }
+
+            return redirect()->route('roles.index')->with('success', 'Role created successfully.');
         } else {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Validation failed.',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
             return redirect()->route('roles.create')->withInput()->withErrors($validator);
         }
     }
 
-    public function edit($id)
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
     {
         $role = Role::findOrFail($id);
-        $hasPermissions = $role->permissions->pluck('name');
-        $permissions = Permission::orderBy('name', 'desc')->get();
-
-        return view('roles.edit', [
-            'permissions' => $permissions,
-            'hasPermissions' => $hasPermissions,
-            'role' => $role
+        
+        return view('roles.index', [
+            'role' => $role,
         ]);
     }
 
-    public function update($id, Request $request)
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id, Request $request)
+    {
+        $role = Role::findOrFail($id);
+        $permissions = Permission::orderBy('name', 'desc')->get();
+        $hasPermissions = $role->permissions->pluck('name');
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'role' => $role,
+                'permissions' => $permissions,
+                'hasPermissions' => $hasPermissions
+            ]);
+        }
+
+        return view('roles.edit', [
+            'role' => $role,
+            'permissions' => $permissions,
+            'hasPermissions' => $hasPermissions
+        ]);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
     {
         $role = Role::findOrFail($id);
 
-        // Validasi data
         $validator = Validator::make($request->all(), [
             'name' => 'required|unique:roles,name,' . $id,
         ]);
 
         if ($validator->fails()) {
-            return redirect()
-                ->route('roles.edit', $id)
-                ->withInput()
-                ->withErrors($validator);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Validation failed.',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
+            return redirect()->route('roles.edit', $id)->withInput()->withErrors($validator);
         }
 
         $role->name = $request->name;
@@ -100,18 +165,42 @@ class RoleController extends Controller implements HasMiddleware
             $role->syncPermissions([]);
         }
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Role updated successfully.',
+                'role' => $role,
+            ]);
+        }
+
         return redirect()->route('roles.index')->with('success', 'Role updated successfully.');
     }
 
-    public function destroy($id)
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id, Request $request)
     {
         $role = Role::findOrFail($id);
 
         try {
             $role->delete();
-            return response()->json(['message' => 'Role deleted successfully.'], 200);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Role deleted successfully.',
+                ], 200);
+            }
+
+            return redirect()->route('roles.index')->with('success', 'Role deleted successfully.');
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Failed to delete role.', 'error' => $e->getMessage()], 500);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Failed to delete role.',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+
+            return redirect()->route('roles.index')->withErrors(['error' => $e->getMessage()]);
         }
     }
 }

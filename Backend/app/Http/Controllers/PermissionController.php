@@ -20,9 +20,17 @@ class PermissionController extends Controller implements HasMiddleware
         ];
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $permissions = Permission::orderBy('created_at', 'desc')->paginate(10);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'status' => true,
+                'permissions' => $permissions,
+                'message' => 'Permissions retrieved successfully.',
+            ], 200);
+        }
 
         return view('permissions.list', [
             'permissions' => $permissions,
@@ -45,10 +53,23 @@ class PermissionController extends Controller implements HasMiddleware
                 'name' => $request->name
             ]);
 
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Permission created successfully.'
+                ], 201);
+            }
+
             return redirect()->route('permissions.index')->with('success', 'Permission successfully added.');
-        } else {
-            return redirect()->route('permissions.create')->withInput()->withErrors($validator);
         }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        return redirect()->route('permissions.create')->withInput()->withErrors($validator);
     }
 
     public function edit($id)
@@ -72,10 +93,24 @@ class PermissionController extends Controller implements HasMiddleware
             $permission->name = $request->name;
             $permission->save();
 
-            return redirect()->route('permissions.index')->with('success', 'Permission update successfully.');
-        } else {
-            return redirect()->route('permissions.edit', $id)->withInput()->withErrors($validator);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Permission updated successfully.',
+                    'permission' => $permission,
+                ], 200);
+            }
+
+            return redirect()->route('permissions.index')->with('success', 'Permission updated successfully.');
         }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        return redirect()->route('permissions.edit', $id)->withInput()->withErrors($validator);
     }
 
     public function destroy($id)
@@ -84,9 +119,19 @@ class PermissionController extends Controller implements HasMiddleware
 
         try {
             $permission->delete();
-            return response()->json(['message' => 'Permission deleted successfully.'], 200);
+
+            if (request()->expectsJson()) {
+                return response()->json(['message' => 'Permission deleted successfully.'], 200);
+            }
+
+            return redirect()->route('permissions.index')->with('success', 'Permission deleted successfully.');
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Failed to delete permission.', 'error' => $e->getMessage()], 500);
+
+            if (request()->expectsJson()) {
+                return response()->json(['message' => 'Failed to delete permission.', 'error' => $e->getMessage()], 500);
+            }
+
+            return redirect()->route('permissions.index')->with('error', 'Failed to delete permission.');
         }
     }
 }

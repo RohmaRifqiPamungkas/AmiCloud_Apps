@@ -1,29 +1,45 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\PermissionController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\UserController;
+use App\Http\Middleware\HandleRateLimit;
+use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\RateLimiter;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\FileManagementController;
 use App\Http\Controllers\Features\ImageUploadController;
 use App\Http\Controllers\Features\LinkReuploadController;
-use App\Http\Middleware\HandleRateLimit;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Http\Request;
+
+// Route untuk pengujian kirim email
+Route::middleware('auth')->get('/send-test-email', function () {
+    Mail::raw('This is a test email from Laravel and Mailtrap!', function ($message) {
+        $message->to('someone@sismorgama010224@gmail.com')
+            ->subject('Test Email from Laravel');
+    });
+
+    return 'Test email has been sent!';
+})->name('send-test-email');
 
 // Rate Limiting: Batasi unggahan file hanya untuk pengguna publik
 RateLimiter::for('upload-image', function (Request $request) {
-    return $request->user()
-        ? \Illuminate\Cache\RateLimiting\Limit::none()
-        : \Illuminate\Cache\RateLimiting\Limit::perDay(3)->by($request->ip());
+    $key = $request->user() ? 'user-id:' . $request->user()->id : $request->ip();
+    return \Illuminate\Cache\RateLimiting\Limit::perMinute(10)->by($key);
 });
 
 // Rate Limiting: Batasi unggahan link hanya untuk pengguna publik
+// RateLimiter::for('link-upload', function (Request $request) {
+//     return $request->user()
+//         ? \Illuminate\Cache\RateLimiting\Limit::none()
+//         : \Illuminate\Cache\RateLimiting\Limit::perDay(3)->by($request->ip());
+// });
+
 RateLimiter::for('link-upload', function (Request $request) {
-    return $request->user()
-        ? \Illuminate\Cache\RateLimiting\Limit::none()
-        : \Illuminate\Cache\RateLimiting\Limit::perDay(3)->by($request->ip());
+    $key = $request->user() ? 'user-id:' . $request->user()->id : $request->ip();
+    return \Illuminate\Cache\RateLimiting\Limit::perMinute(10)->by($key);
 });
 
 Route::get('/', function () {
@@ -33,11 +49,11 @@ Route::get('/', function () {
 // Rute features belum login
 Route::get('/features/not-login', function () {
     return view('features.not_login.landing');
-})->middleware(['web'])->name('features.not_login.landing');
+})->name('features.not_login.landing');
 
 // Rute Upload Image 
 Route::post('/file/upload/image', [ImageUploadController::class, 'upload'])
-    ->middleware([HandleRateLimit::class]) // Middleware custom
+    ->middleware([HandleRateLimit::class])
     ->name('file.upload.image');
 
 // Rute Reupload Link
@@ -94,6 +110,12 @@ Route::middleware('auth')->group(function () {
         return view('features.landing');
     })->middleware('throttle:features.limiter')
         ->name('features.landing');
+
+    // Rute untuk File Management
+    Route::get('/admin/files', [FileManagementController::class, 'index'])->name('admin.files');
+    Route::post('/files/upload', [FileManagementController::class, 'uploadFile'])->name('files.upload');
+    Route::post('/files/reupload', [FileManagementController::class, 'reuploadFromUrl'])->name('files.reupload');
+    Route::delete('/files/{id}/{type}', [FileManagementController::class, 'destroyFile'])->name('files.destroy');
 });
 
 require __DIR__ . '/auth.php';

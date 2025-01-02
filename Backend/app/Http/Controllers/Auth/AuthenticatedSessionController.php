@@ -39,6 +39,7 @@ class AuthenticatedSessionController extends Controller
             $token = $user->createToken('API Token')->plainTextToken;
 
             return response()->json([
+                'message' => 'Login berhasil',
                 'user' => $user,
                 'token' => $token,
             ]);
@@ -54,8 +55,8 @@ class AuthenticatedSessionController extends Controller
     protected function assignUploadsToUser(Request $request): void
     {
         if (Auth::check()) {
-            $userId = Auth::id(); // Ambil ID user yang login
-            $ipAddress = $request->ip(); // Ambil IP address pengguna
+            $userId = Auth::id();
+            $ipAddress = $request->ip();
 
             // Cari unggahan anonim berdasarkan IP dan perbarui user_id
             FileUpload::where('ip_address', $ipAddress)
@@ -72,7 +73,6 @@ class AuthenticatedSessionController extends Controller
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         return redirect('/');

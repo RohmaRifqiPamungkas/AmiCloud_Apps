@@ -65,6 +65,6 @@ class User extends Authenticatable implements MustVerifyEmail
             return $token->plainTextToken; // Return plain token string
         }
 
-        return null; // In case no token could be generated (unauthorized)
+        return null; 
     }
 }

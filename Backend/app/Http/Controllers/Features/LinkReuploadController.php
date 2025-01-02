@@ -11,6 +11,9 @@ use App\Models\FileLink;
 
 class LinkReuploadController extends Controller
 {
+    /**
+     * Create a link for reupload from URL.
+     */
     public function createLink(Request $request)
     {
         // Validasi URL
@@ -29,7 +32,11 @@ class LinkReuploadController extends Controller
 
                 // Validasi bahwa URL merujuk ke file gambar
                 if (!preg_match('/^image\/[a-zA-Z]+$/', $contentType)) {
-                    return back()->with('error_url', 'URL tidak berisi gambar yang valid.');
+                    $errorMessage = 'URL tidak berisi gambar yang valid.';
+                    if ($request->expectsJson()) {
+                        return response()->json(['message' => $errorMessage], 400);
+                    }
+                    return back()->with('error_url', $errorMessage);
                 }
 
                 // Ambil konten file gambar
@@ -39,8 +46,13 @@ class LinkReuploadController extends Controller
                 $originalName = basename(parse_url($imageUrl, PHP_URL_PATH));
                 $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
 
+                // Validasi format file gambar yang diterima
                 if (!in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'])) {
-                    return back()->with('error_url', 'Format file tidak didukung.');
+                    $errorMessage = 'Format file tidak didukung.';
+                    if ($request->expectsJson()) {
+                        return response()->json(['message' => $errorMessage], 400);
+                    }
+                    return back()->with('error_url', $errorMessage);
                 }
 
                 // Buat nama file unik
@@ -61,13 +73,29 @@ class LinkReuploadController extends Controller
 
                 $imageUrl = url('images/' . $newFileName);
 
-                return back()->with('url_image', 'Akses file di: <a href="' . $imageUrl . '" target="_blank" class="text-blue-500 underline">' . $imageUrl . '</a>');
+                // Mengembalikan hasil dengan URL gambar
+                $successMessage = 'File berhasil diunggah. Akses file di: <a href="' . $imageUrl . '" target="_blank" class="text-blue-500 underline">' . $imageUrl . '</a>';
+
+                if ($request->expectsJson()) {
+                    return response()->json(['message' => $successMessage, 'image_url' => $imageUrl], 200);
+                }
+
+                return back()->with('url_image', $successMessage);
             } else {
-                return back()->with('error_url', 'Gagal mengunduh gambar dari URL.');
+                // Gagal mengunduh gambar dari URL
+                $errorMessage = 'Gagal mengunduh gambar dari URL.';
+                if ($request->expectsJson()) {
+                    return response()->json(['message' => $errorMessage], 400);
+                }
+                return back()->with('error_url', $errorMessage);
             }
         } catch (\Exception $e) {
             // Tangani kesalahan dengan baik
-            return back()->with('error_url', 'Terjadi kesalahan: ' . $e->getMessage());
+            $errorMessage = 'Terjadi kesalahan: ' . $e->getMessage();
+            if ($request->expectsJson()) {
+                return response()->json(['message' => $errorMessage], 500);
+            }
+            return back()->with('error_url', $errorMessage);
         }
     }
 }
