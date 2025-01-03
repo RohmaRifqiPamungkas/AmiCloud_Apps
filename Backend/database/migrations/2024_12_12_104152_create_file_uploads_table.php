@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('filename', 255);
             $table->string('file_path', 255);
             $table->double('file_size')->nullable();
-            $table->enum('upload_type', ['png', 'jpg', 'jpeg', 'gif']);
+            $table->enum('upload_type', ['png', 'jpg', 'jpeg', 'gif', 'webp']);
             $table->string('ip_address', 45)->nullable();
             $table->timestamps();
 

@@ -44,12 +44,6 @@ class LoginRequest extends FormRequest
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
-            // Jika ini adalah permintaan API
-            if ($this->expectsJson()) {
-                abort(response()->json(['message' => 'Invalid credentials'], 401));
-            }
-
-            // Jika bukan API, gunakan validasi bawaan
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
             ]);
@@ -73,13 +67,6 @@ class LoginRequest extends FormRequest
 
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
-        // Jika ini adalah permintaan API
-        if ($this->expectsJson()) {
-            abort(response()->json([
-                'message' => 'Too many login attempts. Please try again in ' . $seconds . ' seconds.',
-            ], 429));
-        }
-
         throw ValidationException::withMessages([
             'email' => trans('auth.throttle', [
                 'seconds' => $seconds,
@@ -93,6 +80,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('email')) . '|' . $this->ip());
     }
 }

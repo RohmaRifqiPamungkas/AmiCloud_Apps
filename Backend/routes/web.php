@@ -1,22 +1,34 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\PermissionController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoleController;
-use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\UserController;
+use App\Http\Middleware\HandleRateLimit;
+use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\RateLimiter;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\FileManagementController;
 use App\Http\Controllers\Features\ImageUploadController;
 use App\Http\Controllers\Features\LinkReuploadController;
-use App\Http\Middleware\HandleRateLimit;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Http\Request;
+
+// Route untuk pengujian kirim email
+Route::middleware('auth')->get('/send-test-email', function () {
+    Mail::raw('This is a test email from Laravel and Mailtrap!', function ($message) {
+        $message->to('someone@sismorgama010224@gmail.com')
+            ->subject('Test Email from Laravel');
+    });
+
+    return 'Test email has been sent!';
+})->name('send-test-email');
 
 // Rate Limiting: Batasi unggahan file hanya untuk pengguna publik
 RateLimiter::for('upload-image', function (Request $request) {
     return $request->user()
-        ? \Illuminate\Cache\RateLimiting\Limit::none()
-        : \Illuminate\Cache\RateLimiting\Limit::perDay(3)->by($request->ip());
+    ? \Illuminate\Cache\RateLimiting\Limit::none()
+    : \Illuminate\Cache\RateLimiting\Limit::perDay(3)->by($request->ip());
 });
 
 // Rate Limiting: Batasi unggahan link hanya untuk pengguna publik
@@ -33,11 +45,11 @@ Route::get('/', function () {
 // Rute features belum login
 Route::get('/features/not-login', function () {
     return view('features.not_login.landing');
-})->middleware(['web'])->name('features.not_login.landing');
+})->name('features.not_login.landing');
 
 // Rute Upload Image 
 Route::post('/file/upload/image', [ImageUploadController::class, 'upload'])
-    ->middleware([HandleRateLimit::class]) // Middleware custom
+    ->middleware([HandleRateLimit::class])
     ->name('file.upload.image');
 
 // Rute Reupload Link
@@ -94,6 +106,13 @@ Route::middleware('auth')->group(function () {
         return view('features.landing');
     })->middleware('throttle:features.limiter')
         ->name('features.landing');
+
+    // Rute untuk File Management
+    Route::get('/management_file', [FileManagementController::class, 'index'])->name('management_file.index');
+    Route::get('/management_file/{id}/show', [FileManagementController::class, 'show'])->name('management_file.show');
+    Route::get('/management_file/{id}/edit', [FileManagementController::class, 'edit'])->name('management_file.edit');
+    Route::put('/management_file/{id}', [FileManagementController::class, 'update'])->name('management_file.update');
+    Route::delete('/management_file/{id}', [FileManagementController::class, 'destroy'])->name('management_file.destroy');
 });
 
 require __DIR__ . '/auth.php';

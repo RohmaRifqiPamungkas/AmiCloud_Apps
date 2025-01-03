@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 
-class UserController extends Controller
+class UserController extends Controller implements HasMiddleware
 {
     public static function middleware(): array
     {
@@ -25,9 +25,16 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $users = User::latest()->paginate(10);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'users' => $users,
+            ]);
+        }
+
         return view('users.list', [
             'users' => $users
         ]);
@@ -36,9 +43,16 @@ class UserController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
         $roles = Role::orderBy('name', 'ASC')->get();
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'roles' => $roles,
+            ]);
+        }
+
         return view('users.create', compact('roles'));
     }
 
@@ -55,6 +69,13 @@ class UserController extends Controller
         ]);
 
         if ($validator->fails()) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Validation failed.',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
             return redirect()->back()->withInput()->withErrors($validator);
         }
 
@@ -69,14 +90,17 @@ class UserController extends Controller
             $user->assignRole($roles);
         }
 
-        // Membuat token setelah user terdaftar
-        $token = $user->createApiToken('web');  // Anda dapat mengubah 'web' menjadi nama token yang sesuai
+        $token = $user->createApiToken('web');
 
-        return response()->json([
-            'message' => 'User created successfully.',
-            'user' => $user,
-            'token' => $token  // Token baru akan dikembalikan di response
-        ], 201);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'User created successfully.',
+                'user' => $user,
+                'token' => $token
+            ], 201);
+        }
+
+        return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
 
     /**
@@ -85,17 +109,28 @@ class UserController extends Controller
     public function show(string $id)
     {
         $user = User::findOrFail($id);
-        return view('users.index');
+
+        return view('users.index', [
+            'user' => $user,
+        ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(string $id, Request $request)
     {
         $user = User::findOrFail($id);
         $roles = Role::orderBy('name', 'ASC')->get();
         $hasRoles = $user->roles->pluck('id');
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'user' => $user,
+                'roles' => $roles,
+                'hasRoles' => $hasRoles
+            ]);
+        }
 
         return view('users.edit', [
             'user' => $user,
@@ -118,6 +153,13 @@ class UserController extends Controller
         ]);
 
         if ($validator->fails()) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Validation failed.',
+                    'errors' => $validator->errors(),
+                ], 422);
+            }
+
             return redirect()->route('users.edit', $id)->withInput()->withErrors($validator);
         }
 
@@ -137,21 +179,42 @@ class UserController extends Controller
             $user->syncRoles([]);
         }
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'User updated successfully.',
+                'user' => $user,
+            ]);
+        }
+
         return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
         $user = User::findOrFail($id);
 
         try {
             $user->delete();
-            return response()->json(['message' => 'User deleted successfully.'], 200);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'User deleted successfully.',
+                ], 200);
+            }
+
+            return redirect()->route('users.index')->with('success', 'User deleted successfully.');
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Failed to delete user.', 'error' => $e->getMessage()], 500);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Failed to delete user.',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+
+            return redirect()->route('users.index')->withErrors(['error' => $e->getMessage()]);
         }
     }
 }

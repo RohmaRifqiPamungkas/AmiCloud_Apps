@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Features;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use App\Models\FileUpload;
 
@@ -27,7 +26,7 @@ class ImageUploadController extends Controller
         $image->move(public_path('images'), $uniqueFileName);
 
         $fileUpload = new FileUpload();
-        $fileUpload->user_id = Auth::check() ? Auth::id() : null; 
+        $fileUpload->user_id = Auth::check() ? Auth::id() : null;
         $fileUpload->filename = $originalName;
         $fileUpload->file_path = 'images/' . $uniqueFileName;
         $fileUpload->file_size = $fileSize;
@@ -36,6 +35,13 @@ class ImageUploadController extends Controller
         $fileUpload->save();
 
         $imageUrl = url('images/' . $uniqueFileName);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'File uploaded successfully.',
+                'image_url' => $imageUrl,
+            ], 200);
+        }
 
         return back()->with([
             'success' => 'File berhasil diunggah.',

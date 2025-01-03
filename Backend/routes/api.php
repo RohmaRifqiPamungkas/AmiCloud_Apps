@@ -1,24 +1,26 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Auth\ConfirmablePasswordController;
-use App\Http\Controllers\Auth\EmailVerificationNotificationController;
-use App\Http\Controllers\Auth\NewPasswordController;
-use App\Http\Controllers\Auth\PasswordController;
-use App\Http\Controllers\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\PermissionController;
-use App\Http\Controllers\RoleController;
-use App\Http\Controllers\ArticleController;
-use App\Http\Controllers\Api\UserApiController;
-use App\Http\Controllers\Features\ImageUploadController;
-use App\Http\Controllers\Features\LinkReuploadController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\RoleController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PermissionController;
+use Illuminate\Session\Middleware\StartSession;
+use App\Http\Controllers\Auth\PasswordController;
+use App\Http\Controllers\FileManagementController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Features\ImageUploadController;
+use App\Http\Controllers\Features\LinkReuploadController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\ConfirmablePasswordController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 
 // Route API
-Route::prefix('v1')->group(function () {
+Route::prefix('v1')->middleware([StartSession::class])->group(function () {
     // Fitur otentikasi
     Route::middleware('guest')->group(function () {
         Route::post('register', [RegisteredUserController::class, 'store']);
@@ -54,13 +56,16 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('articles', ArticleController::class, ['as' => 'api']);
 
         // Users Management
-        Route::apiResource('users', UserApiController::class, ['as' => 'api']);
+        Route::apiResource('users', UserController::class, ['as' => 'api']);
 
         // Permissions
         Route::apiResource('permissions', PermissionController::class, ['as' => 'api']);
 
         // Roles
         Route::apiResource('roles', RoleController::class, ['as' => 'api']);
+
+        // Management File
+        Route::apiResource('management_files', FileManagementController::class, ['as' => 'api']);
 
         // Upload Image (POST untuk mengunggah gambar)
         Route::post('file/upload/image', [ImageUploadController::class, 'upload'])
