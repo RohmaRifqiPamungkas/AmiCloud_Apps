@@ -30,13 +30,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'remember_token',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
 
     public function markEmailAsVerified()
     {
@@ -62,7 +59,7 @@ class User extends Authenticatable implements MustVerifyEmail
         if ($this->isAuthenticated()) {
             $token = $this->createToken($tokenName);
 
-            return $token->plainTextToken; // Return plain token string
+            return $token->plainTextToken; 
         }
 
         return null; 

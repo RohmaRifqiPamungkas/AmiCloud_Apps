@@ -61,13 +61,13 @@
                 </div>
                 {{-- @endcan --}}
 
-                {{-- @can('view users') --}}
+                @can('view file management')
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('admin.files')" :active="request()->routeIs('admin.files')">
+                    <x-nav-link :href="route('management_file.index')" :active="request()->routeIs('management_file.index')">
                         {{ __('Management File') }}
                     </x-nav-link>
                 </div>
-                {{-- @endcan --}}
+                @endcan
             </div>
 
             <!-- Settings Dropdown -->

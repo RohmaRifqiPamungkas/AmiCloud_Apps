@@ -112,10 +112,11 @@ Route::middleware('auth')->group(function () {
         ->name('features.landing');
 
     // Rute untuk File Management
-    Route::get('/admin/files', [FileManagementController::class, 'index'])->name('admin.files');
-    Route::post('/files/upload', [FileManagementController::class, 'uploadFile'])->name('files.upload');
-    Route::post('/files/reupload', [FileManagementController::class, 'reuploadFromUrl'])->name('files.reupload');
-    Route::delete('/files/{id}/{type}', [FileManagementController::class, 'destroyFile'])->name('files.destroy');
+    Route::get('/management_file', [FileManagementController::class, 'index'])->name('management_file.index');
+    Route::get('/management_file/{id}/show', [FileManagementController::class, 'show'])->name('management_file.show');
+    Route::get('/management_file/{id}/edit', [FileManagementController::class, 'edit'])->name('management_file.edit');
+    Route::put('/management_file/{id}', [FileManagementController::class, 'update'])->name('management_file.update');
+    Route::delete('/management_file/{id}', [FileManagementController::class, 'destroy'])->name('management_file.destroy');
 });
 
 require __DIR__ . '/auth.php';
