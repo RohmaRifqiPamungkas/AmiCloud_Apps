@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie', '*'],  
+    'paths' => ['api/*', 'sanctum/csrf-cookie', '*']  // Ensures CORS is enabled on API routes and CSRF cookie route
 
     'allowed_methods' => ['*'],  
 

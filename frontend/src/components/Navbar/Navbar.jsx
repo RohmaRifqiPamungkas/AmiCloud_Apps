@@ -3,19 +3,22 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { GiHamburgerMenu } from 'react-icons/gi';
+import Image from 'next/image';
+import Logo from "../../../public/Navbar/Navbar.png";
+
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-white shadow-md">
-      <div className="container mx-auto flex items-center justify-between py-4 px-12">
+    <nav className="fixed top-0 w-full z-50 bg-tertiary-25  shadow-md">
+      <div className="container mx-auto flex items-center justify-between py-4 px-6 md:px-20">
         <div className="text-lg font-bold text-black">
-          <Link href="/">AmiCloud Logo</Link>
+          <Image src={Logo} alt="logo" />
         </div>
 
         {/* Nav dekstop */}
-        <div className="hidden md:flex md:space-x-6 text-sm text-black font-semibold justify-center">
+        <div className="hidden md:flex md:space-x-8 text-reguler text-black font-semibold justify-center">
           <Link className="hover:text-blue-500" href="/">
             Home
           </Link>
@@ -29,12 +32,12 @@ export default function Navbar() {
 
         {/* Buttons dekstop */}
         <div className="hidden md:flex space-x-4">
-          <button className="bg-black text-white py-2 px-4 rounded hover:bg-gray-800">
+          <Link href="/register" className="bg-primary text-reguler text-white py-2 px-4 rounded-lg hover:bg-tertiary-25 hover:text-primary">
             Create Account
-          </button>
-          <button className="bg-primary text-white py-2 px-4 rounded hover:bg-purple-800">
+          </Link>
+          <Link href="/login" className="border border-primary text-reguler text-primary py-2 px-4 rounded-lg hover:bg-primary hover:text-white">
             Sign In
-          </button>
+          </Link>
         </div>
 
       
@@ -80,12 +83,12 @@ export default function Navbar() {
         </ul>
      
         <div className="mt-6 flex flex-col space-y-4">
-          <button className="bg-black text-white py-2 px-4 rounded hover:bg-gray-800">
+          <Link href="/register" className="bg-primary hover:bg-tertiary-25  text-white text-center py-2 px-4 rounded hover:text-primary">
             Create Account
-          </button>
-          <button className="bg-primary text-white py-2 px-4 rounded hover:bg-purple-800">
+          </Link>
+          <Link href="/login" className="border border-primary text-primary hover:text-white text-center py-2 px-4 rounded hover:bg-purple-800">
             Sign In
-          </button>
+          </Link>
         </div>
       </div>
     </nav>
