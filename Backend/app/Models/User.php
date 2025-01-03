@@ -55,13 +55,8 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function createApiToken($tokenName)
     {
-        // Ensure user is authenticated
-        if ($this->isAuthenticated()) {
-            $token = $this->createToken($tokenName);
+        $token = $this->createToken($tokenName);
 
-            return $token->plainTextToken; 
-        }
-
-        return null; 
+        return $token->plainTextToken;
     }
 }

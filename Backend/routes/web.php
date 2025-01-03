@@ -26,20 +26,16 @@ Route::middleware('auth')->get('/send-test-email', function () {
 
 // Rate Limiting: Batasi unggahan file hanya untuk pengguna publik
 RateLimiter::for('upload-image', function (Request $request) {
-    $key = $request->user() ? 'user-id:' . $request->user()->id : $request->ip();
-    return \Illuminate\Cache\RateLimiting\Limit::perMinute(10)->by($key);
+    return $request->user()
+    ? \Illuminate\Cache\RateLimiting\Limit::none()
+    : \Illuminate\Cache\RateLimiting\Limit::perDay(3)->by($request->ip());
 });
 
 // Rate Limiting: Batasi unggahan link hanya untuk pengguna publik
-// RateLimiter::for('link-upload', function (Request $request) {
-//     return $request->user()
-//         ? \Illuminate\Cache\RateLimiting\Limit::none()
-//         : \Illuminate\Cache\RateLimiting\Limit::perDay(3)->by($request->ip());
-// });
-
 RateLimiter::for('link-upload', function (Request $request) {
-    $key = $request->user() ? 'user-id:' . $request->user()->id : $request->ip();
-    return \Illuminate\Cache\RateLimiting\Limit::perMinute(10)->by($key);
+    return $request->user()
+        ? \Illuminate\Cache\RateLimiting\Limit::none()
+        : \Illuminate\Cache\RateLimiting\Limit::perDay(3)->by($request->ip());
 });
 
 Route::get('/', function () {

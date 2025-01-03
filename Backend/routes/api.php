@@ -9,6 +9,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PermissionController;
 use Illuminate\Session\Middleware\StartSession;
 use App\Http\Controllers\Auth\PasswordController;
+use App\Http\Controllers\FileManagementController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Features\ImageUploadController;
@@ -62,6 +63,9 @@ Route::prefix('v1')->middleware([StartSession::class])->group(function () {
 
         // Roles
         Route::apiResource('roles', RoleController::class, ['as' => 'api']);
+
+        // Management File
+        Route::apiResource('management_files', FileManagementController::class, ['as' => 'api']);
 
         // Upload Image (POST untuk mengunggah gambar)
         Route::post('file/upload/image', [ImageUploadController::class, 'upload'])

@@ -40,6 +40,10 @@
                                     </p>
                                 </div>
                                 <div class="flex justify-center space-x-3 p-4">
+                                    <a href="{{ route('management_file.show', $file->id) }}"
+                                        class="text-gray-500 hover:text-gray-600">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
                                     <button type="button" onclick="deleteFile({{ $file->id }}, 'upload')"
                                         class="text-red-500 hover:text-red-600">
                                         <i class="fas fa-trash-alt"></i>
