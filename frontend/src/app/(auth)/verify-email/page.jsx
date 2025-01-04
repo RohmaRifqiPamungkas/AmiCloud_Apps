@@ -23,7 +23,7 @@ export default function VerificationPage() {
     <>
     <div >
     <p className="mt-4 text-foreground text-left md:text-xl">
-        Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn't receive the email, we will gladly send you another.
+    Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn&apos;t receive the email, we will gladly send you another.
       </p>
 
       {status && (
@@ -40,7 +40,7 @@ export default function VerificationPage() {
       </div>
 
       <p className="mt-6 text-center text-sm md:text-base text-gray-500">
-        Not using your account anymore?{' '}
+      Not using your account anymore?&nbsp;
         <a href="/logout" className="text-blue-500 underline hover:underline">
           Log Out
         </a>

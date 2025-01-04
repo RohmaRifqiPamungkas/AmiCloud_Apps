@@ -117,7 +117,7 @@ export default function FileUpload() {
             {uploadedImage && (
               <div className="flex flex-col items-center mt-4 ">
                 <div className="max-h-48 max-w-48 bg-tertiary-25 rounded-2xl p-4 relative">
-                  <img
+                  <Image
                     src={uploadedImage}
                     alt="Uploaded preview"
                     className="w-32 h-32 object-cover rounded-lg"

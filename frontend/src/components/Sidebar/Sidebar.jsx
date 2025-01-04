@@ -3,21 +3,24 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FiLogOut, FiSettings, FiFileText } from "react-icons/fi";
+import { FiLogOut, FiSettings } from "react-icons/fi";
 import Image from "next/image";
 import Logo from "../../../public/Navbar/Navbar.png";
+import { MdOutlineUploadFile } from "react-icons/md";
+import { RiFolderSettingsLine } from "react-icons/ri";
+
 
 const menuSections = [
   {
     title: "Features App",
     items: [
-      { name: "Features", href: "/dashboard/features", icon: <FiFileText /> },
+      { name: "Features", href: "/dashboard/features", icon: <MdOutlineUploadFile /> },
     ],
   },
   {
     title: "Configuration",
     items: [
-      { name: "Management File", href: "/dashboard/files", icon: <FiSettings /> },
+      { name: "Management File", href: "/dashboard/files", icon: <RiFolderSettingsLine /> },
     ],
   },
 ];

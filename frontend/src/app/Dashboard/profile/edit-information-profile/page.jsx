@@ -9,13 +9,13 @@ export default function EditInformationProfile() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch data profil saat halaman dimuat
+ 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         setIsLoading(true);
-        const response = await axiosInstance.get("/user/profile"); // Ganti endpoint dengan milik Anda
-        reset(response.data); // Mengisi form dengan data API
+        const response = await axiosInstance.get("/user/profile"); 
+        reset(response.data); 
       } catch (error) {
         console.error("Failed to fetch profile data:", error);
       } finally {
@@ -26,14 +26,13 @@ export default function EditInformationProfile() {
     fetchProfile();
   }, [reset]);
 
-  // Handling form submission
+
   const handleSave = async (data) => {
     try {
       setIsLoading(true);
-      const response = await axiosInstance.put("/user/profile", data); // Ganti endpoint sesuai kebutuhan
+      const response = await axiosInstance.put("/user/profile", data); 
       console.log("Profile updated successfully:", response.data);
 
-      // Redirect ke halaman profile dengan query success
       router.push("/Dashboard/profile?success=true");
     } catch (error) {
       console.error("Failed to update profile:", error);
@@ -48,7 +47,6 @@ export default function EditInformationProfile() {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      {/* Header dengan tombol Save dan Cancel */}
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-lg font-bold text-purple-700">My Profile</h1>

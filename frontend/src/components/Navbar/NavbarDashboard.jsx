@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { FiMenu, FiChevronDown } from 'react-icons/fi';
 import Breadcrumb from '../Breadcrumb/Breadcrumb';
+import Image from "next/image";
 
   
 export default function NavbarDashboard({ toggleSidebar }) {
@@ -35,7 +36,7 @@ export default function NavbarDashboard({ toggleSidebar }) {
                     className="flex items-center gap-2 sm:gap-4 focus:outline-none"
                 >
                     <span className="text-gray-800 font-semibold">Lalapow</span>
-                    <img
+                    <Image
                         src="/user-profile.png"
                         alt="User"
                         className="w-10 h-10 rounded-full"

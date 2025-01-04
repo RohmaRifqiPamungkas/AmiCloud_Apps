@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
+import Image from "next/image";
 
 export default function EditProfilePage() {
   const router = useRouter();
@@ -77,7 +78,7 @@ export default function EditProfilePage() {
         <div className="flex items-center gap-6">
           {/* Gambar Profil */}
           {profile.profilePicture ? (
-            <img
+            <Image
               src={profile.profilePicture}
               alt="Profile Picture"
               className="w-20 h-20 rounded-full object-cover"
