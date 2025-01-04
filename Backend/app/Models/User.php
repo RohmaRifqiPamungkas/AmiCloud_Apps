@@ -6,17 +6,14 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Auth\Events\Verified;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles, HasApiTokens;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'email',
@@ -25,38 +22,41 @@ class User extends Authenticatable implements MustVerifyEmail
         'full_name',
         'phone',
         'birthday_date',
+        'upload_count',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+
     public function markEmailAsVerified()
     {
-        parent::markEmailAsVerified();
+        if (!$this->hasVerifiedEmail()) {
+            $this->forceFill([
+                'email_verified_at' => now(),
+                'is_active' => 1,
+            ])->save();
 
-        // Pastikan update is_active hanya terjadi jika email berhasil diverifikasi
-        if (!$this->is_active) {
-            $this->update(['is_active' => 1]);
+            event(new Verified($this));
         }
     }
 
+    /**
+     * Create a personal access token for the user.
+     *
+     * @param  string  $tokenName
+     * @return string
+     */
+    public function createApiToken($tokenName)
+    {
+        $token = $this->createToken($tokenName);
+
+        return $token->plainTextToken;
+    }
 }

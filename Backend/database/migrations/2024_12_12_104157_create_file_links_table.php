@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('file_links', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->string('file_path', 255);
             $table->text('original_url');
             $table->text('parsed_url')->nullable();
