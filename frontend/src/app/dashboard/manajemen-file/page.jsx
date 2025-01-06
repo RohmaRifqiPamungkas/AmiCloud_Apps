@@ -63,6 +63,8 @@ export default function FileManagement() {
               src={item.image}
               alt={item.title}
               className="w-32 h-32 rounded-md object-cover mb-4"
+              width={40}
+              height={40}
             />
             <h3 className="text-sm font-semibold text-center">{item.title}</h3>
             <div className="flex justify-between w-full mt-4">

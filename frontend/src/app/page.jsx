@@ -1,3 +1,6 @@
+
+
+
 "use client";
 
 import { useState } from "react";
@@ -5,10 +8,17 @@ import { useForm } from "react-hook-form";
 import Image from "next/image";
 import Upload from "../../public/Feature/Upload.png";
 import { FaRegTrashCan } from "react-icons/fa6";
+import Swal from "sweetalert2";
 
 export default function FileUpload() {
   const [uploadedImage, setUploadedImage] = useState(null);
   const [uploadedUrl, setUploadedUrl] = useState("");
+  const [uploadCount, setUploadCount] = useState(0);
+  const [urlUploadCount, setUrlUploadCount] = useState(0);
+
+  const MAX_UPLOADS = 3;
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; 
+  const SUPPORTED_FORMATS = ["image/jpeg", "image/png", "image/jpg", "image/gif"];
 
   const {
     register,
@@ -22,25 +32,98 @@ export default function FileUpload() {
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
+
+    if (uploadCount >= MAX_UPLOADS) {
+      Swal.fire({
+        icon: "warning",
+        title: "Upload Limit Reached",
+        text: "You can only upload up to 3 files. Please log in for more uploads.",
+        confirmButtonText: "OK",
+        customClass: {
+          confirmButton: "bg-secondary px-10 py-3 text-black rounded-2xl"
+        }
+      });
+      return;
+    }
+
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert("File size exceeds 5MB. Please upload a smaller file.");
+      if (file.size > MAX_FILE_SIZE) {
+        Swal.fire({
+          icon: "warning",
+          title: "File Size Too Large",
+          text: "The maximum allowed file size is 5MB. Please upload a smaller file.",
+          confirmButtonText: "OK",
+          customClass: {
+            confirmButton: "bg-secondary px-10 py-3 text-black rounded-2xl"
+          }
+        });
         return;
       }
+
+      if (!SUPPORTED_FORMATS.includes(file.type)) {
+        Swal.fire({
+          icon: "warning",
+          title: "Unsupported File Format",
+          text: "Please upload files in JPG, PNG, JPEG, or GIF format.",
+          confirmButtonText: "OK",
+          customClass: {
+            confirmButton: "bg-secondary px-10 py-3 text-black rounded-2xl"
+          }
+        });
+        return;
+      }
+
       const imageUrl = URL.createObjectURL(file);
       setUploadedImage(imageUrl);
+      setUploadCount((prev) => prev + 1);
       setValue("file", file, { shouldValidate: true });
       trigger("file");
+
+      // Swal.fire({
+      //   icon: "success",
+      //   title: "File Uploaded Successfully",
+      //   text: "Your file has been uploaded.",
+      //   confirmButtonText: "OK",
+      // });
     }
   };
 
   const handleUrlUpload = () => {
     const url = watch("url");
+
+    if (urlUploadCount >= MAX_UPLOADS) {
+      Swal.fire({
+        icon: "warning",
+        title: "URL Upload Limit Reached",
+        text: "You can only upload up to 3 URLs. Please log in for more uploads.",
+        confirmButtonText: "OK",
+        customClass: {
+          confirmButton: "bg-secondary px-10 py-3 text-black rounded-2xl"
+        }
+      });
+      return;
+    }
+
     if (url && /^(https?:\/\/.*\.(?:png|jpg|jpeg|gif))$/.test(url)) {
       setUploadedUrl(url);
-      alert("File uploaded from URL successfully!");
+      setUrlUploadCount((prev) => prev + 1);
+
+      // Swal.fire({
+      //   icon: "success",
+      //   title: "URL Uploaded Successfully",
+      //   text: "Your URL has been uploaded.",
+      //   confirmButtonText: "OK",
+      // });
     } else {
-      alert("Invalid URL. Please check the format.");
+      Swal.fire({
+        icon: "warning",
+        title: "Invalid URL",
+        text: "Please check the URL format. It should end with .jpg, .jpeg, .png, or .gif.",
+        confirmButtonText: "OK",
+        customClass: {
+          confirmButton: "bg-secondary px-10 py-3 text-black rounded-2xl"
+        }
+      });
     }
   };
 
@@ -50,15 +133,31 @@ export default function FileUpload() {
   };
 
   const onSubmit = (data) => {
-    if (!uploadedImage) {
-      alert("File is required!");
+    if (!uploadedImage && !uploadedUrl) {
+      Swal.fire({
+        icon: "warning",
+        title: "No File or URL Provided",
+        text: "Please upload a file or URL before submitting.",
+        confirmButtonText: "OK",
+        customClass: {
+          confirmButton: "bg-secondary px-10 py-3 text-black rounded-2xl"
+        }
+      });
       return;
     }
-    console.log("Submitted Data:", data);
-    alert("File uploaded successfully!");
+
+    Swal.fire({
+      icon: "success",
+      title: "Submission Successful",
+      text: "Your file or URL has been submitted.",
+      confirmButtonText: "OK",
+    });
+
     reset();
     setUploadedImage(null);
     setUploadedUrl("");
+    setUploadCount(0);
+    setUrlUploadCount(0);
   };
 
   return (
@@ -86,7 +185,7 @@ export default function FileUpload() {
                 </div>
                 <label
                   htmlFor="file-upload"
-                  className="cursor-pointer bg-secondary text-black px-4 py-2 rounded-xl"
+                  className="cursor-pointer bg-secondary hover:bg-primary text-black hover:text-white px-4 py-2 rounded-xl"
                 >
                   Choose Files
                 </label>
@@ -124,6 +223,8 @@ export default function FileUpload() {
                     src={uploadedImage}
                     alt="Uploaded preview"
                     className="w-32 h-32 object-cover rounded-lg"
+                    width={40}
+                    height={40}
                   />
                   <button
                     type="button"
@@ -153,7 +254,7 @@ export default function FileUpload() {
                 id="url-upload"
                 type="text"
                 placeholder="Upload from URL"
-                className="border-gray-300 rounded-2xl border focus:ring-primary focus:border-primary w-full py-4 pl-4 pr-16"
+                className="bg-tertiary-25 rounded-2xl border focus:ring-primary focus:border-primary w-full py-4 pl-4 pr-16"
                 {...register("url", {
                   pattern: {
                     value: /^(https?:\/\/.*\.(?:png|jpg|jpeg|gif))$/,
@@ -164,7 +265,7 @@ export default function FileUpload() {
               <button
                 type="button"
                 onClick={handleUrlUpload}
-                className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-primary text-white px-4 py-2 rounded-2xl"
+                className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-primary hover:bg-secondary text-white hover:text-black px-4 py-2 rounded-2xl"
               >
                 Upload
               </button>
