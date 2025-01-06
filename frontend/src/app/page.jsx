@@ -40,7 +40,8 @@ export default function FileUpload() {
         text: "You can only upload up to 3 files. Please log in for more uploads.",
         confirmButtonText: "OK",
         customClass: {
-          confirmButton: "bg-secondary px-10 py-3 text-black rounded-2xl"
+          confirmButton: "bg-secondary px-10 py-2 text-black rounded-2xl",
+          popup: "rounded-3xl shadow-md"
         }
       });
       return;
@@ -54,7 +55,8 @@ export default function FileUpload() {
           text: "The maximum allowed file size is 5MB. Please upload a smaller file.",
           confirmButtonText: "OK",
           customClass: {
-            confirmButton: "bg-secondary px-10 py-3 text-black rounded-2xl"
+           confirmButton: "bg-secondary px-10 py-2 text-black rounded-2xl",
+          popup: "rounded-3xl shadow-md"
           }
         });
         return;
@@ -63,11 +65,12 @@ export default function FileUpload() {
       if (!SUPPORTED_FORMATS.includes(file.type)) {
         Swal.fire({
           icon: "warning",
-          title: "Unsupported File Format",
+          title: "File Format Not Supported",
           text: "Please upload files in JPG, PNG, JPEG, or GIF format.",
           confirmButtonText: "OK",
           customClass: {
-            confirmButton: "bg-secondary px-10 py-3 text-black rounded-2xl"
+            confirmButton: "bg-secondary px-10 py-2 text-black rounded-2xl",
+          popup: "rounded-3xl shadow-md"
           }
         });
         return;
@@ -98,7 +101,8 @@ export default function FileUpload() {
         text: "You can only upload up to 3 URLs. Please log in for more uploads.",
         confirmButtonText: "OK",
         customClass: {
-          confirmButton: "bg-secondary px-10 py-3 text-black rounded-2xl"
+         confirmButton: "bg-secondary px-10 py-2 text-black rounded-2xl",
+          popup: "rounded-3xl shadow-md"
         }
       });
       return;
@@ -117,11 +121,12 @@ export default function FileUpload() {
     } else {
       Swal.fire({
         icon: "warning",
-        title: "Invalid URL",
-        text: "Please check the URL format. It should end with .jpg, .jpeg, .png, or .gif.",
+        title: "File Format Not Supported",
+        text: "Please upload URL in JPG, PNG, or GIF format.",
         confirmButtonText: "OK",
         customClass: {
-          confirmButton: "bg-secondary px-10 py-3 text-black rounded-2xl"
+          confirmButton: "bg-secondary px-10 py-3 text-black rounded-2xl",
+          popup: "rounded-3xl shadow-md"
         }
       });
     }
@@ -140,7 +145,8 @@ export default function FileUpload() {
         text: "Please upload a file or URL before submitting.",
         confirmButtonText: "OK",
         customClass: {
-          confirmButton: "bg-secondary px-10 py-3 text-black rounded-2xl"
+          confirmButton: "bg-secondary px-10 py-2 text-black rounded-2xl",
+          popup: "rounded-3xl shadow-md"
         }
       });
       return;

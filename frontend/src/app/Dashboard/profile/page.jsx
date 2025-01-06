@@ -5,6 +5,8 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import Image from "next/image";
+import { RiEdit2Line } from "react-icons/ri";
+import { FaRegCircleCheck } from "react-icons/fa6";
 
 export default function ProfilePage() {
   return (
@@ -14,13 +16,15 @@ export default function ProfilePage() {
   );
 }
 
+
+
 function ProfileContent() {
   const sampleData = {
     fullName: "Lalapowww",
     username: "Lalapow",
     email: "lalapow@gmail.com",
     phone: "089765432134",
-    dateOfBirth: "09/12/2024",
+    dateOfBirth: "12/01/2024",
     password: "********",
     role: "User",
     profilePicture: "https://via.placeholder.com/150",
@@ -46,14 +50,14 @@ function ProfileContent() {
   };
 
   return (
-    <div className="p-6 min-h-screen">
+    <div className="p-6 min-h-screen relative">
       {/* Header */}
-      <h1 className="text-lg font-bold text-purple-700">My Profile</h1>
-      <p className="text-gray-600">Complete your profile now!</p>
+      <h1 className="text-xl font-bold text-primary">My Profile</h1>
+      <p className="text-foreground text-lg">Complete your profile now!</p>
 
       {/* Notification */}
       {notification && (
-        <Notification message="✅ Information Profile successfully updated" />
+        <Notification message="Information Profile successfully updated" />
       )}
 
       {/* User Card */}
@@ -67,15 +71,16 @@ function ProfileContent() {
 
 function Notification({ message }) {
   return (
-    <div className="my-4 p-4 bg-green-100 text-green-700 rounded-md flex items-center">
-      <span>{message}</span>
-    </div>
+    <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-[#B6D7A8] border border-green-700 rounded-2xl flex items-center p-4 w-auto">
+    <FaRegCircleCheck className="mr-4 text-green-700" />
+    <span className="text-black font-medium">{message}</span>
+  </div>
   );
 }
 
 function UserCard({ data, onEditClick }) {
   return (
-    <div className="flex items-center bg-white shadow-md py-10 px-10 rounded-lg mt-6">
+    <div className="flex items-center bg-white shadow-lg py-10 px-10 rounded-3xl mt-6">
       <Image
         src={data.profilePicture}
         alt="Profile Picture"
@@ -89,9 +94,9 @@ function UserCard({ data, onEditClick }) {
       </div>
       <button
         onClick={onEditClick}
-        className="text-yellow-500 border border-yellow-500 rounded-lg px-4 py-2 flex items-center hover:bg-yellow-50"
+        className="text-black bg-secondary rounded-lg px-4 py-2 flex items-center hover:bg-primary hover:text-white"
       >
-        ✏️ Edit
+        <RiEdit2Line className="mr-2" /> Edit
       </button>
     </div>
   );
@@ -99,7 +104,7 @@ function UserCard({ data, onEditClick }) {
 
 function InformationCard({ data, onEditClick }) {
   return (
-    <div className="bg-white shadow-md px-10 py-10 rounded-lg mt-4 relative">
+    <div className="bg-white shadow-lg px-10 py-10 rounded-3xl mt-10 relative">
       <h2 className="text-gray-700 font-bold mb-4">Information Profile</h2>
       <div className="grid grid-cols-2 gap-4">
         <Detail label="Full name" value={data.fullName} />
@@ -111,9 +116,9 @@ function InformationCard({ data, onEditClick }) {
       </div>
       <button
         onClick={onEditClick}
-        className="absolute top-10 right-10 text-yellow-500 border border-yellow-500 rounded-lg px-4 py-2 flex items-center hover:bg-yellow-50"
+        className="absolute top-10 right-10 text-black bg-secondary rounded-lg px-4 py-2 flex items-center hover:bg-primary hover:text-white"
       >
-        ✏️ Edit
+       <RiEdit2Line className="mr-2" /> Edit
       </button>
     </div>
   );
