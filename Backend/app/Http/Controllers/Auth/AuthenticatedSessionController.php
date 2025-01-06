@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\FileLink;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -60,6 +61,10 @@ class AuthenticatedSessionController extends Controller
 
             // Cari unggahan anonim berdasarkan IP dan perbarui user_id
             FileUpload::where('ip_address', $ipAddress)
+                ->whereNull('user_id')
+                ->update(['user_id' => $userId]);
+
+            FileLink::where('ip_address', $ipAddress)
                 ->whereNull('user_id')
                 ->update(['user_id' => $userId]);
         }

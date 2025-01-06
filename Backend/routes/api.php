@@ -2,22 +2,22 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\RoleController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\ArticleController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\PermissionController;
 use Illuminate\Session\Middleware\StartSession;
 use App\Http\Controllers\Auth\PasswordController;
-use App\Http\Controllers\FileManagementController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\Features\ImageUploadController;
-use App\Http\Controllers\Features\LinkReuploadController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
+use App\Http\Controllers\Articles\ArticleController;
+use App\Http\Controllers\Users\ProfileController;
+use App\Http\Controllers\Users\UserController;
+use App\Http\Controllers\Features\RolesAndPermissions\PermissionController;
+use App\Http\Controllers\Features\RolesAndPermissions\RoleController;
+use App\Http\Controllers\Features\FileManagement\ImageUploadController;
+use App\Http\Controllers\Features\FileManagement\LinkReuploadController;
+use App\Http\Controllers\Features\FileManagement\FileManagementController;
 
 // Route API
 Route::prefix('v1')->middleware([StartSession::class])->group(function () {

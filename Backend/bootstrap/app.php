@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -21,5 +22,12 @@ return Application::configure(basePath: dirname(__DIR__))
 
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
-    })->create();
+
+        $exceptions->renderable(function (HttpException $e, $request) {
+            if ($e->getStatusCode() == 429) {
+                $message = 'Anda telah mencapai batas unggahan harian. Silakan coba lagi nanti.';
+                return response()->json(['message' => $message], 429);
+            }
+        });
+    })
+    ->create();
