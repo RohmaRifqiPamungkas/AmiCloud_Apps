@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import Image from "next/image";
 
+
 export default function EditProfilePage() {
   const router = useRouter();
 
@@ -34,39 +35,42 @@ export default function EditProfilePage() {
 
   const handleDeletePicture = () => {
     Swal.fire({
-      title: "Apakah Anda yakin?",
-      text: "Gambar ini akan dihapus!",
+      title: "Delete this picture?",
+      text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Ya, hapus!",
+      confirmButtonText: "Delete",
+      cancelButtonText: "Cancel",
+      customClass: {
+        confirmButton: "bg-secondary px-6 py-2 rounded-2xl text-black hover:bg-primary hover:text-white ",
+        cancelButton: "swal2-cancel !border-2 !border-primary !px-6 !py-2 !rounded-2xl !text-primary !hover:bg-primary !hover:text-white ",
+      },
     }).then((result) => {
       if (result.isConfirmed) {
         setProfile({ ...profile, profilePicture: "" }); 
-        Swal.fire("Terhapus!", "Gambar telah berhasil dihapus.", "success");
+        Swal.fire("Deleted!", "Gambar telah berhasil dihapus.", "success");
       }
     });
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6 min-h-screen">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-lg font-bold text-purple-700">My Profile</h1>
-          <p className="text-gray-600">Complete your profile now!</p>
+          <h1 className="text-xl font-bold text-primary">My Profile</h1>
+          <p className="text-foreground text-lg">Complete your profile now!</p>
         </div>
         <div className="flex gap-4">
           <button
             onClick={handleSave}
-            className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600"
+            className="bg-secondary text-foreground hover:text-white px-6 py-2 rounded-2xl hover:bg-primary "
           >
             Save
           </button>
           <button
             onClick={handleCancel}
-            className="border border-purple-700 text-purple-700 px-4 py-2 rounded-lg hover:bg-purple-50"
+            className="border border-primary text-primary px-6 py-2 rounded-2xl hover:bg-primary hover:text-white "
           >
             Cancel
           </button>
@@ -74,14 +78,16 @@ export default function EditProfilePage() {
       </div>
 
       {/* Profile Card */}
-      <div className="bg-white shadow-md p-6 rounded-lg">
+      <div className="bg-white shadow-lg p-6 rounded-3xl">
         <div className="flex items-center gap-6">
           {/* Gambar Profil */}
           {profile.profilePicture ? (
-            <Image
+            <img
               src={profile.profilePicture}
               alt="Profile Picture"
-              className="w-20 h-20 rounded-full object-cover"
+              className="w-16 h-16 lg:w-32 lg:h-32 rounded-full object-cover"
+              width={20}
+              height={20}
             />
           ) : (
             <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center text-gray-500">
@@ -93,13 +99,13 @@ export default function EditProfilePage() {
           <div className="flex gap-4">
             <button
               onClick={handleChangePicture}
-              className="bg-purple-700 text-white px-4 py-2 rounded-lg hover:bg-purple-800"
+              className="bg-primary text-white px-6 py-2 rounded-2xl hover:bg-secondary hover:text-black"
             >
               Change Picture
             </button>
             <button
               onClick={handleDeletePicture}
-              className="border border-purple-700 text-purple-700 px-4 py-2 rounded-lg hover:bg-purple-50"
+              className="border border-primary text-primary px-6 py-2 rounded-2xl hover:bg-primary hover:text-white"
             >
               Delete
             </button>
@@ -107,7 +113,7 @@ export default function EditProfilePage() {
         </div>
 
         {/* Informasi Profil */}
-        <div className="grid grid-cols-2 gap-4 mt-6">
+        <div className="grid grid-cols-4 gap-4 mt-6">
           <div>
             <label className="text-gray-500">Full Name</label>
             <p className="font-medium">{profile.fullName}</p>

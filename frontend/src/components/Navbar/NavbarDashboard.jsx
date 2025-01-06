@@ -12,10 +12,7 @@ export default function NavbarDashboard({ toggleSidebar }) {
     setIsDropdownOpen((prevState) => !prevState);
   };
 
-  const breadcrumbPaths = [
-    { label: "Dashboard", href: "/dashboard" },
-    { label: "Features", href: "/dashboard/features" },
-  ];
+ 
 
   return (
     <header className="bg-tertiary-25 px-6 py-4 flex justify-between items-center">
@@ -26,7 +23,7 @@ export default function NavbarDashboard({ toggleSidebar }) {
         >
           <FiMenu size={24} className="text-black" />
         </button>
-        <Breadcrumb paths={breadcrumbPaths} />
+        <Breadcrumb  />
       </div>
       <div className="relative">
         <button
@@ -48,7 +45,7 @@ export default function NavbarDashboard({ toggleSidebar }) {
         {isDropdownOpen && (
           <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200">
             <a
-              href="/profile"
+              href="/Dashboard/profile"
               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
             >
               My Profile
