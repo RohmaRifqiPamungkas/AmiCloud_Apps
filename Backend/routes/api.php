@@ -66,6 +66,7 @@ Route::prefix('v1')->middleware([StartSession::class])->group(function () {
     });
 
     Route::middleware('auth:sanctum')->group(function () {
+        
         // Mengambil informasi user
         Route::get('user', function (Request $request) {
             return $request->user();
