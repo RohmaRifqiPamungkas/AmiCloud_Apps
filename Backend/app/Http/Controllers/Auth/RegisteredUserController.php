@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Role;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -31,7 +32,7 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -39,13 +40,20 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'is_active' => 0,
+            'is_active' => 0, 
         ]);
 
-        event(new Registered($user));
+        $role = Role::where('name', 'user')->first(); 
+        if ($role) {
+            $user->roles()->attach($role); 
+        }
 
+        event(new Registered($user));
+        
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        $token = $user->createToken('API Token')->plainTextToken;
+
+        return redirect(route('dashboard'))->with('token', $token);
     }
 }

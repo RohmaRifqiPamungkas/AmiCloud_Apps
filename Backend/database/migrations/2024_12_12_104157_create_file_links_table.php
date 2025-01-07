@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('file_links', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->string('file_path', 255);
             $table->text('original_url');
             $table->text('parsed_url')->nullable();
+            $table->string('ip_address', 45)->nullable();
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
@@ -29,5 +30,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('file_links');
-    } 
+    }
 };

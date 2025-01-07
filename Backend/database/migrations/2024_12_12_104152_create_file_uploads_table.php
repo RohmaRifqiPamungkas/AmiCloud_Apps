@@ -13,11 +13,12 @@ return new class extends Migration
     {
         Schema::create('file_uploads', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->string('filename', 255);
             $table->string('file_path', 255);
             $table->double('file_size')->nullable();
-            $table->enum('upload_type', ['png', 'jpg', 'jpeg', 'gif']);
+            $table->enum('upload_type', ['png', 'jpg', 'jpeg', 'gif', 'webp']);
+            $table->string('ip_address', 45)->nullable();
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
