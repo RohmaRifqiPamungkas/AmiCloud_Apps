@@ -6,7 +6,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
-import Upload from "../../public/Feature/Upload.png";
+import Upload from "../../../public/Feature/Upload.png";
 import { FaRegTrashCan } from "react-icons/fa6";
 import Swal from "sweetalert2";
 
@@ -16,8 +16,8 @@ export default function FileUpload() {
   const [uploadCount, setUploadCount] = useState(0);
   const [urlUploadCount, setUrlUploadCount] = useState(0);
 
-  const MAX_UPLOADS = 3;
-  const MAX_FILE_SIZE = 5 * 1024 * 1024; 
+
+  const MAX_FILE_SIZE = 30 * 1024 * 1024; 
   const SUPPORTED_FORMATS = ["image/jpeg", "image/png", "image/jpg", "image/gif"];
 
   const {
@@ -32,27 +32,13 @@ export default function FileUpload() {
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
-
-    if (uploadCount >= MAX_UPLOADS) {
-      Swal.fire({
-        icon: "warning",
-        title: "Upload Limit Reached",
-        text: "You can only upload up to 3 files. Please log in for more uploads.",
-        confirmButtonText: "OK",
-        customClass: {
-          confirmButton: "bg-secondary px-10 py-2 text-black rounded-2xl",
-          popup: "rounded-3xl shadow-md"
-        }
-      });
-      return;
-    }
-
+  
     if (file) {
       if (file.size > MAX_FILE_SIZE) {
         Swal.fire({
           icon: "warning",
           title: "File Size Too Large",
-          text: "The maximum allowed file size is 5MB. Please upload a smaller file.",
+          text: "The maximum allowed file size is 30MB. Please upload a smaller file.",
           confirmButtonText: "OK",
           customClass: {
            confirmButton: "bg-secondary px-10 py-2 text-black rounded-2xl",
@@ -93,20 +79,6 @@ export default function FileUpload() {
 
   const handleUrlUpload = () => {
     const url = watch("url");
-
-    if (urlUploadCount >= MAX_UPLOADS) {
-      Swal.fire({
-        icon: "warning",
-        title: "URL Upload Limit Reached",
-        text: "You can only upload up to 3 URLs. Please log in for more uploads.",
-        confirmButtonText: "OK",
-        customClass: {
-         confirmButton: "bg-secondary px-10 py-2 text-black rounded-2xl",
-          popup: "rounded-3xl shadow-md"
-        }
-      });
-      return;
-    }
 
     if (url && /^(https?:\/\/.*\.(?:png|jpg|jpeg|gif))$/.test(url)) {
       setUploadedUrl(url);
@@ -167,14 +139,18 @@ export default function FileUpload() {
   };
 
   return (
-    <div className="container mx-auto px-20 ">
-      <div className="min-h-screen flex flex-col items-center justify-center  ">
-        <h1 className="text-2xl font-bold text-center text-black mb-4 md:text-4xl mt-20">
-          Quick Reupload, <span className="text-primary">Instant Links!</span>
-        </h1>
+    
+
+    <div className="container mx-auto ">
+      <div className="p-6">
+    {/* Header */}
+    <h1 className="text-xl font-bold text-primary">Create a Photo Link</h1>
+    <p className="text-foreground text-lg">Start creating your photo link now!</p>
+  </div>
+      <div className="flex flex-col items-center  py-10">        
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="bg-white py-10 rounded-lg shadow-md max-w-4xl w-full px-20 mt-16"
+          className="bg-white py-10 rounded-lg shadow-md max-w-4xl w-full px-20"
         >
           <div>
             <h3 className="md:text-2xl font-semibold">Upload File</h3>
@@ -182,12 +158,15 @@ export default function FileUpload() {
 
           <div>
             <div className="border-dashed border-2 border-primary px-6 py-10 rounded-lg mt-6 relative bg-tertiary-25">
-              <div className="flex flex-col items-center space-y-6">
+              <div className="flex flex-col items-center space-y-4">
                 <div className="w-3/4 max-w-md h-auto flex justify-center text-center items-center">
                   <Image src={Upload} alt="Upload" />
                 </div>
                 <div>
-                  <h5>or drag and drop them here</h5>
+                  <h2 className="font-bold text-xl">Unlimited Access Now!</h2>
+                </div>
+                <div>
+                  <h5 className="font-medium text-lg">or drag and drop them here</h5>
                 </div>
                 <label
                   htmlFor="file-upload"
@@ -218,7 +197,7 @@ export default function FileUpload() {
                 Supported formats: JPG, PNG, JPEG, GIF.
               </p>
               <p className="text-gray-500 text-sm text-center">
-                Maximum size: 5MB
+              Maximum size: 30MB
               </p>
             </div>
 

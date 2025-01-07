@@ -6,9 +6,6 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Auth\Events\Verified;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -37,26 +34,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function markEmailAsVerified()
     {
-        if (!$this->hasVerifiedEmail()) {
-            $this->forceFill([
-                'email_verified_at' => now(),
-                'is_active' => 1,
-            ])->save();
+        parent::markEmailAsVerified();
 
-            event(new Verified($this));
+        // Pastikan update is_active hanya terjadi jika email berhasil diverifikasi
+        if (!$this->is_active) {
+            $this->update(['is_active' => 1]);
         }
     }
 
-    /**
-     * Create a personal access token for the user.
-     *
-     * @param  string  $tokenName
-     * @return string
-     */
-    public function createApiToken($tokenName)
-    {
-        $token = $this->createToken($tokenName);
-
-        return $token->plainTextToken;
-    }
 }

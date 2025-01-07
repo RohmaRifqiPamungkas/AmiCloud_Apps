@@ -1,19 +1,14 @@
-"use client";
+'use client'
 
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/hooks/auth";
-import { useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";  
 
 const ResetPassword = () => {
-  const { resetPassword } = useAuth();
-  const {
-    register,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm();
-  const searchParams = useSearchParams();
+  const { resetPassword } = useAuth(); 
+  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { token } = useParams();  
 
   const [status, setStatus] = useState(null);
   const [errorMessages, setErrorMessages] = useState([]);
@@ -23,6 +18,7 @@ const ResetPassword = () => {
     setStatus(null);
 
     await resetPassword({
+      token,  
       setErrors: setErrorMessages,
       setStatus,
       email: data.email,
@@ -45,11 +41,9 @@ const ResetPassword = () => {
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-4">
+        {/* Form fields */}
         <div>
-          <label
-            htmlFor="email"
-            className="block font-medium md:text-2xl text-gray-700"
-          >
+          <label htmlFor="email" className="block font-medium md:text-2xl text-gray-700">
             Email
           </label>
           <input
@@ -67,10 +61,7 @@ const ResetPassword = () => {
         </div>
 
         <div>
-          <label
-            htmlFor="password"
-            className="block font-medium text-base md:text-2xl text-gray-700"
-          >
+          <label htmlFor="password" className="block font-medium text-base md:text-2xl text-gray-700">
             Password
           </label>
           <input
@@ -80,20 +71,14 @@ const ResetPassword = () => {
               errors.password ? "border-red-500" : "border-primary"
             }`}
             {...register("password", { required: "Password is required" })}
-           
           />
           {errors.password && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.password.message}
-            </p>
+            <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
           )}
         </div>
 
         <div>
-          <label
-            htmlFor="confirmPassword"
-            className="block font-medium text-base md:text-2xl text-gray-700"
-          >
+          <label htmlFor="confirmPassword" className="block font-medium text-base md:text-2xl text-gray-700">
             Confirm Password
           </label>
           <input
@@ -104,22 +89,18 @@ const ResetPassword = () => {
             }`}
             {...register("confirmPassword", {
               required: "Confirm Password is required",
-              validate: (value) =>
-                value === watch("password") || "Passwords do not match",
+              validate: (value) => value === watch("password") || "Passwords do not match",
             })}
-            
           />
           {errors.confirmPassword && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.confirmPassword.message}
-            </p>
+            <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</p>
           )}
         </div>
 
         <div>
           <button
             type="submit"
-            className="mt-1 w-full px-4 py-2 bg-secondary text-foreground rounded-2xl text-base md:text-reguler hover:bg-secondary "
+            className="mt-1 w-full px-4 py-2 bg-secondary text-foreground rounded-2xl text-base md:text-reguler hover:bg-secondary"
           >
             Reset Password
           </button>

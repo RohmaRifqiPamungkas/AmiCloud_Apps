@@ -3,6 +3,7 @@ import useSWR from 'swr';
 import axios from '@/lib/axios';
 import { useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useCallback } from "react";
 
 export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     const router = useRouter();
@@ -103,20 +104,21 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     setErrors([]);
     setStatus(null);
 
+    const token = params.token;  
+
     try {
-      const response = await axios.post("/reset-password", {
-        token: params.token,
-        ...props,
-      });
-      router.push("/login?reset=" + btoa(response.data.status));
+        const response = await axios.post('/reset-password', { token, ...props });
+        router.push('/login?reset=' + btoa(response.data.status));
     } catch (error) {
-      if (error.response?.status === 422) {
-        setErrors(error.response.data.errors);
-      } else {
-        setErrors(["An unexpected error occurred."]);
-      }
+        if (error.response?.status === 422) {
+            setErrors(error.response.data.errors);
+        } else {
+            setErrors(['An unexpected error occurred.']);
+        }
     }
-  };
+};
+
+
 
   const resendEmailVerification = async ({ setStatus }) => {
     // await csrf();
@@ -130,25 +132,25 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     }
   };
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     if (!error) {
-      await axios.post("/logout");
-      await mutate();
+        await axios.post("/logout");
+        await mutate();
     }
     window.location.pathname = "/login";
-  };
+}, [error, mutate]);
 
   useEffect(() => {
     if (middleware === "guest" && redirectIfAuthenticated && user) {
-      router.push(redirectIfAuthenticated);
-    }  
+        router.push(redirectIfAuthenticated);
+    }
     if (window.location.pathname === "/verify-email" && user?.email_verified_at) {
-      router.push(redirectIfAuthenticated);
+        router.push(redirectIfAuthenticated);
     }
     if (middleware === "auth" && error && error.response?.status !== 403) {
-      logout(); 
+        logout(); 
     }
-  }, [user, error]);
+}, [middleware, redirectIfAuthenticated, user, error, router, logout]);
 
   return {
     user,
