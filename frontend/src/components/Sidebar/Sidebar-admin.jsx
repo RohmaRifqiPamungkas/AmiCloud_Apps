@@ -20,7 +20,17 @@ const menuSections = [
     items: [
       {
         name: "Management File",
-        href: "/Dashboard/management-files",
+        href: "/Dashboard/manajemen-file",
+        icon: <RiFolderSettingsLine />,
+      },
+    ],
+  },
+  {
+    title: "Configuration",
+    items: [
+      {
+        name: "Management File",
+        href: "/Dashboard/manajemen-file",
         icon: <RiFolderSettingsLine />,
       },
     ],
