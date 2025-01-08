@@ -53,7 +53,6 @@ class RegisteredUserController extends Controller
 
             Auth::login($user);
 
-            // Hasilkan token API
             $token = $user->createToken('API Token')->plainTextToken;
 
             if ($request->expectsJson()) {
