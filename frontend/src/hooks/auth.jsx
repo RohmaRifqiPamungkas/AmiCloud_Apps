@@ -1,164 +1,180 @@
 
+
+
+import { useEffect, useCallback } from 'react';
+import axios from '@/lib/axios'; // Gunakan axios instance
+import { useRouter } from 'next/navigation';
 import useSWR from 'swr';
-import axios from '@/lib/axios';
-import { useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import { useCallback } from "react";
 
 export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
-    const router = useRouter();
-    const params = useParams();
+  const router = useRouter();
 
-     const { data: user, error, mutate } = useSWR('/api/user', async () => {
-        try {
-            const res = await axios.get('/api/user');
-            return res.data;
-        } catch (error) {
-            if (error.response?.status === 409) {
-                router.push('/verify-email');
-            }
-            throw error;
-        }
-    });
-  
-  
+  // Fetch data user menggunakan SWR
+  const { data: user, error: fetchError, mutate: mutateUser } = useSWR(
+    '/api/v1/user', // Endpoint untuk mendapatkan data user
+    async () => {
+      const res = await axios.get('/api/v1/user');
+      return res.data;
+    },
+    { revalidateOnFocus: false }
+  );
 
-  const csrf = async () => {
+  // Mendapatkan CSRF token
+  const csrf = useCallback(async () => {
     try {
-        await axios.get('/sanctum/csrf-cookie'); 
-        console.log("CSRF token diterima dan diset");
+      await axios.get('/sanctum/csrf-cookie'); // Pastikan CSRF cookie di-set
     } catch (error) {
-        console.error("Gagal mendapatkan CSRF token:", error);
+      console.error('Gagal mendapatkan CSRF token:', error);
     }
-  };
+  }, []);
 
-  const register = async ({
-    name,
-    email,
-    password,
-    confirmPassword, 
-    setErrors,
-    setStatus,
-    successCallback,
-  }) => {
-    try {
-      await csrf();  
-     
-      const response = await axios.post("/register", {
-        name,
-        email,
-        password, 
-        password_confirmation: confirmPassword, 
-      });
-  
-      if (response.status === 200) {
-        setStatus("Registration successful!");
-        successCallback(); 
-      }
-    } catch (error) {
-      if (error.response && error.response.data) {
-        setErrors(error.response.data.errors || [error.response.data.message]);
-      } else {
-        setErrors([error.message]);
-      }
-    }
-  };
+  // Fungsi Register
+  const register = useCallback(
+    async ({ name, email, password, confirmPassword, setErrors, setStatus }) => {
+      setErrors([]);
+      setStatus(null);
 
+      try {
+        await csrf();
 
-  const login = async ({ setErrors, ...props }) => {
-    await csrf();
-    setErrors([]);
+        const response = await axios.post('/api/v1/register', {
+          name,
+          email,
+          password,
+          password_confirmation: confirmPassword,
+        });
 
-    try {
-        await axios.post('/login', props);
-        await mutate();
-    } catch (error) {
-        if (error.response?.status === 422) {
-            setErrors(error.response.data.errors);
+        localStorage.setItem('auth_token', response.data.token); // Simpan token ke localStorage
+        setStatus('Registration successful! Please verify your email.');
+        router.push('/verify-email'); // Redirect ke halaman verifikasi email
+      } catch (error) {
+        if (error.response?.data) {
+          setErrors(error.response.data.errors || [error.response.data.message]);
         } else {
-            setErrors(['An unexpected error occurred.']);
+          setErrors([error.message]);
         }
-    }
-};
-
-
-  const forgotPassword = async ({ setErrors, setStatus, email }) => {
-    await csrf();
-    setErrors([]);
-    setStatus(null);
-
-    try {
-      const response = await axios.post("/forgot-password", { email });
-      setStatus(response.data.status);
-    } catch (error) {
-      if (error.response?.status === 422) {
-        setErrors(error.response.data.errors);
-      } else {
-        setErrors(["An unexpected error occurred."]);
       }
-    }
-  };
+    },
+    [csrf, router]
+  );
 
-  const resetPassword = async ({ setErrors, setStatus, ...props }) => {
-    await csrf();
-    setErrors([]);
-    setStatus(null);
+  // Fungsi Login
+  const login = useCallback(
+    async ({ email, password, setErrors }) => {
+      await csrf();
+      setErrors([]);
 
-    const token = params.token;  
+      try {
+        const response = await axios.post('/api/v1/login', { email, password });
 
-    try {
-        const response = await axios.post('/reset-password', { token, ...props });
-        router.push('/login?reset=' + btoa(response.data.status));
-    } catch (error) {
+        localStorage.setItem('auth_token', response.data.token); 
+        await mutateUser(); 
+        router.push('/Dashboard'); // Redirect ke dashboard
+      } catch (error) {
         if (error.response?.status === 422) {
-            setErrors(error.response.data.errors);
+          setErrors(error.response.data.errors);
         } else {
-            setErrors(['An unexpected error occurred.']);
+          setErrors(['An unexpected error occurred.']);
         }
-    }
-};
+      }
+    },
+    [csrf, mutateUser, router]
+  );
 
-
-
-  const resendEmailVerification = async ({ setStatus }) => {
-    // await csrf();
-    try {
-      const response = await axios.post("/email/verification-notification");
-      console.log("Resend Email Verification Response:", response); 
-      setStatus(response.data.status);
-    } catch (error) {
-      console.error("Error resending email verification:", error);
-      console.log("Error Status:", error.response?.status); 
-    }
-  };
-
+  // Fungsi Logout
   const logout = useCallback(async () => {
-    if (!error) {
-        await axios.post("/logout");
-        await mutate();
+    try {
+      await axios.post('/api/v1/logout');
+      localStorage.removeItem('auth_token'); 
+      mutateUser(null); // Reset data user
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
     }
-    window.location.pathname = "/login";
-}, [error, mutate]);
+  }, [mutateUser, router]);
 
+  // Fungsi Resend Email Verification
+  const resendEmailVerification = useCallback(async ({ setStatus }) => {
+    try {
+      const response = await axios.post('/api/v1/email/verification-notification');
+      setStatus(response.data.status); // Set status berhasil
+    } catch (error) {
+      console.error('Gagal mengirim ulang email verifikasi:', error);
+    }
+  }, []);
+
+  // Fungsi Forgot Password
+  const forgotPassword = useCallback(
+    async ({ email, setErrors, setStatus }) => {
+      await csrf();
+      setErrors([]);
+      setStatus(null);
+
+      try {
+        const response = await axios.post('/api/v1/forgot-password', { email });
+        setStatus(response.data.status); // Set status berhasil
+      } catch (error) {
+        if (error.response?.status === 422) {
+          setErrors(error.response.data.errors);
+        } else {
+          setErrors(['An unexpected error occurred.']);
+        }
+      }
+    },
+    [csrf]
+  );
+
+  // Fungsi Reset Password
+  const resetPassword = useCallback(
+    async ({ token, email, password, confirmPassword, setErrors, setStatus }) => {
+      await csrf();
+      setErrors([]);
+      setStatus(null);
+
+      try {
+        const response = await axios.post('/api/v1/reset-password', {
+          token,
+          email,
+          password,
+          password_confirmation: confirmPassword,
+        });
+
+        router.push('/login?reset=' + btoa(response.data.status)); // Redirect ke login dengan pesan sukses
+      } catch (error) {
+        if (error.response?.status === 422) {
+          setErrors(error.response.data.errors);
+        } else {
+          setErrors(['An unexpected error occurred.']);
+        }
+      }
+    },
+    [csrf, router]
+  );
+
+  // Middleware untuk redirect (Auth/Guest)
   useEffect(() => {
-    if (middleware === "guest" && redirectIfAuthenticated && user) {
-        router.push(redirectIfAuthenticated);
+    if (middleware === 'auth' && !user && !fetchError) {
+      mutateUser(); // Refresh data user
     }
-    if (window.location.pathname === "/verify-email" && user?.email_verified_at) {
-        router.push(redirectIfAuthenticated);
+
+    if (user && middleware === 'guest') {
+      router.push(redirectIfAuthenticated || '/dashboard'); // Redirect jika sudah login
     }
-    if (middleware === "auth" && error && error.response?.status !== 403) {
-        logout(); 
+
+    if (fetchError && middleware === 'auth') {
+      router.push('/login'); // Redirect ke login jika tidak ada user
     }
-}, [middleware, redirectIfAuthenticated, user, error, router, logout]);
+  }, [middleware, user, fetchError, redirectIfAuthenticated, router, mutateUser]);
 
   return {
     user,
     register,
     login,
+    logout,
+    resendEmailVerification,
     forgotPassword,
     resetPassword,
-    resendEmailVerification,
-    logout,
+    csrf,
+    error: fetchError,
   };
 };

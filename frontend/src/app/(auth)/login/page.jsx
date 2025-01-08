@@ -8,7 +8,7 @@ import { useAuth } from '@/hooks/auth';
 import Link from 'next/link';
 
 const Login = () => {
-    const { login } = useAuth({ middleware: 'guest', redirectIfAuthenticated: '/features' });
+    const { login } = useAuth({ middleware: 'guest', redirectIfAuthenticated: '/Dashboard' });
     const [errorMessages, setErrorMessages] = useState([]);
     const { register, handleSubmit, formState: { errors } } = useForm();
 
@@ -106,7 +106,7 @@ const Login = () => {
                 {/* Submit Button */}
                 <button
                     type="submit"
-                    className="w-full py-2 px-4 bg-secondary text-reguler text-black font-bold rounded-2xl shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full py-2 px-4 bg-secondary text-reguler text-black font-bold rounded-2xl shadow-md hover:bg-primary hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                     SIGN IN
                 </button>

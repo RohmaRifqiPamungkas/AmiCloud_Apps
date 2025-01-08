@@ -7,6 +7,8 @@ import Image from "next/image";
 import Logo from "../../../public/Navbar/Navbar.png";
 import { MdOutlineUploadFile } from "react-icons/md";
 import { RiFolderSettingsLine } from "react-icons/ri";
+import { useAuth } from "@/hooks/auth";
+import { useRouter } from "next/navigation";
 
 const menuSections = [
   {
@@ -20,15 +22,25 @@ const menuSections = [
     items: [
       {
         name: "Management File",
-        href: "/Dashboard/management-files",
+        href: "/Dashboard/management-file",
         icon: <RiFolderSettingsLine />,
       },
     ],
   },
 ];
 
+
+
 export default function Sidebar({ isCollapsed }) {
   const pathname = usePathname();
+  const {logout} = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async (e) => {
+    e.preventDefault();
+    await logout();
+  };
+
 
   return (
     <aside
@@ -97,8 +109,8 @@ export default function Sidebar({ isCollapsed }) {
       </nav>
 
       <div className="mt-auto py-2 px-5">
-        <Link
-          href="/logout"
+        <a
+          href="#" onClick={handleLogout}
           className={`relative group flex items-center gap-4 py-2 px-2 transition-colors rounded-lg overflow-hidden ${
             pathname === "/logout"
               ? "bg-tertiary-25 text-primary"
@@ -140,7 +152,7 @@ export default function Sidebar({ isCollapsed }) {
             className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"
             aria-hidden="true"
           ></span>
-        </Link>
+        </a>
       </div>
     </aside>
   );

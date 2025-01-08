@@ -16,21 +16,31 @@ const menuSections = [
     ],
   },
   {
-    title: "Configuration",
+    title: "Configuration Admin",
     items: [
       {
         name: "Management File",
-        href: "/Dashboard/manajemen-file",
+        href: "/Dashboard/management-file",
         icon: <RiFolderSettingsLine />,
       },
     ],
   },
   {
-    title: "Configuration",
+    title: "Configuration User",
     items: [
       {
-        name: "Management File",
-        href: "/Dashboard/manajemen-file",
+        name: "Add User",
+        href: "/Dashboard/add-user",
+        icon: <RiFolderSettingsLine />,
+      },
+      {
+        name: "List User",
+        href: "/Dashboard/list-user",
+        icon: <RiFolderSettingsLine />,
+      },
+      {
+        name: "Management Role",
+        href: "/Dashboard/management-role",
         icon: <RiFolderSettingsLine />,
       },
     ],

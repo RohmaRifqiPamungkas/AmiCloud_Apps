@@ -1,32 +1,34 @@
-import Axios from "axios";
 
-const axios = Axios.create({
-    baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
-    headers: {
-        "X-Requested-With": "XMLHttpRequest",
-    },
-    withCredentials: true, 
+
+import axios from 'axios';
+
+
+const instance = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_BACKEND_URL, 
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  withCredentials: true, 
 });
 
 
-axios.interceptors.request.use(
-    (config) => {
-    
-        const xsrfToken = document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("XSRF-TOKEN="))
-            ?.split("=")[1];
+instance.interceptors.request.use((config) => {
+  const token = localStorage.getItem('auth_token'); 
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
+  return config;
+});
 
-        if (xsrfToken) {
-            config.headers["X-XSRF-TOKEN"] = decodeURIComponent(xsrfToken);
-            console.log("X-XSRF-TOKEN berhasil disisipkan:", xsrfToken);
-        } else {
-            console.warn("XSRF-TOKEN tidak ditemukan di cookie");
-        }
-
-        return config;
-    },
-    (error) => Promise.reject(error)
+instance.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.response?.status === 401) {
+      console.log('Unauthorized');
+    }
+    return Promise.reject(error);
+  }
 );
 
-export default axios;
+export default instance;
+
