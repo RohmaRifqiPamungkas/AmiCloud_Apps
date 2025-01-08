@@ -50,12 +50,12 @@ export default function NavbarDashboard({ toggleSidebar }) {
             >
               My Profile
             </a>
-            <a
+            {/* <a
               href="/logout"
               className="block px-4 py-2 text-sm text-red-500 hover:bg-red-100"
             >
               Log Out
-            </a>
+            </a> */}
           </div>
         )}
       </div>
