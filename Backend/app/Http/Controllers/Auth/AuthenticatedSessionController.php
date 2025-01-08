@@ -29,14 +29,11 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
         $request->session()->regenerate();
 
-        // Perbarui unggahan anonim ke pengguna yang login
         $this->assignUploadsToUser($request);
 
-        // Periksa apakah ini permintaan API
         if ($request->expectsJson()) {
             $user = $request->user();
 
-            // Hasilkan token menggunakan Sanctum
             $token = $user->createToken('API Token')->plainTextToken;
 
             return response()->json([
@@ -46,7 +43,6 @@ class AuthenticatedSessionController extends Controller
             ]);
         }
 
-        // Jika bukan API, gunakan alur berbasis sesi
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
@@ -59,7 +55,6 @@ class AuthenticatedSessionController extends Controller
             $userId = Auth::id();
             $ipAddress = $request->ip();
 
-            // Cari unggahan anonim berdasarkan IP dan perbarui user_id
             FileUpload::where('ip_address', $ipAddress)
                 ->whereNull('user_id')
                 ->update(['user_id' => $userId]);

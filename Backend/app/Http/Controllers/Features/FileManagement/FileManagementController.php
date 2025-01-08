@@ -150,15 +150,23 @@ class FileManagementController extends Controller implements HasMiddleware
     /**
      * Delete a file (uploaded or reuploaded).
      */
-    public function destroy(string $id, Request $request)
+    public function destroy(string $id, Request $request): \Illuminate\Http\JsonResponse
     {
         $type = $request->input('type');
+
+        // Validasi apakah ada parameter 'type'
+        if (!$type) {
+            return response()->json([
+                'message' => 'File type must be specified as "upload" or "link".'
+            ], 400);
+        }
 
         if ($type === 'upload') {
             $file = Auth::id() == 1
                 ? FileUpload::findOrFail($id)
                 : FileUpload::where('user_id', Auth::id())->findOrFail($id);
 
+            // Hapus file dari storage
             Storage::disk('public')->delete($file->file_path);
             $file->delete();
         } elseif ($type === 'link') {
@@ -166,15 +174,18 @@ class FileManagementController extends Controller implements HasMiddleware
                 ? FileLink::findOrFail($id)
                 : FileLink::where('user_id', Auth::id())->findOrFail($id);
 
+            // Hapus file dari storage
             Storage::disk('public')->delete($link->file_path);
             $link->delete();
         } else {
-            return redirect()->back()->with('error', 'Invalid file type specified.');
-        }
-        if ($request->expectsJson()) {
-            return response()->json(['message' => 'File deleted successfully.']);
+            return response()->json([
+                'message' => 'Invalid file type specified.'
+            ], 400);
         }
 
-        return redirect()->route('file-management.index')->with('success', 'File deleted successfully.');
+        return response()->json([
+            'message' => 'File deleted successfully.'
+        ], 200);
     }
+
 }
