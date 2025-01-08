@@ -155,6 +155,8 @@ Route::prefix('v1')->middleware([StartSession::class])->group(function () {
         Route::get('/management_files/{id}', [FileManagementController::class, 'show'])->name('api.management_files.show');
         Route::post('/management_files', [FileManagementController::class, 'store'])->name('api.management_files.store');
         Route::put('/management_files/{id}', [FileManagementController::class, 'update'])->name('api.management_files.update');
+        Route::get('/management_files/{id}/copy-link', [FileManagementController::class, 'copyLink'])->name('api.management_files.copy_link');
+        Route::post('/management_files/{id}/share', [FileManagementController::class, 'shareLink'])->name('api.management_files.share');
         Route::delete('/management_files/{id}', [FileManagementController::class, 'destroy'])->name('api.management_files.destroy');
 
         // Features
