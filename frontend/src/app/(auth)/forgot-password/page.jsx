@@ -3,13 +3,17 @@
 import React, { useState } from "react";
 import { useAuth } from '@/hooks/auth';
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 
 const ForgotPassword = () => {
-  const { forgotPassword } = useAuth();
+  const router = useRouter();
+  const { forgotPassword } = useAuth({middleware: 'auth', redirestIfAuthenticated: '/Dashboard',});
   const [status, setStatus] = useState(null);
 
+
+ 
   const {
-    register,
+    
     handleSubmit,
     formState: { errors },
     setError,
@@ -80,7 +84,7 @@ const ForgotPassword = () => {
         <div className="mt-6 flex justify-center">
           <button
             type="submit"
-            className="bg-secondary text-foreground font-semibold py-3 px-4 rounded-2xl hover:bg-secondary w-full"
+            className="bg-secondary text-foreground font-semibold py-3 px-4 rounded-2xl hover:bg-primary hover:text-white w-full"
           >
             Email Password Reset Link
           </button>

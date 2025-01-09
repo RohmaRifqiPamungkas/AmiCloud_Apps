@@ -44,7 +44,12 @@ const Login = () => {
                     <input
                         type="email"
                         id="email"
-                        {...register("email", { required: "Email is required" })}
+                        {...register("email", {
+                            required: "E-mail is required",
+                            pattern: {
+                              value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                              message: "Invalid email format",
+                            }, })}
                         className="w-full px-4 py-3 border border-gray-300 rounded-2xl text-black shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-tertiary-25" 
                         placeholder="Enter your email"
                         autoComplete="email"

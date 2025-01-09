@@ -3,13 +3,36 @@
 'use client';
 
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/auth";
+import {useRouter} from "next/navigation";
+
 
 
 export default function VerificationPage() {
-  const { resendEmailVerification } = useAuth();
+  const router = useRouter();
+  const { logout, resendEmailVerification } = useAuth({
+    middleware: 'auth',
+    redirectIfAuthenticated: '/Dashboard',
+  });
+
   const [status, setStatus] = useState(null);
+
+ 
+  // useEffect(() => {
+  //   const checkEmailVerification = async () => {
+  //     try {
+  //       const response = await axios.get('/api/v1/email/verification-status');
+  //       if (response.data.verified) {
+  //         router.push('/Dashboard'); 
+  //       }
+  //     } catch (error) {
+  //       console.error("Failed to check email verification status:", error);
+  //     }
+  //   };
+
+  //   checkEmailVerification();
+  // }, [router]);
 
   const handleResendEmail = async () => {
     try {
@@ -27,13 +50,13 @@ export default function VerificationPage() {
       </p>
 
       {status && (
-        <p className="mt-4 text-green-600 text-center">{status}</p>
+        <p className="mt-4 text-green-600 text-justify">{status}</p>
       )}
 
       <div className="mt-6 flex justify-center">
         <button
           onClick={handleResendEmail}
-          className="bg-secondary text-foreground font-semibold py-2 px-4 rounded md:rounded-2xl hover:bg-secondary w-full"
+          className="bg-secondary text-foreground font-semibold py-2 px-4 rounded md:rounded-2xl hover:bg-primary hover:text-white w-full"
         >
           Resend Verification Email
         </button>
@@ -41,9 +64,9 @@ export default function VerificationPage() {
 
       <p className="mt-6 text-center text-sm md:text-base text-gray-500">
       Not using your account anymore?&nbsp;
-        <a href="/logout" className="text-blue-500 underline hover:underline">
+        <button onClick={logout} className="text-blue-500 underline hover:underline">
           Log Out
-        </a>
+        </button>
       </p>
     </div>     
       </>
