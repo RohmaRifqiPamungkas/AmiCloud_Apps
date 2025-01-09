@@ -12,7 +12,7 @@ import {
 import { VscSettings } from "react-icons/vsc";
 import { RiEyeLine, RiDownloadLine } from "react-icons/ri";
 import Link from "next/link";
-
+import Image from "next/image";
 
 // image
 const generateImageData = (count) => {
@@ -25,14 +25,13 @@ const generateImageData = (count) => {
 
 const imageData = generateImageData(10);
 
-
 // link
 const generateLinkData = (count) => {
   return Array.from({ length: count }, (_, i) => ({
     id: i + 1,
     shortLink: `bit.ly/${100 + i}`,
     originalLink: `https://example.com/longlink${i + 1}`,
-    date: `2025-01-${String(i + 1).padStart(2, '0')}`,
+    date: `2025-01-${String(i + 1).padStart(2, "0")}`,
   }));
 };
 
@@ -120,7 +119,7 @@ export default function FileManagement() {
                 key={item.id}
                 className="bg-white rounded-xl shadow p-4 flex flex-col items-center"
               >
-                <img
+                <Image
                   src={item.image}
                   alt={item.title}
                   className="w-full h-32 object-cover rounded-lg"
@@ -129,26 +128,25 @@ export default function FileManagement() {
                   {item.title}
                 </h3>
                 <div className="flex flex-wrap justify-center sm:justify-start space-x-2 space-y-2 sm:space-y-0 mt-4 text-foreground">
-  <Link
-    className=" hover:text-primary flex items-center justify-center "
-    href="/Dashboard/manajemen-file/view-detail"
-  >
-    <RiEyeLine />
-  </Link>
-  <button className="hover:text-primary flex items-center justify-center ">
-    <MdDelete />
-  </button>
-  <button className=" hover:text-primary flex items-center justify-center ">
-    <MdFileCopy />
-  </button>
-  <button className=" hover:text-primary flex items-center justify-center ">
-    <RiDownloadLine />
-  </button>
-  <button className="hover:text-primary flex items-center justify-center ">
-    <MdShare />
-  </button>
-</div>
-
+                  <Link
+                    className=" hover:text-primary flex items-center justify-center "
+                    href="/Dashboard/manajemen-file/view-detail"
+                  >
+                    <RiEyeLine />
+                  </Link>
+                  <button className="hover:text-primary flex items-center justify-center ">
+                    <MdDelete />
+                  </button>
+                  <button className=" hover:text-primary flex items-center justify-center ">
+                    <MdFileCopy />
+                  </button>
+                  <button className=" hover:text-primary flex items-center justify-center ">
+                    <RiDownloadLine />
+                  </button>
+                  <button className="hover:text-primary flex items-center justify-center ">
+                    <MdShare />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -219,7 +217,7 @@ export default function FileManagement() {
                     <td className="px-4 py-2">{item.date}</td>
                     <td className="px-4 py-2">
                       <div className="flex space-x-2">
-                      <button
+                        <button
                           className="text-sm text-primary hover:text-primary-2"
                           onClick={() => {}}
                         >
@@ -237,7 +235,6 @@ export default function FileManagement() {
                         >
                           <MdShare className="inline-block mr-1" />
                         </button>
-                       
                       </div>
                     </td>
                   </tr>
@@ -262,7 +259,8 @@ export default function FileManagement() {
 
               <div className="flex items-center space-x-4">
                 <span className="text-lg text-foreground">
-                 Showing  {pageLink} to {totalPagesLink}  of {totalPagesLink} results
+                  Showing {pageLink} to {totalPagesLink} of {totalPagesLink}{" "}
+                  results
                 </span>
 
                 <div className="flex items-center space-x-2">

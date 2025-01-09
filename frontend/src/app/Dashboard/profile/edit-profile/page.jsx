@@ -82,7 +82,7 @@ export default function EditProfilePage() {
         <div className="flex items-center gap-6">
           {/* Gambar Profil */}
           {profile.profilePicture ? (
-            <img
+            <Image
               src={profile.profilePicture}
               alt="Profile Picture"
               className="w-16 h-16 lg:w-32 lg:h-32 rounded-full object-cover"

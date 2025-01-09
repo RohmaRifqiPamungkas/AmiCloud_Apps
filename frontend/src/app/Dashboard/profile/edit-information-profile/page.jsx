@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { useMemo } from "react";
 
 export default function EditInformationProfile() {
   const {
@@ -17,18 +18,18 @@ export default function EditInformationProfile() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const sampleData = {
+  const sampleData = useMemo(() => ({
     fullName: "Lalapowww",
     username: "Lalapow",
     email: "lalapow@gmail.com",
     phone: "089765432134",
     dateOfBirth: "12/09/2024",
     password: "12345678",
-  };
-
+  }), []);  
+  
   useEffect(() => {
     reset(sampleData);
-  }, [reset]);
+  }, [reset, sampleData]);
 
   const togglePasswordVisibility = () => {
     setShowPassword((prevState) => !prevState);
@@ -37,7 +38,6 @@ export default function EditInformationProfile() {
   const handleSave = async (data) => {
     try {
       setIsLoading(true);
-      // Simpan data yang diperbarui (simulasi atau kirim ke API)
       console.log("Data yang diperbarui:", data);
       router.push("/Dashboard/profile?success=true");
     } catch (error) {
