@@ -45,12 +45,12 @@ class FileManagementController extends Controller implements HasMiddleware
         if ($search) {
             $uploadsQuery->where(function ($query) use ($search) {
                 $query->where('upload_type', 'LIKE', "%{$search}%")
-                ->orWhere('filename', 'LIKE', "%{$search}%");
+                    ->orWhere('filename', 'LIKE', "%{$search}%");
             });
 
             $linksQuery->where(function ($query) use ($search) {
                 $query->where('file_path', 'LIKE', "%{$search}%")
-                ->orWhere('original_url', 'LIKE', "%{$search}%");
+                    ->orWhere('original_url', 'LIKE', "%{$search}%");
             });
         }
 
@@ -119,21 +119,27 @@ class FileManagementController extends Controller implements HasMiddleware
     /**
      * Update the title of a file upload.
      */
+    /**
+     * Update the title and filename of a file upload.
+     */
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
+            'filename' => 'required|string|max:255',
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            return response()->json([
+                'message' => 'Invalid input.',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
         $fileUpload = Auth::id() == 1
             ? FileUpload::findOrFail($id)
             : FileUpload::where('user_id', Auth::id())->findOrFail($id);
 
-        $fileUpload->title = $request->input('title');
+        $fileUpload->filename = $request->input('filename');
         $fileUpload->save();
 
         if ($request->expectsJson()) {
@@ -144,8 +150,107 @@ class FileManagementController extends Controller implements HasMiddleware
         }
 
         return redirect()->route('file-management.index')
-            ->with('success', 'File title updated successfully.');
+            ->with('success', 'File updated successfully.');
     }
+
+    /**
+     * Copy a link (uploaded or reuploaded).
+     */
+    public function copyLink($id, Request $request)
+    {
+        $type = $request->input('type');
+
+        if (!$type) {
+            return response()->json([
+                'message' => 'File type must be specified as "upload" or "link".'
+            ], 400);
+        }
+
+        $url = null;
+
+        if ($type === 'upload') {
+            $fileUpload = Auth::id() == 1
+                ? FileUpload::findOrFail($id)
+                : FileUpload::where('user_id', Auth::id())->findOrFail($id);
+
+            $domain = env('APP_URL');
+            $filePath = $fileUpload->file_path;
+            if (strpos($filePath, 'images/') === false) {
+                $filePath = 'images/' . $filePath;
+            }
+            $url = $domain . '/' . $filePath;
+        } elseif ($type === 'link') {
+            $fileLink = Auth::id() == 1
+                ? FileLink::findOrFail($id)
+                : FileLink::where('user_id', Auth::id())->findOrFail($id);
+
+            $url = $fileLink->original_url;
+        } else {
+            return response()->json([
+                'message' => 'Invalid file type specified.'
+            ], 400);
+        }
+
+        return response()->json([
+            'message' => 'Link copied successfully.',
+            'url' => $url,
+        ], 200);
+    }
+
+    /**
+     * Share link to social media (WhatsApp, etc.).
+     */
+    public function shareLink($id, Request $request)
+    {
+        $type = $request->input('type');
+
+        if (!$type) {
+            return response()->json([
+                'message' => 'File type must be specified as "upload" or "link".'
+            ], 400);
+        }
+
+        $url = null;
+
+        if ($type === 'upload') {
+            $fileUpload = Auth::id() == 1
+                ? FileUpload::findOrFail($id)
+                : FileUpload::where('user_id', Auth::id())->findOrFail($id);
+
+            $domain = env('APP_URL');
+            $filePath = $fileUpload->file_path;
+            if (strpos($filePath, 'images/') === false) {
+                $filePath = 'images/' . $filePath;
+            }
+            $url = $domain . '/' . $filePath;
+        } elseif ($type === 'link') {
+            $fileLink = Auth::id() == 1
+                ? FileLink::findOrFail($id)
+                : FileLink::where('user_id', Auth::id())->findOrFail($id);
+
+            $url = $fileLink->parsed_url ?: $fileLink->original_url;
+        } else {
+            return response()->json([
+                'message' => 'Invalid file type specified.'
+            ], 400);
+        }
+
+        // Encode URL for sharing
+        $encodedUrl = urlencode($url);
+        $message = 'Check out this file: ' . $encodedUrl;
+
+        // Generate WhatsApp share URL
+        $whatsAppUrl = "https://wa.me/?text=" . $message;
+
+        // Alternatively, you can add more share links for other platforms like Facebook, Twitter, etc.
+
+        return response()->json([
+            'message' => 'Share link generated successfully.',
+            'whatsAppUrl' => $whatsAppUrl,
+            // Add other platforms here, if desired.
+        ], 200);
+    }
+
 
     /**
      * Delete a file (uploaded or reuploaded).
@@ -154,7 +259,6 @@ class FileManagementController extends Controller implements HasMiddleware
     {
         $type = $request->input('type');
 
-        // Validasi apakah ada parameter 'type'
         if (!$type) {
             return response()->json([
                 'message' => 'File type must be specified as "upload" or "link".'
@@ -166,7 +270,6 @@ class FileManagementController extends Controller implements HasMiddleware
                 ? FileUpload::findOrFail($id)
                 : FileUpload::where('user_id', Auth::id())->findOrFail($id);
 
-            // Hapus file dari storage
             Storage::disk('public')->delete($file->file_path);
             $file->delete();
         } elseif ($type === 'link') {
@@ -174,7 +277,6 @@ class FileManagementController extends Controller implements HasMiddleware
                 ? FileLink::findOrFail($id)
                 : FileLink::where('user_id', Auth::id())->findOrFail($id);
 
-            // Hapus file dari storage
             Storage::disk('public')->delete($link->file_path);
             $link->delete();
         } else {
@@ -187,5 +289,4 @@ class FileManagementController extends Controller implements HasMiddleware
             'message' => 'File deleted successfully.'
         ], 200);
     }
-
 }
