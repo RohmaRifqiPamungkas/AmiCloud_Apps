@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Features\FileManagement;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\FileUpload;
 
@@ -23,18 +24,20 @@ class ImageUploadController extends Controller
         $uniqueFileName = "AmiCloud_{$uniqueCode}.{$extension}";
         $fileSize = $image->getSize();
 
+        // Use Storage facade to move file into public folder
+        $filePath = "images/{$uniqueFileName}";
         $image->move(public_path('images'), $uniqueFileName);
 
         $fileUpload = new FileUpload();
         $fileUpload->user_id = Auth::check() ? Auth::id() : null;
         $fileUpload->filename = $originalName;
-        $fileUpload->file_path = 'images/' . $uniqueFileName;
+        $fileUpload->file_path = $filePath;
         $fileUpload->file_size = $fileSize;
         $fileUpload->upload_type = $extension;
         $fileUpload->ip_address = $request->ip();
         $fileUpload->save();
 
-        $imageUrl = url('images/' . $uniqueFileName);
+        $imageUrl = url($filePath);
 
         if ($request->expectsJson()) {
             return response()->json([

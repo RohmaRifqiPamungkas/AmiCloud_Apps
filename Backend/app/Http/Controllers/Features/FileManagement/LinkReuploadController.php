@@ -47,7 +47,7 @@ class LinkReuploadController extends Controller
                 $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
 
                 // Validasi format file gambar yang diterima
-                if (!in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'])) {
+                if (!in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
                     $errorMessage = 'Format file tidak didukung.';
                     if ($request->expectsJson()) {
                         return response()->json(['message' => $errorMessage], 400);
