@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -10,37 +11,82 @@ import { RiFolderSettingsLine } from "react-icons/ri";
 import { useAuth } from "@/hooks/auth";
 import { useRouter } from "next/navigation";
 
-const menuSections = [
-  {
-    title: "Features App",
-    items: [
-      { name: "Features", href: "/Dashboard", icon: <MdOutlineUploadFile /> },
-    ],
-  },
-  {
-    title: "Configuration",
-    items: [
-      {
-        name: "Management File",
-        href: "/Dashboard/management-file",
-        icon: <RiFolderSettingsLine />,
-      },
-    ],
-  },
-];
-
-
 
 export default function Sidebar({ isCollapsed }) {
   const pathname = usePathname();
-  const {logout} = useAuth();
+  const { logout, user } = useAuth();  
   const router = useRouter();
+
+
+  const getMenuSections = (userId) => {
+    if (userId === 1) {
+      return [
+        {
+          title: "Features App",
+          items: [
+            { name: "Features", href: "/Dashboard", icon: <MdOutlineUploadFile /> },
+          ],
+        },
+        {
+          title: "Configuration Admin",
+          items: [
+            {
+              name: "Management File",
+              href: "/Dashboard/management-file",
+              icon: <RiFolderSettingsLine />,
+            },
+          ],
+        },
+        {
+          title: "Configuration User",
+          items: [
+            {
+              name: "Add User",
+              href: "/Dashboard/add-user",
+              icon: <RiFolderSettingsLine />,
+            },
+            {
+              name: "List User",
+              href: "/Dashboard/list-user",
+              icon: <RiFolderSettingsLine />,
+            },
+            {
+              name: "Management Role",
+              href: "/Dashboard/management-role",
+              icon: <RiFolderSettingsLine />,
+            },
+          ],
+        },
+      ];
+    }
+
+    return [
+      {
+        title: "Features App",
+        items: [
+          { name: "Features", href: "/Dashboard", icon: <MdOutlineUploadFile /> },
+        ],
+      },
+      {
+        title: "Configuration",
+        items: [
+          {
+            name: "Management File",
+            href: "/Dashboard/management-file",
+            icon: <RiFolderSettingsLine />,
+          },
+        ],
+      },
+    ];
+  };
 
   const handleLogout = async (e) => {
     e.preventDefault();
     await logout();
   };
 
+  // Pastikan user sudah tersedia sebelum mencoba mengakses menu
+  const menuSections = user ? getMenuSections(user.id) : [];
 
   return (
     <aside
@@ -76,7 +122,7 @@ export default function Sidebar({ isCollapsed }) {
                 }`}
               >
                 <span
-                  className={`absolute left-0 top-0 bottom-0 w-2 bg-purple-800 rounded-r-full transition-transform transform ${
+                  className={`absolute left-0 top-0 bottom-0 w-2 bg-primary rounded-r-full transition-transform transform ${
                     pathname === item.href
                       ? "scale-y-100"
                       : "scale-y-0 group-hover:scale-y-100"
@@ -109,9 +155,9 @@ export default function Sidebar({ isCollapsed }) {
       </nav>
 
       <div className="mt-auto py-2 px-5">
-        <a
-          href="#" onClick={handleLogout}
-          className={`relative group flex items-center gap-4 py-2 px-2 transition-colors rounded-lg overflow-hidden ${
+        <button
+          onClick={handleLogout}
+          className={`relative group flex items-center gap-4 py-2 px-2 transition-colors rounded-lg overflow-hidden w-full ${
             pathname === "/logout"
               ? "bg-tertiary-25 text-primary"
               : "text-foreground hover:bg-tertiary-25 hover:text-primary"
@@ -152,8 +198,9 @@ export default function Sidebar({ isCollapsed }) {
             className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg"
             aria-hidden="true"
           ></span>
-        </a>
+        </button>
       </div>
     </aside>
   );
 }
+

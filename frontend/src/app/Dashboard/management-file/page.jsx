@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { AiOutlineSearch, AiOutlineFilter } from "react-icons/ai";
+import { AiOutlineSearch } from "react-icons/ai";
 import {
   MdFileCopy,
   MdShare,
@@ -9,6 +9,7 @@ import {
   MdNavigateBefore,
   MdNavigateNext,
 } from "react-icons/md";
+import { VscSettings } from "react-icons/vsc";
 import { RiEyeLine, RiDownloadLine } from "react-icons/ri";
 import Link from "next/link";
 
@@ -105,7 +106,7 @@ export default function FileManagement() {
             />
           </div>
           <button className="flex items-center px-4 py-2 bg-white rounded-3xl text-foreground hover:bg-primary hover:text-white">
-            <AiOutlineFilter className="mr-2" />
+            <VscSettings className="mr-2" />
             Filters
           </button>
         </div>
@@ -127,23 +128,27 @@ export default function FileManagement() {
                 <h3 className="mt-2 text-sm font-medium text-center">
                   {item.title}
                 </h3>
-                <div className="flex space-x-2 mt-4 text-foreground">
-                  <Link className="p-2 hover:text-primary" href="/Dashboard/manajemen-file/view-detail">
-                    <RiEyeLine />
-                  </Link>
-                  <button className="p-2 hover:text-primary">
-                    <MdDelete />
-                  </button>
-                  <button className="p-2 hover:text-primary">
-                    <MdFileCopy />
-                  </button>
-                  <button className="p-2 hover:text-primary">
-                    <RiDownloadLine />
-                  </button>
-                  <button className="p-2 hover:text-primary">
-                    <MdShare />
-                  </button>
-                </div>
+                <div className="flex flex-wrap justify-center sm:justify-start space-x-2 space-y-2 sm:space-y-0 mt-4 text-foreground">
+  <Link
+    className=" hover:text-primary flex items-center justify-center "
+    href="/Dashboard/manajemen-file/view-detail"
+  >
+    <RiEyeLine />
+  </Link>
+  <button className="hover:text-primary flex items-center justify-center ">
+    <MdDelete />
+  </button>
+  <button className=" hover:text-primary flex items-center justify-center ">
+    <MdFileCopy />
+  </button>
+  <button className=" hover:text-primary flex items-center justify-center ">
+    <RiDownloadLine />
+  </button>
+  <button className="hover:text-primary flex items-center justify-center ">
+    <MdShare />
+  </button>
+</div>
+
               </div>
             ))}
           </div>
