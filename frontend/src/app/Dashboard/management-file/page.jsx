@@ -123,6 +123,8 @@ export default function FileManagement() {
                   src={item.image}
                   alt={item.title}
                   className="w-full h-32 object-cover rounded-lg"
+                  width={100}
+                  height={100}
                 />
                 <h3 className="mt-2 text-sm font-medium text-center">
                   {item.title}
@@ -130,7 +132,7 @@ export default function FileManagement() {
                 <div className="flex flex-wrap justify-center sm:justify-start space-x-2 space-y-2 sm:space-y-0 mt-4 text-foreground">
                   <Link
                     className=" hover:text-primary flex items-center justify-center "
-                    href="/Dashboard/manajemen-file/view-detail"
+                    href="/Dashboard/management-file/view-detail"
                   >
                     <RiEyeLine />
                   </Link>
