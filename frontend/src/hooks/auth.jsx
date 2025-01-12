@@ -161,9 +161,9 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
       router.push(redirectIfAuthenticated || '/Dashboard'); 
     }
 
-    // if (fetchError && middleware === 'auth') {
-    //   router.push('/login'); // Redirect ke login jika tidak ada user
-    // }
+    if (fetchError && middleware === 'auth') {
+      router.push('/login'); // Redirect ke login jika tidak ada user
+    }
   }, [middleware, user, fetchError, redirectIfAuthenticated, router, mutateUser]);
 
  

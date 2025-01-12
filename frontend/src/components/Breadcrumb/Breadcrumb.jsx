@@ -8,7 +8,7 @@ export default function Breadcrumb() {
 
   const paths = pathname
     .split("/")
-    .filter((segment) => segment) // Hapus elemen kosong
+    .filter((segment) => segment) 
     .map((segment, index, arr) => ({
       label: segment.charAt(0).toUpperCase() + segment.slice(1),
       href: "/" + arr.slice(0, index + 1).join("/"),
