@@ -55,7 +55,6 @@ class LinkReuploadController extends Controller
                     return back()->with('error_url', $errorMessage);
                 }
 
-                // Buat nama file unik
                 $uniqueCode = Str::random(8);
                 $newFileName = 'AmiCloud_' . $uniqueCode . '.' . $extension;
 
@@ -83,7 +82,6 @@ class LinkReuploadController extends Controller
 
                 return back()->with('url_image', $successMessage);
             } else {
-                // Gagal mengunduh gambar dari URL
                 $errorMessage = 'Gagal mengunduh gambar dari URL.';
                 if ($request->expectsJson()) {
                     return response()->json(['message' => $errorMessage], 400);
@@ -91,7 +89,6 @@ class LinkReuploadController extends Controller
                 return back()->with('error_url', $errorMessage);
             }
         } catch (\Exception $e) {
-            // Tangani kesalahan dengan baik
             $errorMessage = 'Terjadi kesalahan: ' . $e->getMessage();
             if ($request->expectsJson()) {
                 return response()->json(['message' => $errorMessage], 500);

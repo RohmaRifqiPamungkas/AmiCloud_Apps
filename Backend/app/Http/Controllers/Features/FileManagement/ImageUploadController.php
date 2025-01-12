@@ -24,7 +24,6 @@ class ImageUploadController extends Controller
         $uniqueFileName = "AmiCloud_{$uniqueCode}.{$extension}";
         $fileSize = $image->getSize();
 
-        // Use Storage facade to move file into public folder
         $filePath = "images/{$uniqueFileName}";
         $image->move(public_path('images'), $uniqueFileName);
 

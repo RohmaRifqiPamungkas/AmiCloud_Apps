@@ -13,6 +13,24 @@ use App\Http\Controllers\Features\FileManagement\ImageUploadController;
 use App\Http\Controllers\Features\FileManagement\LinkReuploadController;
 use App\Http\Controllers\Features\FileManagement\FileManagementController;
 
+Route::get('/route-list', function () {
+    $routes = collect(Route::getRoutes())->filter(function ($route) {
+        return strpos($route->uri(), 'api/') === 0;
+    })->map(function ($route) {
+        return [
+            'uri' => $route->uri(),
+            'method' => implode('|', $route->methods()),
+            'name' => $route->getName(),
+            'action' => $route->getActionName(),
+        ];
+    });
+
+    if (empty($routes)) {
+        dd('No API routes found!');
+    }
+
+    return view('api.apis', ['json' => json_encode($routes, JSON_PRETTY_PRINT)]);
+});
 
 // Route untuk pengujian kirim email
 Route::middleware('auth')->get('/send-test-email', function () {
@@ -63,7 +81,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Rute yang membutuhkan autentikasi
-Route::middleware('auth')->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
     // Profil Pengguna
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
