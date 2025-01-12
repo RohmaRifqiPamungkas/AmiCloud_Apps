@@ -5,17 +5,17 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\RateLimiter;
 use App\Http\Controllers\Users\UserController;
 use Illuminate\Session\Middleware\StartSession;
-use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Users\ProfileController;
 use App\Http\Controllers\Articles\ArticleController;
-use App\Http\Controllers\Auth\NewPasswordController;
-use App\Http\Controllers\Auth\VerifyEmailController;
-use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Auth\EmailVerificationPromptController;
+use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
+use App\Http\Controllers\Auth\EmailVerificationPromptController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\PasswordController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Features\RolesAndPermissions\RoleController;
 use App\Http\Controllers\Features\FileManagement\ImageUploadController;
 use App\Http\Controllers\Features\FileManagement\LinkReuploadController;
@@ -26,20 +26,20 @@ use App\Http\Controllers\Features\RolesAndPermissions\PermissionController;
 Route::prefix('v1')->middleware([StartSession::class])->group(function () {
 
     Route::get('/route-list', function () {
-    $routes = collect(Route::getRoutes())->filter(function ($route) {
-        return strpos($route->uri(), 'api/') === 0;
-    })->map(function ($route) {
-        return [
-            'uri' => $route->uri(),
-            'method' => implode('|', $route->methods()),
-            'name' => $route->getName(),
-            'action' => $route->getActionName(),
-        ];
-    });
+        $routes = collect(Route::getRoutes())->filter(function ($route) {
+            return strpos($route->uri(), 'api/') === 0;
+        })->map(function ($route) {
+            return [
+                'uri' => $route->uri(),
+                'method' => implode('|', $route->methods()),
+                'name' => $route->getName(),
+                'action' => $route->getActionName(),
+            ];
+        });
 
-    if (empty($routes)) {
-        dd('No API routes found!');
-    }
+        if (empty($routes)) {
+            dd('No API routes found!');
+        }
         return view('api.apis', ['json' => json_encode($routes, JSON_PRETTY_PRINT)]);
     });
 
@@ -65,15 +65,24 @@ Route::prefix('v1')->middleware([StartSession::class])->group(function () {
         return view('features.not_login.landing');
     })->name('features.not_login.landing');
 
-    // Rute Upload Image 
     Route::post('/file/upload/image', [ImageUploadController::class, 'upload'])
-        ->middleware('throttle:upload-image')
-        ->name('file.upload.image');
+        ->middleware(['throttle:upload-image', 'auth:sanctum'])
+        ->name('file.upload.image.auth');
+
+    // Rute untuk upload image tanpa autentikasi
+    Route::post('/file/upload/image', [ImageUploadController::class, 'upload'])
+        ->middleware(['throttle:upload-image'])
+        ->name('file.upload.image.guest');
 
     // Rute Reupload Link
     Route::post('/file/link-upload', [LinkReuploadController::class, 'createLink'])
         ->middleware(['throttle:link-upload'])
         ->name('file.link.create');
+
+    // Rute dashboard 
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->middleware(['auth', 'verified'])->name('dashboard');
 
     // Fitur otentikasi
     Route::middleware('guest')->group(function () {
@@ -107,10 +116,6 @@ Route::prefix('v1')->middleware([StartSession::class])->group(function () {
     });
 
     Route::middleware('auth:sanctum')->group(function () {
-
-        Route::get('/dashboard', function () {
-            return view('dashboard');
-        })->middleware(['auth', 'verified'])->name('api.dashboard');
 
         // Mengambil informasi user
         Route::get('user', function (Request $request) {
@@ -156,6 +161,7 @@ Route::prefix('v1')->middleware([StartSession::class])->group(function () {
 
         // Rute Roles
         Route::get('/roles', [RoleController::class, 'index'])->name('api.roles.index');
+        Route::get('/roles/{id}', [RoleController::class, 'show'])->name('api.roles.show');
         Route::get('/roles/create', [RoleController::class, 'create'])->name('api.roles.create');
         Route::post('/roles', [RoleController::class, 'store'])->name('api.roles.store');
         Route::get('/roles/{id}/edit', [RoleController::class, 'edit'])->name('api.roles.edit');

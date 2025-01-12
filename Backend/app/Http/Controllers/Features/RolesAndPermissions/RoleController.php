@@ -69,7 +69,8 @@ class RoleController extends Controller implements HasMiddleware
 
         if ($validator->passes()) {
             $role = Role::create([
-                'name' => $request->name
+                'name' => $request->name,
+                'guard_name' => $request->guard_name ?? 'web'
             ]);
 
             if (!empty($request->permission)) {

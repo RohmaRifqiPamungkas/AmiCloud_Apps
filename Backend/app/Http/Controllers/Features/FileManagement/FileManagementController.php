@@ -235,19 +235,14 @@ class FileManagementController extends Controller implements HasMiddleware
             ], 400);
         }
 
-        // Encode URL for sharing
         $encodedUrl = urlencode($url);
         $message = 'Check out this file: ' . $encodedUrl;
 
-        // Generate WhatsApp share URL
         $whatsAppUrl = "https://wa.me/?text=" . $message;
-
-        // Alternatively, you can add more share links for other platforms like Facebook, Twitter, etc.
 
         return response()->json([
             'message' => 'Share link generated successfully.',
             'whatsAppUrl' => $whatsAppUrl,
-            // Add other platforms here, if desired.
         ], 200);
     }
 
