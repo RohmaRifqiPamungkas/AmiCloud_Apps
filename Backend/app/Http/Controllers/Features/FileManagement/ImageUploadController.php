@@ -2,15 +2,25 @@
 
 namespace App\Http\Controllers\Features\FileManagement;
 
-use App\Http\Controllers\Controller;
+use App\Models\FileUpload;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use App\Models\FileUpload;
+use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Routing\Controllers\HasMiddleware;
 
-class ImageUploadController extends Controller
+class ImageUploadController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:view features', only: ['index']),
+            new Middleware('permission:create features', only: ['create']),
+        ];
+    }
+    
     public function upload(Request $request)
     {
         $request->validate([

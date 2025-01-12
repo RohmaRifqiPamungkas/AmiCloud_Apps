@@ -53,13 +53,13 @@
                     </div>
                 @endcan
 
-                {{-- @can('view users') --}}
+                @can('view features')
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('features.landing')" :active="request()->routeIs('features.landing')">
                         {{ __('Landing Page') }}
                     </x-nav-link>
                 </div>
-                {{-- @endcan --}}
+                @endcan
 
                 @can('view file management')
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">

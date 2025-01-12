@@ -29,6 +29,10 @@ class RoleAndPermissionSeeder extends Seeder
             'create permissions',
             'edit permissions',
             'delete permissions',
+            
+            // Permission Features
+            'view features',
+            'create permissions',
 
             // File Management
             'view file management',
