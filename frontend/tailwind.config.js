@@ -10,7 +10,13 @@ module.exports = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
-        primary: "var(--primary)",
+        primary: {
+          DEFAULT: "var(--primary)",
+          25: "rgba(89, 13, 130, 0.25)",
+          50: "rgba(89, 13, 130, 0.50)",
+          75: "rgba(89, 13, 130, 0.75)",
+          100: "rgba(89, 13, 130, 1)",
+        },
         secondary: "var(--secondary)",
         tertiary: {
           DEFAULT: "var(--tertiary)",
