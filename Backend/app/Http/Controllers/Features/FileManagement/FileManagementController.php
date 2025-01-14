@@ -31,6 +31,7 @@ class FileManagementController extends Controller implements HasMiddleware
     {
         $search = $request->query('search');
         $perPage = $request->query('per_page', 10);
+        $type = $request->query('type'); 
 
         if (Auth::id() == 1) {
             // Admin dapat melihat semua data
@@ -54,8 +55,17 @@ class FileManagementController extends Controller implements HasMiddleware
             });
         }
 
-        $uploads = $uploadsQuery->paginate($perPage);
-        $links = $linksQuery->paginate($perPage);
+        if ($type === 'upload') {
+            $uploads = $uploadsQuery->paginate($perPage);
+            $links = null;
+        } elseif ($type === 'link') {
+            $uploads = null;
+            $links = $linksQuery->paginate($perPage);
+        } else {
+
+            $uploads = $uploadsQuery->paginate($perPage);
+            $links = $linksQuery->paginate($perPage);
+        }
 
         if ($request->expectsJson()) {
             return response()->json([

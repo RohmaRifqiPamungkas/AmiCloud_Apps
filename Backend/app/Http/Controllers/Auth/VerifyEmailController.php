@@ -24,7 +24,9 @@ class VerifyEmailController extends Controller
                 ], 200);
             }
 
-            return redirect()->intended(route('dashboard', absolute: false) . '?verified=1');
+            return redirect()->intended(
+                config('app.frontend_url') . '/Dashboard?verified=1'
+            );
         }
 
         if ($user->markEmailAsVerified()) {
@@ -37,6 +39,8 @@ class VerifyEmailController extends Controller
             ], 200);
         }
 
-        return redirect()->intended(route('dashboard', absolute: false) . '?verified=1');
+        return redirect()->intended(
+            config('app.frontend_url') . '/Dashboard?verified=1'
+        );
     }
 }
