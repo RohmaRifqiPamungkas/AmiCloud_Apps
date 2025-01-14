@@ -5,15 +5,32 @@ import { useAuth } from '@/hooks/auth';
 const useManagementFiles = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [uploads, setUploads] = useState(null);
+  const [links, setLinks] = useState(null);
   const [data, setData] = useState(null);
   const { user } = useAuth();
 
-  const fetchFiles = async (params = {}) => {
+
+  const fetchFiles = async (type = null, params = {}) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get('api/v1/management_files', { params });
-      setData(response.data);
+      const response = await axios.get('api/v1/management_files', {
+        params: { type, ...params },
+      });
+
+      if (type === 'upload') {
+        setUploads(response.data.uploads || []);
+        setLinks(null);
+      } else if (type === 'link') {
+        setLinks(response.data.links || []);
+        setUploads(null);
+      } else {
+        setUploads(response.data.uploads || []);
+        setLinks(response.data.links || []);
+      }
+
+      setData(response.data); 
     } catch (err) {
       setError(err.response?.data || err.message);
     } finally {
@@ -102,6 +119,8 @@ const useManagementFiles = () => {
   return {
     loading,
     error,
+    uploads,
+    links,
     data,
     fetchFiles,
     fetchFile,

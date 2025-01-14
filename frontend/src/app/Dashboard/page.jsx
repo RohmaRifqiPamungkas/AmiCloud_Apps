@@ -23,6 +23,7 @@ export default function FileUpload() {
   const [uploadedImage, setUploadedImage] = useState(null);
   const [uploadedData, setUploadedData] = useState(null);
   const [uploadedUrl, setUploadedUrl] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const {
     register,
@@ -168,6 +169,30 @@ export default function FileUpload() {
       });
     }
   };
+
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDragging(false);
+
+    const file = event.dataTransfer.files[0];
+    if (file) {
+      handleFileUpload(file);
+    }
+  };
   
 
   return (
@@ -189,7 +214,10 @@ export default function FileUpload() {
           </div>
 
           <div>
-            <div className="border-dashed border-2 border-primary px-6 py-10 rounded-lg mt-6 relative bg-tertiary-25">
+            <div  className={`border-dashed border-2 border-primary px-6 py-10 rounded-lg mt-6 relative bg-tertiary-25 ${isDragging ? 'bg-blue-100' : ''}`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}>
               <div className="flex flex-col items-center space-y-6">
                 <div className="w-3/4 max-w-md h-auto flex justify-center text-center items-center">
                   <Image src={Upload} alt="Upload" />
