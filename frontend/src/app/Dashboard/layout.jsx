@@ -9,16 +9,24 @@ import { useRouter } from 'next/navigation';
 
 export default function DashboardLayout({ children }) {
     const [isCollapsed, setIsCollapsed] = useState(false);
-    const { user, loading, error } = useAuth();  
+    const { user, loading, error } = useAuth();
     const router = useRouter();
-    if (loading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error.message}</div>;
+
 
     useEffect(() => {
-        if (!user) {
-            router.push('/login');  
+        if (!loading && !user) {
+            router.push('/login');
         }
-    }, [user]);
+    }, [user, loading, router]);
+
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
+    if (error) {
+        return <div>Error: {error.message}</div>;
+    }
 
     return (
         <div className="flex h-screen">

@@ -151,7 +151,7 @@ export default function FileManagement() {
                   <td className="px-4 py-2">{firstIndexImage + index + 1}</td>
                   <td className="px-4 py-2">{user.name}</td>
                   <td className="px-4 py-2">
-                    <img
+                    <Image
                       src={user.thumbnail}
                       alt="Thumbnail"
                       className="w-10 h-10 rounded-full"

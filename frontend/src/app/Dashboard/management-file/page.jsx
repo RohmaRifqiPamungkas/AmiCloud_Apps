@@ -25,7 +25,7 @@ export default function FileManagement() {
     } else if (activeTab === "Link") {
       fetchFiles({ type: "link" });
     }
-  }, [activeTab]);
+  }, [activeTab,fetchFiles]);
 
   // image
   const imageData = data?.uploads.data || [];

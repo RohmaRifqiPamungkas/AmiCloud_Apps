@@ -18,21 +18,6 @@ export default function VerificationPage() {
 
   const [status, setStatus] = useState(null);
 
- 
-  // useEffect(() => {
-  //   const checkEmailVerification = async () => {
-  //     try {
-  //       const response = await axios.get('/api/v1/email/verification-status');
-  //       if (response.data.verified) {
-  //         router.push('/Dashboard'); 
-  //       }
-  //     } catch (error) {
-  //       console.error("Failed to check email verification status:", error);
-  //     }
-  //   };
-
-  //   checkEmailVerification();
-  // }, [router]);
 
   const handleResendEmail = async () => {
     try {

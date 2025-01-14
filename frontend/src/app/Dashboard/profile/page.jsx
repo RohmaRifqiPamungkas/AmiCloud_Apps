@@ -26,26 +26,24 @@ export default function ProfilePage() {
 
 
 function ProfileContent() {
-
-
-
   const { user } = useAuth(); 
   const router = useRouter();
   const searchParams = useSearchParams();
   const [notification, setNotification] = useState(false);
 
-
-  if (!user) {
-    router.push("/login");
-    return null; 
-  }
-
   useEffect(() => {
-    if (searchParams.get("success") === "true") {
-      setNotification(true);
-      setTimeout(() => setNotification(false), 3000);
+    if (!user) {
+      router.push("/login");
+      return;
     }
-  }, [searchParams]);
+
+    const success = searchParams.get("success");
+    if (success === "true") {
+      setNotification(true);
+      const timeout = setTimeout(() => setNotification(false), 3000);
+      return () => clearTimeout(timeout);
+    }
+  }, [user, searchParams, router]);
 
   const goToEditProfile = () => {
     router.push("/Dashboard/profile/edit-profile");
@@ -55,21 +53,20 @@ function ProfileContent() {
     router.push("/Dashboard/profile/edit-information-profile");
   };
 
+  if (!user) return null;
+
   return (
     <div className="p-6 min-h-screen relative">
-      {/* Header */}
-      <h1 className="text-xl font-bold text-primary">My Profile</h1>
+       <h1 className="text-xl font-bold text-primary">My Profile</h1>
       <p className="text-foreground text-lg">Complete your profile now!</p>
 
-      {/* Notification */}
-      {notification && (
+         {notification && (
         <Notification message="Information Profile successfully updated" />
       )}
 
-      {/* User Card */}
-      <UserCard data={user} onEditClick={goToEditProfile} />
+         <UserCard data={user} onEditClick={goToEditProfile} />
 
-      {/* Information Card */}
+ 
       <InformationCard data={user} onEditClick={goToEditInformation} />
     </div>
   );
@@ -87,13 +84,7 @@ function Notification({ message }) {
 function UserCard({ data, onEditClick }) {
   return (
     <div className="flex items-center bg-white shadow-lg py-10 px-10 rounded-3xl mt-6">
-      {/* <Image
-        src={data.profilePicture}
-        alt="Profile Picture"
-        width={128}
-        height={128}
-        className="w-16 h-16 lg:w-32 lg:h-32 rounded-full object-cover"
-      /> */}
+     
        <Image
                   src={data.profileImage || defaultProfile} 
                   alt="Profile Picture"

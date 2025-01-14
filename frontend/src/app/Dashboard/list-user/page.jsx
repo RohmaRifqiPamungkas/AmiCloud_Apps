@@ -19,26 +19,22 @@ import { useUsers } from "@/hooks/users";
 export default function ListUser() {
   const router = useRouter();
   const { user } = useAuth();
+  const { users, isLoading, isError } = useUsers();
+  const [perPageLink, setPerPageLink] = useState(10);
+  const [pageLink, setPageLink] = useState(1);
 
-
+ 
   useEffect(() => {
     if (!user) {
       router.push("/login");
     }
   }, [user, router]);
 
-  if (!user) {
-    return null; 
-  }
 
- 
-  const [perPageLink, setPerPageLink] = useState(10);
-  const [pageLink, setPageLink] = useState(1);
-  
-  const { users, isLoading, isError } = useUsers();
-  const userList = Array.isArray(users) ? users : [users];
+  if (!user) return null;
 
-  const totalPagesLink = userList.length > 0 ? Math.ceil(userList.length / perPageLink) : 1;
+  const userList = Array.isArray(users) ? users : [];
+  const totalPagesLink = Math.ceil(userList.length / perPageLink);
   const lastIndexLink = pageLink * perPageLink;
   const firstIndexLink = lastIndexLink - perPageLink;
   const currentUsers = userList.slice(firstIndexLink, lastIndexLink);
@@ -48,6 +44,7 @@ export default function ListUser() {
       setPageLink(pageNumber);
     }
   };
+
 
   if (isLoading) {
     return <div>Loading...</div>;
