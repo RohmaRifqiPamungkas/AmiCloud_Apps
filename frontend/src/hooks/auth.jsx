@@ -1,28 +1,28 @@
 
-
-
 import { useEffect, useCallback } from 'react';
-import axios from '@/lib/axios'; // Gunakan axios instance
+import axios from '@/lib/axios'; 
 import { useRouter } from 'next/navigation';
 import useSWR from 'swr';
+
 
 export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
   const router = useRouter();
 
-  // Fetch data user menggunakan SWR
+
   const { data: user, error: fetchError, mutate: mutateUser } = useSWR(
-    '/api/v1/user', // Endpoint untuk mendapatkan data user
+    '/api/v1/user', 
     async () => {
       const res = await axios.get('/api/v1/user');
       return res.data;
     },
     { revalidateOnFocus: false }
   );
+  
 
-  // Mendapatkan CSRF token
+  
   const csrf = useCallback(async () => {
     try {
-      await axios.get('/sanctum/csrf-cookie'); // Pastikan CSRF cookie di-set
+      await axios.get('/sanctum/csrf-cookie'); 
     } catch (error) {
       console.error('Gagal mendapatkan CSRF token:', error);
     }
@@ -44,9 +44,9 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
           password_confirmation: confirmPassword,
         });
 
-        localStorage.setItem('auth_token', response.data.token); // Simpan token ke localStorage
+        localStorage.setItem('auth_token', response.data.token); 
         setStatus('Registration successful! Please verify your email.');
-        router.push('/verify-email'); // Redirect ke halaman verifikasi email
+        router.push('/verify-email'); 
       } catch (error) {
         if (error.response?.data) {
           setErrors(error.response.data.errors || [error.response.data.message]);
@@ -69,7 +69,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
 
         localStorage.setItem('auth_token', response.data.token); 
         await mutateUser(); 
-        router.push('/Dashboard'); // Redirect ke dashboard
+        router.push('/Dashboard'); 
       } catch (error) {
         if (error.response?.status === 422) {
           setErrors(error.response.data.errors);
@@ -86,7 +86,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     try {
       await axios.post('/api/v1/logout');
       localStorage.removeItem('auth_token'); 
-      mutateUser(null); // Reset data user
+      mutateUser(null); 
       router.push('/login');
     } catch (error) {
       console.error('Logout failed:', error);
@@ -97,7 +97,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
   const resendEmailVerification = useCallback(async ({ setStatus }) => {
     try {
       const response = await axios.post('/api/v1/email/verification-notification');
-      setStatus(response.data.status); // Set status berhasil
+      setStatus('A new verification link has been sent to the email address you provided during registration.');
     } catch (error) {
       console.error('Gagal mengirim ulang email verifikasi:', error);
     }
@@ -112,7 +112,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
 
       try {
         const response = await axios.post('/api/v1/forgot-password', { email });
-        setStatus(response.data.status); // Set status berhasil
+        setStatus(response.data.status); 
       } catch (error) {
         if (error.response?.status === 422) {
           setErrors(error.response.data.errors);
@@ -139,7 +139,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
           password_confirmation: confirmPassword,
         });
 
-        router.push('/login?reset=' + btoa(response.data.status)); // Redirect ke login dengan pesan sukses
+        router.push('/login?reset=' + btoa(response.data.status)); 
       } catch (error) {
         if (error.response?.status === 422) {
           setErrors(error.response.data.errors);
@@ -154,11 +154,11 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
   // Middleware untuk redirect (Auth/Guest)
   useEffect(() => {
     if (middleware === 'auth' && !user && !fetchError) {
-      mutateUser(); // Refresh data user
+      mutateUser(); 
     }
 
     if (user && middleware === 'guest') {
-      router.push(redirectIfAuthenticated || '/dashboard'); // Redirect jika sudah login
+      router.push(redirectIfAuthenticated || '/Dashboard'); 
     }
 
     if (fetchError && middleware === 'auth') {
@@ -166,6 +166,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     }
   }, [middleware, user, fetchError, redirectIfAuthenticated, router, mutateUser]);
 
+ 
   return {
     user,
     register,
@@ -177,4 +178,5 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     csrf,
     error: fetchError,
   };
+
 };

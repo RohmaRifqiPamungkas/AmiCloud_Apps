@@ -1,18 +1,28 @@
+
 "use client";
 
 import { useState } from "react";
 import { FiMenu, FiChevronDown } from "react-icons/fi";
 import Breadcrumb from "../Breadcrumb/Breadcrumb";
 import Image from "next/image";
+import defaultProfile from "../../../public/Navbar/Profile.png"; 
+import { useAuth } from "@/hooks/auth"; 
+import { useRouter } from "next/navigation";
 
 export default function NavbarDashboard({ toggleSidebar }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { user } = useAuth(); 
+  const router = useRouter();
+
+
+  if (!user) {
+    router.push("/login");
+    return null; 
+  }
 
   const toggleDropdown = () => {
     setIsDropdownOpen((prevState) => !prevState);
   };
-
- 
 
   return (
     <header className="bg-tertiary-25 px-6 py-4 flex justify-between items-center">
@@ -23,17 +33,19 @@ export default function NavbarDashboard({ toggleSidebar }) {
         >
           <FiMenu size={24} className="text-black" />
         </button>
-        <Breadcrumb  />
+        <Breadcrumb />
       </div>
       <div className="relative">
         <button
           onClick={toggleDropdown}
           className="flex items-center gap-2 sm:gap-4 focus:outline-none"
         >
-          <span className="text-gray-800 font-semibold">Lalapow</span>
+          <span className="text-gray-800 font-semibold">
+            {user.name}  
+          </span>
           <Image
-            src="/user-profile.png"
-            alt="User"
+            src={user.profileImage || defaultProfile} 
+            alt="profile"
             width={40}
             height={40}
             className="rounded-full"
@@ -50,12 +62,6 @@ export default function NavbarDashboard({ toggleSidebar }) {
             >
               My Profile
             </a>
-            {/* <a
-              href="/logout"
-              className="block px-4 py-2 text-sm text-red-500 hover:bg-red-100"
-            >
-              Log Out
-            </a> */}
           </div>
         )}
       </div>

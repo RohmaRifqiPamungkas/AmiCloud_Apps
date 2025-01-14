@@ -51,7 +51,8 @@ class PermissionController extends Controller implements HasMiddleware
 
         if ($validator->passes()) {
             Permission::create([
-                'name' => $request->name
+                'name' => $request->name,
+                'guard_name' => 'web',
             ]);
 
             if ($request->expectsJson()) {

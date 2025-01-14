@@ -962,104 +962,26 @@
                         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                                 <div class="p-6 text-gray-900 dark:text-gray-100">
+                                    <h3 class="text-2xl font-bold mb-6">
+                                        API Endpoints Documentation
+                                    </h3>
 
-                                    <!-- Upload Image Section -->
-                                    <div class="mb-8">
-                                        @if (session('error'))
-                                            <div class="mt-4 p-4 bg-red-200 text-red-800 rounded">
-                                                {{ session('error') }}
-                                            </div>
-                                        @endif
-
-                                        <!-- Upload Image Heading and Form -->
-                                        <div class="mb-4">
-                                            <h3 class="text-xl font-medium text-gray-800 dark:text-gray-200 mb-4">
-                                                Upload Image
-                                            </h3>
-                                            <form method="POST" action="{{ route('file.upload.image') }}"
-                                                enctype="multipart/form-data">
-                                                @csrf
-                                                <div class="mb-4">
-                                                    <label for="image"
-                                                        class="block text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">
-                                                        Select Image File
-                                                    </label>
-                                                    <input type="file" name="image" id="image" accept="image/*"
-                                                        required
-                                                        class="block w-full text-sm text-gray-800 border border-gray-300 rounded-lg shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
-                                                </div>
-
-                                                <div class="flex justify-start">
-                                                    <x-primary-button>{{ __('Upload Image') }}</x-primary-button>
-                                                </div>
-                                            </form>
-                                        </div>
-
-                                        <!-- Display Image Upload Result -->
-                                        @if (session('image_url'))
-                                            <div class="mt-4 text-green-500">
-                                                File berhasil diunggah. Akses file di:
-                                                <a href="{{ session('image_url') }}" target="_blank"
-                                                    class="text-blue-500 underline">
-                                                    {{ session('image_url') }}
-                                                </a>
-                                            </div>
-                                        @elseif(session('success') && !session('image_url'))
-                                            <div class="mt-4 text-green-500">
-                                                {{ session('success') }}
-                                            </div>
-                                        @endif
+                                    <!-- API Routes List -->
+                                    <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg shadow-md overflow-x-auto">
+                                        <h4 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                                            Available API Routes
+                                        </h4>
+                                        <!-- JSON Display -->
+                                        <pre class="language-json text-sm leading-6 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100 p-4 rounded">
+                                            <code>{{ $json }}</code>
+                                        </pre>
                                     </div>
-
-                                    <!-- Separator -->
-                                    <div class="border-t border-gray-300 py-4"></div>
-
-                                    <!-- Upload Image via URL Section -->
-                                    <div>
-                                        <div class="mb-4">
-                                            <h3 class="text-xl font-medium text-gray-800 dark:text-gray-200 mb-4">
-                                                <!-- Added mb-4 -->
-                                                Upload Image via URL
-                                            </h3>
-                                            <form method="POST" action="{{ route('file.link.create') }}">
-                                                @csrf
-                                                <div class="mb-4">
-                                                    <label for="image_url"
-                                                        class="block text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">
-                                                        Paste Image URL
-                                                    </label>
-                                                    <input type="url" name="image_url" id="image_url"
-                                                        placeholder="https://example.com/image.jpg" required
-                                                        class="block w-full text-sm text-gray-800 border border-gray-300 rounded-lg shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
-                                                </div>
-
-                                                <div class="flex justify-start">
-                                                    <x-primary-button>{{ __('Upload via Link') }}</x-primary-button>
-                                                </div>
-                                            </form>
-                                        </div>
-
-                                        <!-- Display Image URL Result -->
-                                        @if (session('url_image'))
-                                            <div class="mt-4 text-green-500">
-                                                {!! session('url_image') !!}
-                                            </div>
-                                        @endif
-
-                                        <!-- Display Error Message for URL -->
-                                        @if (session('error_url'))
-                                            <div class="mt-4 text-red-500">
-                                                {{ session('error_url') }}
-                                            </div>
-                                        @endif
-                                    </div>
-
                                 </div>
                             </div>
                         </div>
                     </div>
                 </main>
-
+                
                 <footer class="py-16 text-center text-sm text-black dark:text-white/70">
                     Laravel v{{ Illuminate\Foundation\Application::VERSION }} (PHP v{{ PHP_VERSION }})
                 </footer>

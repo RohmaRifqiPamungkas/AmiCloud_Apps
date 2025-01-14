@@ -1,6 +1,7 @@
 "use client";
 
 import { MdDelete, MdFileCopy, MdDownload, MdShare } from "react-icons/md";
+import Image from "next/image";
 
 const FileDetails = () => {
   // Sample data
@@ -24,10 +25,12 @@ const FileDetails = () => {
         <div className="flex justify-center my-4 pt-10">
           <div className="w-32 h-32 bg-purple-100 flex items-center justify-center rounded-lg">
             {/* Placeholder for image */}
-            <img
-              src="/path/to/sample-image.jpg"
-              alt="Sample Image"
+            <Image
+              src="https://via.placeholder.com/150"
+              alt="image"
               className="w-full h-full object-cover rounded-lg"
+              width={200}
+              height={200}
             />
           </div>
         </div>

@@ -2,20 +2,21 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\RateLimiter;
-use App\Http\Controllers\Users\UserController;
 use Illuminate\Session\Middleware\StartSession;
-use App\Http\Controllers\Auth\PasswordController;
+use App\Http\Controllers\Users\UserController;
 use App\Http\Controllers\Users\ProfileController;
 use App\Http\Controllers\Articles\ArticleController;
-use App\Http\Controllers\Auth\NewPasswordController;
-use App\Http\Controllers\Auth\VerifyEmailController;
-use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\Auth\PasswordResetLinkController;
-use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Auth\EmailVerificationPromptController;
+use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
+use App\Http\Controllers\Auth\EmailVerificationPromptController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\PasswordController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Features\RolesAndPermissions\RoleController;
 use App\Http\Controllers\Features\FileManagement\ImageUploadController;
 use App\Http\Controllers\Features\FileManagement\LinkReuploadController;
@@ -24,8 +25,78 @@ use App\Http\Controllers\Features\RolesAndPermissions\PermissionController;
 
 // Route API
 Route::prefix('v1')->middleware([StartSession::class])->group(function () {
+
+    Route::get('/route-list', function () {
+        $routes = collect(Route::getRoutes())->filter(function ($route) {
+            return strpos($route->uri(), 'api/') === 0;
+        })->map(function ($route) {
+            return [
+                'uri' => $route->uri(),
+                'method' => implode('|', $route->methods()),
+                'name' => $route->getName(),
+                'action' => $route->getActionName(),
+            ];
+        });
+    
+        if ($routes->isEmpty()) {
+            return response()->json([
+                'message' => 'No API routes found!',
+                'data' => [],
+            ], 404);
+        }
+    
+        return response()->json([
+            'message' => 'API route list retrieved successfully.',
+            'data' => $routes,
+        ], 200);
+    });
+    
+    // Route Clear Cache
+    Route::get('/clear-cache', function () {
+        Artisan::call('optimize:clear');
+        return response()->json(['message' => 'Cache cleared successfully!']);
+    });
+
+    // Rate Limiting: Batasi unggahan file hanya untuk pengguna publik
+    RateLimiter::for('upload-image', function (Request $request) {
+        return $request->user()
+            ? \Illuminate\Cache\RateLimiting\Limit::none()
+            : \Illuminate\Cache\RateLimiting\Limit::perDay(3)->by($request->ip());
+    });
+
+    // Rate Limiting: Batasi unggahan link hanya untuk pengguna publik
+    RateLimiter::for(
+        'link-upload',
+        function (Request $request) {
+            return $request->user()
+                ? \Illuminate\Cache\RateLimiting\Limit::none()
+                : \Illuminate\Cache\RateLimiting\Limit::perDay(3)->by($request->ip());
+        }
+    );
+
+    // Rute features belum login
+    Route::get('/features/not-login', function () {
+        return view('features.not_login.landing');
+    })->name('features.not_login.landing');
+    
+    // Rute untuk upload image
+    Route::post('/file/upload/image', [ImageUploadController::class, 'upload'])
+        ->middleware(['throttle:upload-image']) 
+        ->name('file.upload.image');
+
+    // Rute Reupload Link
+    Route::post('/file/link-upload', [LinkReuploadController::class, 'createLink'])
+        ->middleware(['throttle:link-upload'])
+        ->name('file.link.create');
+
+    // Rute dashboard 
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->middleware(['auth', 'verified'])->name('dashboard');
+
     // Fitur otentikasi
     Route::middleware('guest')->group(function () {
+
         // Registrasi
         Route::get('register', [RegisteredUserController::class, 'create'])
             ->name('register');
@@ -48,45 +119,20 @@ Route::prefix('v1')->middleware([StartSession::class])->group(function () {
         Route::post('reset-password', [NewPasswordController::class, 'store'])
             ->name('password.store');
 
-        // Rate Limiting: Batasi unggahan file hanya untuk pengguna publik
-        RateLimiter::for('upload-image', function (Request $request) {
-            return $request->user()
-                ? \Illuminate\Cache\RateLimiting\Limit::none()
-                : \Illuminate\Cache\RateLimiting\Limit::perDay(3)->by($request->ip());
-        });
-
-        // Rate Limiting: Batasi unggahan link hanya untuk pengguna publik
-        RateLimiter::for('link-upload', function (Request $request) {
-            return $request->user()
-                ? \Illuminate\Cache\RateLimiting\Limit::none()
-                : \Illuminate\Cache\RateLimiting\Limit::perDay(3)->by($request->ip());
-        });
-
+        // Welcome
         Route::get('/', function () {
             return view('welcome');
         });
-
-        // Rute features belum login
-        Route::get('/features/not-login', function () {
-            return view('features.not_login.landing');
-        })->name('features.not_login.landing');
-
-        // Rute Upload Image 
-        Route::post('/file/upload/image', [ImageUploadController::class, 'upload'])
-            ->middleware('throttle:upload-image')
-            ->name('file.upload.image');
-
-        // Rute Reupload Link
-        Route::post('/file/link-upload', [LinkReuploadController::class, 'createLink'])
-            ->middleware(['throttle:link-upload'])
-            ->name('file.link.create');
     });
 
     Route::middleware('auth:sanctum')->group(function () {
 
         // Mengambil informasi user
         Route::get('user', function (Request $request) {
-            return $request->user();
+            if ($request->user()) {
+                return response()->json($request->user(), 200);
+            }
+            return response()->json(['message' => 'Unauthorized'], 401);
         });
 
         // Verifikasi email
@@ -114,7 +160,8 @@ Route::prefix('v1')->middleware([StartSession::class])->group(function () {
             ->name('logout');
 
         // Rute Profile
-        Route::get('/profile', [ProfileController::class, 'edit'])->name('api.profile.edit');
+        Route::get('/profile', [ProfileController::class, 'index'])->name('api.profile.index');
+        Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('api.profile.edit');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('api.profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('api.profile.destroy');
 
@@ -144,11 +191,18 @@ Route::prefix('v1')->middleware([StartSession::class])->group(function () {
 
         // Rute Users
         Route::get('/users', [UserController::class, 'index'])->name('api.users.index');
+        Route::get('/roles/{id}', [RoleController::class, 'show'])->name('api.roles.show');
         Route::get('/users/create', [UserController::class, 'create'])->name('api.users.create');
         Route::post('/users', [UserController::class, 'store'])->name('api.users.store');
         Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('api.users.edit');
         Route::put('/users/{id}', [UserController::class, 'update'])->name('api.users.update');
         Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('api.users.destroy');
+
+        // Rute Features
+        Route::get('/features/', function () {
+            return view('features.landing');
+        })->middleware('throttle:features.limiter')
+            ->name('features.landing');
 
         // Management File
         Route::get('/management_files', [FileManagementController::class, 'index'])->name('api.management_files.index');
@@ -158,16 +212,5 @@ Route::prefix('v1')->middleware([StartSession::class])->group(function () {
         Route::get('/management_files/{id}/copy-link', [FileManagementController::class, 'copyLink'])->name('api.management_files.copy_link');
         Route::post('/management_files/{id}/share', [FileManagementController::class, 'shareLink'])->name('api.management_files.share');
         Route::delete('/management_files/{id}', [FileManagementController::class, 'destroy'])->name('api.management_files.destroy');
-
-        // Features
-        Route::get('/features/', function () {
-            return view('features.landing');
-        })->middleware('throttle:features.limiter')
-            ->name('features.landing');
-
-        // Upload Image URL (POST untuk mengupload link gambar)
-        Route::post('file/link-upload', [LinkReuploadController::class, 'createLink'])
-            ->middleware('throttle:link-upload')
-            ->name('file.link.upload');
     });
 });

@@ -24,6 +24,7 @@ class FileManagementController extends Controller implements HasMiddleware
             new Middleware('permission:delete file management', only: ['destroy']),
         ];
     }
+    
     /**
      * Display file management dashboard.
      */
@@ -115,52 +116,67 @@ class FileManagementController extends Controller implements HasMiddleware
     public function edit($id, Request $request)
     {
         $fileUpload = Auth::id() == 1
-            ? FileUpload::findOrFail($id)
-            : FileUpload::where('user_id', Auth::id())->findOrFail($id);
-
+            ? FileUpload::find($id) 
+            : FileUpload::where('user_id', Auth::id())->find($id); 
+    
+        if (!$fileUpload) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'File not found or you don’t have permission to access this file.',
+                ], 404);
+            }
+    
+            return redirect()->route('file-management.index')
+                ->with('error', 'File not found or you don’t have permission to access this file.');
+        }
+    
         if ($request->expectsJson()) {
             return response()->json([
                 'file' => $fileUpload,
             ]);
         }
+    
         return view('management_file.edit', compact('fileUpload'));
     }
 
     /**
      * Update the title of a file upload.
      */
+     
     /**
      * Update the title and filename of a file upload.
      */
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'filename' => 'required|string|max:255', 
+            'filename' => 'required|string|max:255',
         ]);
-
+    
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Invalid input.',
                 'errors' => $validator->errors()
-            ], 422); 
+            ], 422);
         }
-
+    
         $fileUpload = Auth::id() == 1
-            ? FileUpload::findOrFail($id) 
-            : FileUpload::where('user_id', Auth::id())->findOrFail($id); 
-
-        $fileUpload->filename = $request->input('filename'); 
-        $fileUpload->save(); 
-
+            ? FileUpload::findOrFail($id)
+            : FileUpload::where('user_id', Auth::id())->findOrFail($id);
+    
+        $fileUpload->filename = $request->input('filename');
+        $fileUpload->save();
+    
+        $fileUpload->refresh();
+    
         if ($request->expectsJson()) {
             return response()->json([
                 'message' => 'File updated successfully.',
-                'file' => $fileUpload,
+                'file' => $fileUpload, 
             ]);
         }
-
+    
         return redirect()->route('file-management.index')
-        ->with('success', 'File updated successfully.');
+            ->with('success', 'File updated successfully.');
     }
 
     /**
@@ -169,38 +185,43 @@ class FileManagementController extends Controller implements HasMiddleware
     public function copyLink($id, Request $request)
     {
         $type = $request->input('type');
-
         if (!$type) {
             return response()->json([
-                'message' => 'File type must be specified as "upload" or "link".'
+                'message' => 'File type must be specified as "upload" or "link".',
             ], 400);
         }
-
+    
         $url = null;
-
+    
         if ($type === 'upload') {
             $fileUpload = Auth::id() == 1
                 ? FileUpload::findOrFail($id)
                 : FileUpload::where('user_id', Auth::id())->findOrFail($id);
-
+    
             $domain = env('APP_URL');
             $filePath = $fileUpload->file_path;
+    
             if (strpos($filePath, 'images/') === false) {
                 $filePath = 'images/' . $filePath;
             }
-            $url = $domain . '/' . $filePath; 
-        } elseif ($type === 'link') {
+    
+            $url = $domain . '/' . $filePath;
+        } 
+
+        elseif ($type === 'link') {
             $fileLink = Auth::id() == 1
                 ? FileLink::findOrFail($id)
                 : FileLink::where('user_id', Auth::id())->findOrFail($id);
-
+    
             $url = $fileLink->original_url;
-        } else {
+        } 
+
+        else {
             return response()->json([
-                'message' => 'Invalid file type specified.'
+                'message' => 'Invalid file type specified. Use "upload" or "link".',
             ], 400);
         }
-
+    
         return response()->json([
             'message' => 'Link copied successfully.',
             'url' => $url,
@@ -213,20 +234,20 @@ class FileManagementController extends Controller implements HasMiddleware
     public function shareLink($id, Request $request)
     {
         $type = $request->input('type');
-
+    
         if (!$type) {
             return response()->json([
                 'message' => 'File type must be specified as "upload" or "link".'
             ], 400);
         }
-
+    
         $url = null;
-
+    
         if ($type === 'upload') {
             $fileUpload = Auth::id() == 1
                 ? FileUpload::findOrFail($id)
                 : FileUpload::where('user_id', Auth::id())->findOrFail($id);
-
+    
             $domain = env('APP_URL');
             $filePath = $fileUpload->file_path;
             if (strpos($filePath, 'images/') === false) {
@@ -237,30 +258,27 @@ class FileManagementController extends Controller implements HasMiddleware
             $fileLink = Auth::id() == 1
                 ? FileLink::findOrFail($id)
                 : FileLink::where('user_id', Auth::id())->findOrFail($id);
-
+    
             $url = $fileLink->parsed_url ?: $fileLink->original_url;
         } else {
             return response()->json([
                 'message' => 'Invalid file type specified.'
             ], 400);
         }
-
-        // Encode URL for sharing
+    
+        // Encode URL and message for sharing
         $encodedUrl = urlencode($url);
-        $message = 'Check out this file: ' . $encodedUrl;
-
-        // Generate WhatsApp share URL
-        $whatsAppUrl = "https://wa.me/?text=" . $message;
-
-        // Alternatively, you can add more share links for other platforms like Facebook, Twitter, etc.
-
+        $message = urlencode('Check out this file: ' . $url);
+    
+        // Generate WhatsApp share URL with specified format
+        $whatsAppUrl = "https://api.whatsapp.com/send/?text={$message}&type=custom_url&app_absent=0";
+    
         return response()->json([
             'message' => 'Share link generated successfully.',
-            'whatsAppUrl' => $whatsAppUrl,
-            // Add other platforms here, if desired.
+            'originalUrl' => $url, 
+            'whatsAppUrl' => $whatsAppUrl 
         ], 200);
     }
-
 
     /**
      * Delete a file (uploaded or reuploaded).
@@ -299,5 +317,4 @@ class FileManagementController extends Controller implements HasMiddleware
             'message' => 'File deleted successfully.'
         ], 200);
     }
-
 }

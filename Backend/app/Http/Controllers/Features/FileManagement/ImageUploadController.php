@@ -2,14 +2,25 @@
 
 namespace App\Http\Controllers\Features\FileManagement;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use App\Models\FileUpload;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Routing\Controllers\HasMiddleware;
 
-class ImageUploadController extends Controller
+class ImageUploadController extends Controller implements HasMiddleware
 {
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:view features', only: ['index']),
+            new Middleware('permission:create features', only: ['create']),
+        ];
+    }
+    
     public function upload(Request $request)
     {
         $request->validate([
@@ -23,18 +34,19 @@ class ImageUploadController extends Controller
         $uniqueFileName = "AmiCloud_{$uniqueCode}.{$extension}";
         $fileSize = $image->getSize();
 
+        $filePath = "images/{$uniqueFileName}";
         $image->move(public_path('images'), $uniqueFileName);
 
         $fileUpload = new FileUpload();
         $fileUpload->user_id = Auth::check() ? Auth::id() : null;
         $fileUpload->filename = $originalName;
-        $fileUpload->file_path = 'images/' . $uniqueFileName;
+        $fileUpload->file_path = $filePath;
         $fileUpload->file_size = $fileSize;
         $fileUpload->upload_type = $extension;
         $fileUpload->ip_address = $request->ip();
         $fileUpload->save();
 
-        $imageUrl = url('images/' . $uniqueFileName);
+        $imageUrl = url($filePath);
 
         if ($request->expectsJson()) {
             return response()->json([
