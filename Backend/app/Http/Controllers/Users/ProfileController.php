@@ -23,7 +23,7 @@ class ProfileController extends Controller
                 'user' => $request->user(),
             ]);
         }
-        
+
         return view('profile.edit', [
             'user' => $request->user(),
         ]);
@@ -35,18 +35,30 @@ class ProfileController extends Controller
     public function update(ProfileUpdateRequest $request): RedirectResponse|JsonResponse
     {
         $user = $request->user();
-        $request->user()->fill($request->validated());
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $validatedData = $request->validated();
+
+        if ($request->hasFile('image_profile')) {
+            $image = $request->file('image_profile');
+            $imageName = 'profile_' . time() . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('images/profiles'), $imageName);
+
+            $validatedData['image_profile'] = 'images/profiles/' . $imageName;
         }
 
-        $request->user()->save();
+        $user->fill($validatedData);
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
 
         if ($request->expectsJson()) {
             return response()->json([
                 'message' => 'Profile updated successfully.',
                 'user' => $user,
+                'image_profile' => $user
             ]);
         }
 

@@ -41,6 +41,7 @@ class RegisteredUserController extends Controller
                 'name' => $validatedData['name'],
                 'email' => $validatedData['email'],
                 'password' => Hash::make($validatedData['password']),
+                'image_profile' => 'images/default-profile.png',
                 'is_active' => 0,
             ]);
 

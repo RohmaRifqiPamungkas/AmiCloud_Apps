@@ -11,13 +11,17 @@ class UserSeeder extends Seeder
 {
     public function run()
     {
-        // Membuat users
+        $verifiedAt = now();
+        $defaultProfileImage = 'images/profiles/default-profile.png';
+
         $admin = User::create([
             'name' => 'Admin User',
             'username' => 'adminuser',
             'email' => 'admin@example.com',
-            'password' => Hash::make('password'), // ganti dengan password yang aman
-            'is_active' => 0,
+            'password' => Hash::make('password'),
+            'image_profile' => $defaultProfileImage,
+            'is_active' => 1,
+            'email_verified_at' => $verifiedAt,
         ]);
 
         $user = User::create([
@@ -25,7 +29,9 @@ class UserSeeder extends Seeder
             'username' => 'regularuser',
             'email' => 'user@example.com',
             'password' => Hash::make('password'),
-            'is_active' => 0,
+            'image_profile' => $defaultProfileImage,
+            'is_active' => 1,
+            'email_verified_at' => $verifiedAt,
         ]);
 
         $public = User::create([
@@ -33,10 +39,11 @@ class UserSeeder extends Seeder
             'username' => 'publicuser',
             'email' => 'public@example.com',
             'password' => Hash::make('password'),
-            'is_active' => 0,
+            'image_profile' => $defaultProfileImage,
+            'is_active' => 1,
+            'email_verified_at' => $verifiedAt,
         ]);
 
-        // Menambahkan Role ke Users
         $adminRole = Role::where('name', 'admin')->first();
         $userRole = Role::where('name', 'user')->first();
         $publicRole = Role::where('name', 'public')->first();

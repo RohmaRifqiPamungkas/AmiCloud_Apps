@@ -2,9 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\RateLimiter;
-use App\Http\Controllers\Users\UserController;
 use Illuminate\Session\Middleware\StartSession;
+use App\Http\Controllers\Users\UserController;
 use App\Http\Controllers\Users\ProfileController;
 use App\Http\Controllers\Articles\ArticleController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -36,11 +37,24 @@ Route::prefix('v1')->middleware([StartSession::class])->group(function () {
                 'action' => $route->getActionName(),
             ];
         });
-
-        if (empty($routes)) {
-            dd('No API routes found!');
+    
+        if ($routes->isEmpty()) {
+            return response()->json([
+                'message' => 'No API routes found!',
+                'data' => [],
+            ], 404);
         }
-        return view('api.apis', ['json' => json_encode($routes, JSON_PRETTY_PRINT)]);
+    
+        return response()->json([
+            'message' => 'API route list retrieved successfully.',
+            'data' => $routes,
+        ], 200);
+    });
+    
+    // Route Clear Cache
+    Route::get('/clear-cache', function () {
+        Artisan::call('optimize:clear');
+        return response()->json(['message' => 'Cache cleared successfully!']);
     });
 
     // Rate Limiting: Batasi unggahan file hanya untuk pengguna publik
@@ -64,15 +78,11 @@ Route::prefix('v1')->middleware([StartSession::class])->group(function () {
     Route::get('/features/not-login', function () {
         return view('features.not_login.landing');
     })->name('features.not_login.landing');
-
+    
+    // Rute untuk upload image
     Route::post('/file/upload/image', [ImageUploadController::class, 'upload'])
-        ->middleware(['throttle:upload-image', 'auth:sanctum'])
-        ->name('file.upload.image.auth');
-
-    // Rute untuk upload image tanpa autentikasi
-    Route::post('/file/upload/image', [ImageUploadController::class, 'upload'])
-        ->middleware(['throttle:upload-image'])
-        ->name('file.upload.image.guest');
+        ->middleware(['throttle:upload-image']) 
+        ->name('file.upload.image');
 
     // Rute Reupload Link
     Route::post('/file/link-upload', [LinkReuploadController::class, 'createLink'])
@@ -119,7 +129,10 @@ Route::prefix('v1')->middleware([StartSession::class])->group(function () {
 
         // Mengambil informasi user
         Route::get('user', function (Request $request) {
-            return $request->user();
+            if ($request->user()) {
+                return response()->json($request->user(), 200);
+            }
+            return response()->json(['message' => 'Unauthorized'], 401);
         });
 
         // Verifikasi email
@@ -147,7 +160,8 @@ Route::prefix('v1')->middleware([StartSession::class])->group(function () {
             ->name('logout');
 
         // Rute Profile
-        Route::get('/profile', [ProfileController::class, 'edit'])->name('api.profile.edit');
+        Route::get('/profile', [ProfileController::class, 'index'])->name('api.profile.index');
+        Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('api.profile.edit');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('api.profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('api.profile.destroy');
 
@@ -161,7 +175,6 @@ Route::prefix('v1')->middleware([StartSession::class])->group(function () {
 
         // Rute Roles
         Route::get('/roles', [RoleController::class, 'index'])->name('api.roles.index');
-        Route::get('/roles/{id}', [RoleController::class, 'show'])->name('api.roles.show');
         Route::get('/roles/create', [RoleController::class, 'create'])->name('api.roles.create');
         Route::post('/roles', [RoleController::class, 'store'])->name('api.roles.store');
         Route::get('/roles/{id}/edit', [RoleController::class, 'edit'])->name('api.roles.edit');
@@ -178,6 +191,7 @@ Route::prefix('v1')->middleware([StartSession::class])->group(function () {
 
         // Rute Users
         Route::get('/users', [UserController::class, 'index'])->name('api.users.index');
+        Route::get('/roles/{id}', [RoleController::class, 'show'])->name('api.roles.show');
         Route::get('/users/create', [UserController::class, 'create'])->name('api.users.create');
         Route::post('/users', [UserController::class, 'store'])->name('api.users.store');
         Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('api.users.edit');

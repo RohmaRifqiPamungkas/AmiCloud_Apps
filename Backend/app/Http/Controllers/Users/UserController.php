@@ -30,10 +30,9 @@ class UserController extends Controller implements HasMiddleware
     {
         $searchTerm = $request->input('search');
 
-        $usersQuery = User::query();
+        $usersQuery = User::with('roles');
 
         if ($searchTerm) {
-
             $usersQuery->where(function ($query) use ($searchTerm) {
                 $query->where('name', 'like', '%' . $searchTerm . '%')
                     ->orWhere('email', 'like', '%' . $searchTerm . '%');
@@ -41,6 +40,13 @@ class UserController extends Controller implements HasMiddleware
         }
 
         $users = $usersQuery->latest()->paginate(10);
+
+        $users->getCollection()->transform(function ($user) {
+
+            $userArray = $user->toArray();
+            $userArray['roles'] = $user->roles->pluck('name')->toArray();
+            return $userArray;
+        });
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -52,6 +58,7 @@ class UserController extends Controller implements HasMiddleware
             'users' => $users,
         ]);
     }
+
 
     /**
      * Show the form for creating a new resource.

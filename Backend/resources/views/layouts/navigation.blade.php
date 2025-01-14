@@ -54,11 +54,11 @@
                 @endcan
 
                 @can('view features')
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('features.landing')" :active="request()->routeIs('features.landing')">
-                        {{ __('Landing Page') }}
-                    </x-nav-link>
-                </div>
+                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                        <x-nav-link :href="route('features.landing')" :active="request()->routeIs('features.landing')">
+                            {{ __('Landing Page') }}
+                        </x-nav-link>
+                    </div>
                 @endcan
 
                 @can('view file management')
@@ -77,14 +77,26 @@
                     <x-slot name="trigger">
                         <button
                             class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none transition ease-in-out duration-150">
-                            <div>
-                                @if (Auth::check())
-                                    {{ Auth::user()->name }} ({{ Auth::user()->roles->pluck('name')->implode(', ') }})
-                                @else
-                                    Guest
-                                @endif
-                            </div>
+                            <div class="flex items-center">
+                                <div class="mr-3">
+                                    @if (Auth::check())
+                                        <img src="{{ asset('/' . (Auth::user()->image_profile ?? 'default-profile.png')) }}"
+                                            alt="Profile Image" class="h-8 w-8 rounded-full object-cover">
+                                    @else
+                                        <img src="{{ asset('images/profiles/default-profile.png') }}"
+                                            alt="Default Profile Image" class="h-8 w-8 rounded-full object-cover">
+                                    @endif
+                                </div>
 
+                                <div>
+                                    @if (Auth::check())
+                                        {{ Auth::user()->name }}
+                                        ({{ Auth::user()->roles->pluck('name')->implode(', ') }})
+                                    @else
+                                        Guest
+                                    @endif
+                                </div>
+                            </div>
                             <div class="ms-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 20 20">
