@@ -52,18 +52,6 @@ export default function FileManagement() {
   const {user} = useAuth();
   const router = useRouter();
 
-  // if (!user) {
-  //   router.push("/login");
-  //   return null; 
-  // }useEffect(() => {
-  //   if (!user) {
-  //     router.push("/login");
-  //   }
-  // }, [user, router]);
-
-  // if (!user) {
-  //   return null; 
-  // }
 
 
   // image

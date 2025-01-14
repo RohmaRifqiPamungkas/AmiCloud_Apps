@@ -36,8 +36,7 @@ export default function ListUser() {
   const [pageLink, setPageLink] = useState(1);
   
   const { users, isLoading, isError } = useUsers();
-
-  const userList = Array.isArray(user) ? user : [user];
+  const userList = Array.isArray(users) ? users : [users];
 
   const totalPagesLink = userList.length > 0 ? Math.ceil(userList.length / perPageLink) : 1;
   const lastIndexLink = pageLink * perPageLink;

@@ -3,18 +3,11 @@
 import {  MdDeleteOutline, MdOutlineFileCopy, MdOutlineDownload} from "react-icons/md";
 import { FiShare2 } from "react-icons/fi";
 import Image from "next/image";
+// import useManagementFiles from "@/hooks/managementFile";
 
 const FileDetails = () => {
-  // Sample data
-  const fileData = {
-    title: "Example Image.JPEG",
-    format: "JPEG",
-    size: "2.5 MB",
-    uploadDateTime: "December 4, 2024 - 10:15 PM",
-    resolution: "1920 × 1080 px",
-    link: "https://amicloud.com/434bb",
-  };
-
+ 
+  
   return (
     <div className="p-6 ">
       <div>
@@ -25,7 +18,7 @@ const FileDetails = () => {
       <div className="max-w-md mx-auto">
         <div className="flex justify-center my-4 pt-10">
           <div className="w-32 h-32 bg-purple-100 flex items-center justify-center rounded-lg">
-            {/* Placeholder for image */}
+
             <Image
               src="https://via.placeholder.com/150"
               alt="image"

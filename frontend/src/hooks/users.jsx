@@ -17,7 +17,7 @@ export const useUsers = (page, perPage) => {
   });
 
   return {
-    users: data,
+    users : data,
     isLoading,
     isError: error,
     mutateUsers: mutate,

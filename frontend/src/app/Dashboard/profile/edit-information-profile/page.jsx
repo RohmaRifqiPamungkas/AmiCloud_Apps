@@ -222,3 +222,5 @@ export default function EditInformationProfile() {
     </div>
   );
 }
+
+
