@@ -5,7 +5,8 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-import { useMemo } from "react";
+import { useAuth } from "@/hooks/auth";
+import axios from "@/lib/axios";
 
 export default function EditInformationProfile() {
   const {
@@ -15,37 +16,40 @@ export default function EditInformationProfile() {
     formState: { errors },
   } = useForm();
   const router = useRouter();
+  const {user} = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  // const [showPassword, setShowPassword] = useState(false);
 
-  const sampleData = useMemo(() => ({
-    fullName: "Lalapowww",
-    username: "Lalapow",
-    email: "lalapow@gmail.com",
-    phone: "089765432134",
-    dateOfBirth: "12/09/2024",
-    password: "12345678",
-  }), []);  
-  
+
   useEffect(() => {
-    reset(sampleData);
-  }, [reset, sampleData]);
-
-  const togglePasswordVisibility = () => {
-    setShowPassword((prevState) => !prevState);
-  };
+    if (user) {
+      reset({
+        name: user.name,
+        full_name: user.full_name,
+        username: user.username,
+        email: user.email,
+        phone: user.phone,
+        birthday_date: user.birthday_date,
+      });
+    }
+  }, [user, reset]);
 
   const handleSave = async (data) => {
     try {
       setIsLoading(true);
-      console.log("Data yang diperbarui:", data);
+      const response = await axios.patch("api/v1/profile", data);
+      console.log("Profil berhasil diperbarui:", response.data);
       router.push("/Dashboard/profile?success=true");
     } catch (error) {
-      console.error("Gagal memperbarui profil:", error);
+      console.error("Gagal memperbarui profil:", error.response?.data || error.message);
     } finally {
       setIsLoading(false);
     }
   };
+
+  // const togglePasswordVisibility = () => {
+  //   setShowPassword((prevState) => !prevState);
+  // };
 
   const handleCancel = () => {
     router.push("/Dashboard/profile");
@@ -85,14 +89,31 @@ export default function EditInformationProfile() {
               Full Name
             </label>
             <input
+            id="full_name"
               type="text"
               className="w-full px-4 py-2 mt-2 border rounded-2xl bg-tertiary-25 focus:ring-purple-500 focus:border-purple-500"
-              {...register("fullName", { required: "Full name is required" })}
+              {...register("full_name", { required: "Full name is required" })}
             />
-            {errors.fullName && (
-              <p className="text-sm text-red-500">{errors.fullName.message}</p>
+            {errors.full_name && (
+              <p className="text-sm text-red-500">{errors.full_name.message}</p>
             )}
           </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Name
+            </label>
+            <input
+            id="name"
+              type="text"
+              className="w-full px-4 py-2 mt-2 border rounded-2xl bg-tertiary-25 focus:ring-purple-500 focus:border-purple-500"
+              {...register("name", { required: "Username is required" })}
+            />
+            {errors.name && (
+              <p className="text-sm text-red-500">{errors.name.message}</p>
+            )}
+          </div>
+
 
           {/* Username */}
           <div>
@@ -100,6 +121,7 @@ export default function EditInformationProfile() {
               Username
             </label>
             <input
+            id="username"
               type="text"
               className="w-full px-4 py-2 mt-2 border rounded-2xl bg-tertiary-25 focus:ring-purple-500 focus:border-purple-500"
               {...register("username", { required: "Username is required" })}
@@ -115,6 +137,7 @@ export default function EditInformationProfile() {
               Email
             </label>
             <input
+            id="email"
               type="email"
               className="w-full px-4 py-2 mt-2 border rounded-2xl bg-tertiary-25 focus:ring-purple-500 focus:border-purple-500"
               {...register("email", {
@@ -136,6 +159,7 @@ export default function EditInformationProfile() {
               Phone
             </label>
             <input
+            id="phone"
               type="tel"
               className="w-full px-4 py-2 mt-2 border rounded-2xl bg-tertiary-25 focus:ring-purple-500 focus:border-purple-500"
               {...register("phone", { required: "Phone number is required" })}
@@ -151,26 +175,29 @@ export default function EditInformationProfile() {
               Date of Birth
             </label>
             <input
+            id="birthday_date"
               type="date"
               className="w-full px-4 py-2 mt-2 border rounded-2xl bg-tertiary-25 focus:ring-purple-500 focus:border-purple-500"
-              {...register("dateOfBirth", {
+              {...register("birthday_date", {
                 required: "Date of birth is required",
               })}
             />
-            {errors.dateOfBirth && (
+            {errors.birthday_date && (
               <p className="text-sm text-red-500">
-                {errors.dateOfBirth.message}
+                {errors.birthday_date.message}
               </p>
             )}
           </div>
 
           {/* Password */}
-          <div>
+          {/* <div>
             <label className="block text-sm font-medium text-gray-700">
               Password
             </label>
             <div className="relative">
+
               <input
+              id="password"
                 type={showPassword ? "text" : "password"}
                 className="w-full px-4 py-2 mt-2 border rounded-2xl bg-tertiary-25 focus:ring-purple-500 focus:border-purple-500"
                 {...register("password", { required: "Password is required" })}
@@ -189,7 +216,7 @@ export default function EditInformationProfile() {
             {errors.password && (
               <p className="text-sm text-red-500">{errors.password.message}</p>
             )}
-          </div>
+          </div> */}
         </form>
       </div>
     </div>

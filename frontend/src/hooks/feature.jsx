@@ -31,11 +31,14 @@ const validateUrl = (url) => {
   return true;
 };
 
+const appendUserIdToRequestData = (data, user) => {
+  return { ...data, user_id: user?.id || null };
+};
+
 const useAuthenticatedFeatures = () => {
   const { user } = useAuth();
 
   const uploadImage = async (file) => {
-    // Mengelola upload tamu dengan memeriksa dan mengupdate guestUploadCount
     let guestUploadCount = getGuestUploadCount();
     if (!user && typeof user !== "undefined") {
       if (guestUploadCount >= MAX_GUEST_UPLOADS) {
@@ -48,6 +51,7 @@ const useAuthenticatedFeatures = () => {
     validateFile(file);
     const formData = new FormData();
     formData.append("image", file);
+    formData.append("user_id", user?.id || null);
 
     try {
       const response = await axios.post('/api/v1/file/upload/image', formData, {
@@ -65,7 +69,6 @@ const useAuthenticatedFeatures = () => {
   };
 
   const linkUpload = async (url) => {
-    // Mengelola upload tamu dengan memeriksa dan mengupdate guestUploadCount
     let guestUploadCount = getGuestUploadCount();
     if (!user) {
       if (guestUploadCount >= MAX_GUEST_UPLOADS) {
@@ -77,8 +80,10 @@ const useAuthenticatedFeatures = () => {
 
     validateUrl(url);
 
+    const requestData = appendUserIdToRequestData({ image_url: url }, user);
+
     try {
-      const response = await axios.post('/api/v1/file/link-upload', { image_url: url });
+      const response = await axios.post('/api/v1/file/link-upload', requestData);
 
       if (!response.data?.image_url) {
         throw new Error("Unexpected response format from server.");

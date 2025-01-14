@@ -7,9 +7,11 @@ import { useRouter } from "next/navigation";
 
 const ForgotPassword = () => {
   const router = useRouter();
-  const { forgotPassword } = useAuth({middleware: 'auth', redirestIfAuthenticated: '/Dashboard'});
+  const { forgotPassword } = useAuth({middleware: 'guest', redirestIfAuthenticated: '/Dashboard'});
   const [status, setStatus] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
   const [isClient, setIsClient] = useState(false); 
+
 
 
   useEffect(() => {
@@ -21,22 +23,28 @@ const ForgotPassword = () => {
 
   const onSubmit = async (data) => {
     setStatus(null);
+    setErrorMessage(null);
+
     try {
       await forgotPassword({
         email: data.email,
         setErrors: (serverErrors) => {
-          if (Array.isArray(serverErrors)) {
-            serverErrors.forEach((err) => {
-              setError("email", { type: "server", message: err });
-            });
+          if (Array.isArray(serverErrors) && serverErrors.length > 0) {
+            setError("email", { type: "server", message: serverErrors[0] });
+            setErrorMessage(serverErrors[0]); 
           }
         },
-        setStatus,
+        setStatus: (statusMessage) => {
+          setStatus(statusMessage); 
+        },
       });
     } catch (error) {
-      console.error("Failed to send forgot password email:", error);
+      console.error("Unexpected error:", error);
+      setErrorMessage("An unexpected error occurred. Please try again.");
     }
   };
+
+
 
   if (!isClient) return null;
 
@@ -48,9 +56,14 @@ const ForgotPassword = () => {
         you to choose a new one.
       </p>
 
-      {status && (
-        <p className="mt-4 text-green-600 text-left">{status}</p>
-      )}
+      <div>
+  {errorMessage ? (
+    <p className="mt-4 text-red-600 text-left">{errorMessage}</p>
+  ) : status ? (
+    <p className="mt-4 text-green-600 text-left">{status}</p>
+  ) : null}
+</div>
+
 
       <div className="mt-6">
         <label

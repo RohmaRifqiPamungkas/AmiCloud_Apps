@@ -14,8 +14,11 @@ import { useAuth } from "@/hooks/auth";
 
 
 export default function FileUpload() {  
+  useAuth({ middleware: 'auth' });
   const { user } = useAuth(); 
   const router = useRouter();
+  
+
   const { uploadImage, linkUpload } = useAuthenticatedFeatures();
   const [uploadedImage, setUploadedImage] = useState(null);
   const [uploadedData, setUploadedData] = useState(null);
@@ -54,7 +57,7 @@ export default function FileUpload() {
 
     if (file) {
       try {
-        const response = await uploadImage(file, user.id);
+        const response = await uploadImage(file);
       if (response.image_url) {
         const imageUrl = URL.createObjectURL(file);
         setUploadedImage(imageUrl);
@@ -128,7 +131,7 @@ export default function FileUpload() {
   const handleUrlUpload = async () => {
     const url = watch("image_url");
     try {
-      const response = await linkUpload(url, user.id); 
+      const response = await linkUpload(url); 
       if (response.image_url) {
         const alertContent = ReactDOMServer.renderToString(
           <AlertSuccess link={response.image_url} />
@@ -158,6 +161,10 @@ export default function FileUpload() {
         title: "Upload Failed",
         text: error.message || "An error occurred while uploading the URL.",
         confirmButtonText: "OK",
+        customClass: {
+          confirmButton: "bg-secondary px-10 py-2 text-black rounded-2xl",
+          popup: "rounded-3xl shadow-md",
+        },
       });
     }
   };

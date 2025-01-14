@@ -1,6 +1,12 @@
 "use client";
 
-import {  MdDeleteOutline, MdOutlineFileCopy, MdOutlineDownload} from "react-icons/md";
+import {
+  MdOutlineFileCopy,
+  MdDeleteOutline,
+  MdOutlineDownload,
+  MdNavigateBefore,
+  MdNavigateNext,
+} from "react-icons/md";
 import { FiShare2 } from "react-icons/fi";
 import Image from "next/image";
 
@@ -18,7 +24,7 @@ const FileDetails = () => {
   return (
     <div className="p-6 ">
       <div>
-        <h1 className="text-lg font-bold text-foreground">Management File</h1>
+        <h1 className="text-lg font-bold text-foreground">Management File Admin</h1>
         <p className="text-primary text-xl">View Detail</p>
       </div>
 
@@ -38,35 +44,35 @@ const FileDetails = () => {
 
         <div className="flex justify-center space-x-3 mb-4">
           <div className="p-1 bg-white rounded-md shadow-md ">
-            <div className="flex justify-center items-center">
-              <button className="text-foreground">
-                <MdDeleteOutline size={20} />
-              </button>
-            </div>
-          </div>
-
-          <div className="p-1 bg-white rounded-md shadow-md">
-            <div className="flex justify-center items-center">
-              <button className="text-foreground">
-                <MdOutlineFileCopy size={20} />
-              </button>
-            </div>
-          </div>
-          <div className="p-1 bg-white rounded-md shadow-md">
-            <div className="flex justify-center items-center">
-              <button className="text-foreground">
-                <MdOutlineDownload size={20} />
-              </button>
-            </div>
-          </div>
-          <div className="p-1 bg-white rounded-md shadow-md">
-            <div className="flex justify-center items-center">
-              <button className="text-foreground">
-                <FiShare2 size={20} />
-              </button>
-            </div>
-          </div>
-        </div>
+                     <div className="flex justify-center items-center">
+                       <button className="text-foreground">
+                         <MdDeleteOutline size={20} />
+                       </button>
+                     </div>
+                   </div>
+         
+                   <div className="p-1 bg-white rounded-md shadow-md">
+                     <div className="flex justify-center items-center">
+                       <button className="text-foreground">
+                         <MdOutlineFileCopy size={20} />
+                       </button>
+                     </div>
+                   </div>
+                   <div className="p-1 bg-white rounded-md shadow-md">
+                     <div className="flex justify-center items-center">
+                       <button className="text-foreground">
+                         <MdOutlineDownload size={20} />
+                       </button>
+                     </div>
+                   </div>
+                   <div className="p-1 bg-white rounded-md shadow-md">
+                     <div className="flex justify-center items-center">
+                       <button className="text-foreground">
+                         <FiShare2 size={20} />
+                       </button>
+                     </div>
+                   </div>
+                 </div>
       </div>
       <div className="flex justify-center">
         <div className="bg-gray-100 p-10  rounded-2xl shadow-xl py-6 max-w-4xl ">

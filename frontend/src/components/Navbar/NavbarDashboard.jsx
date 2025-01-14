@@ -8,6 +8,7 @@ import Image from "next/image";
 import defaultProfile from "../../../public/Navbar/Profile.png"; 
 import { useAuth } from "@/hooks/auth"; 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function NavbarDashboard({ toggleSidebar }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -56,12 +57,12 @@ export default function NavbarDashboard({ toggleSidebar }) {
         {/* Dropdown Menu */}
         {isDropdownOpen && (
           <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200">
-            <a
+            <Link
               href="/Dashboard/profile"
               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
             >
               My Profile
-            </a>
+            </Link>
           </div>
         )}
       </div>

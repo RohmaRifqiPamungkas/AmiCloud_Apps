@@ -41,7 +41,7 @@ export default function Sidebar({ isCollapsed }) {
           items: [
             {
               name: "Management File",
-              href: "/Dashboard/management-file",
+              href: "/Dashboard/management-file-Admin",
               icon: <RiFolderSettingsLine />,
             },
           ],

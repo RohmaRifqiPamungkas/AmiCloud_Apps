@@ -10,7 +10,7 @@ import Swal from "sweetalert2";
 import { useAuthenticatedFeatures } from "@/hooks/feature";
 import ReactDOMServer from "react-dom/server";
 import AlertSuccess from "@/components/Alert/SuccessAlert";
-import { useAuth } from "@/hooks/auth";
+
 
 
 export default function FileUpload() {  
@@ -69,7 +69,7 @@ export default function FileUpload() {
       }
       } catch (error) {
         Swal.fire({
-          icon: "error",
+          icon: "Warning",
           title: "Upload Failed",
           text: error.message || "An error occurred while uploading the file.",
           confirmButtonText: "OK",
@@ -151,6 +151,10 @@ export default function FileUpload() {
         title: "Upload Failed",
         text: error.message || "An error occurred while uploading the URL.",
         confirmButtonText: "OK",
+        customClass: {
+          confirmButton: "bg-secondary px-10 py-2 text-black rounded-2xl",
+          popup: "rounded-3xl shadow-md",
+        },
       });
     }
   };

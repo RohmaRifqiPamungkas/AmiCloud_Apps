@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/auth";
 import { useParams } from "next/navigation";  
 
 const ResetPassword = () => {
-  const { resetPassword } = useAuth({middleware: 'auth', redirestIfAuthenticated: '/Dashboard'}); 
+  const { resetPassword } = useAuth({middleware: 'guest', redirestIfAuthenticated: '/Dashboard'}); 
   const { register, handleSubmit, formState: { errors }, watch } = useForm();
   const { token } = useParams();  
 

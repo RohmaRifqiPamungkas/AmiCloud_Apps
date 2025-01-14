@@ -4,10 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import Image from "next/image";
+import { useAuth } from "@/hooks/auth";
 
 
 export default function EditProfilePage() {
   const router = useRouter();
+  const {user} = useAuth();
 
   const [profile, setProfile] = useState({
     fullName: "Lalapowww",
@@ -116,11 +118,11 @@ export default function EditProfilePage() {
         <div className="grid grid-cols-4 gap-4 mt-6">
           <div>
             <label className="text-gray-500">Full Name</label>
-            <p className="font-medium">{profile.fullName}</p>
+            <p className="font-medium">{user.full_name}</p>
           </div>
           <div>
             <label className="text-gray-500">Role Name</label>
-            <p className="font-medium">{profile.roleName}</p>
+            <p className="font-medium">{user.username}</p>
           </div>
         </div>
       </div>

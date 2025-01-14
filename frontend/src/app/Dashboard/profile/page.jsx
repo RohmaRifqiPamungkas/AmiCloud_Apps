@@ -7,8 +7,13 @@ import { useEffect, useState, Suspense } from "react";
 import Image from "next/image";
 import { RiEdit2Line } from "react-icons/ri";
 import { FaRegCircleCheck } from "react-icons/fa6";
+import { useAuth } from "@/hooks/auth";
+import defaultProfile from "../../../../public/Navbar/Profile.png"; 
 
 export default function ProfilePage() {
+ 
+
+
   return (
     <Suspense fallback={<p>Loading...</p>}>
       <ProfileContent />
@@ -18,21 +23,22 @@ export default function ProfilePage() {
 
 
 
-function ProfileContent() {
-  const sampleData = {
-    fullName: "Lalapowww",
-    username: "Lalapow",
-    email: "lalapow@gmail.com",
-    phone: "089765432134",
-    dateOfBirth: "12/01/2024",
-    password: "********",
-    role: "User",
-    profilePicture: "https://via.placeholder.com/150",
-  };
 
+
+function ProfileContent() {
+
+
+
+  const { user } = useAuth(); 
   const router = useRouter();
   const searchParams = useSearchParams();
   const [notification, setNotification] = useState(false);
+
+
+  if (!user) {
+    router.push("/login");
+    return null; 
+  }
 
   useEffect(() => {
     if (searchParams.get("success") === "true") {
@@ -61,10 +67,10 @@ function ProfileContent() {
       )}
 
       {/* User Card */}
-      <UserCard data={sampleData} onEditClick={goToEditProfile} />
+      <UserCard data={user} onEditClick={goToEditProfile} />
 
       {/* Information Card */}
-      <InformationCard data={sampleData} onEditClick={goToEditInformation} />
+      <InformationCard data={user} onEditClick={goToEditInformation} />
     </div>
   );
 }
@@ -81,16 +87,23 @@ function Notification({ message }) {
 function UserCard({ data, onEditClick }) {
   return (
     <div className="flex items-center bg-white shadow-lg py-10 px-10 rounded-3xl mt-6">
-      <Image
+      {/* <Image
         src={data.profilePicture}
         alt="Profile Picture"
         width={128}
         height={128}
         className="w-16 h-16 lg:w-32 lg:h-32 rounded-full object-cover"
-      />
+      /> */}
+       <Image
+                  src={data.profileImage || defaultProfile} 
+                  alt="Profile Picture"
+                  width={128}
+                  height={128}
+                  className="w-16 h-16 lg:w-32 lg:h-32 rounded-full object-cover"
+                />
       <div className="ml-6 flex-1 space-y-2">
-        <h2 className="font-bold">{data.fullName}</h2>
-        <p className="text-gray-600">{data.role}</p>
+        <h2 className="font-bold">{data.full_name}</h2>
+        <p className="text-gray-600">admin</p>
       </div>
       <button
         onClick={onEditClick}
@@ -107,10 +120,11 @@ function InformationCard({ data, onEditClick }) {
     <div className="bg-white shadow-lg px-10 py-10 rounded-3xl mt-10 relative">
       <h2 className="text-gray-700 font-bold mb-4">Information Profile</h2>
       <div className="grid grid-cols-2 gap-4">
-        <Detail label="Full name" value={data.fullName} />
+        <Detail label="Full name" value={data.full_name} />
         <Detail label="Phone" value={data.phone} />
+        <Detail label="Name" value={data.name} />
+        <Detail label="Date of Birth" value={data.birthday_date} />
         <Detail label="Username" value={data.username} />
-        <Detail label="Date of Birth" value={data.dateOfBirth} />
         <Detail label="E-mail" value={data.email} />
         <Detail label="Password" value={data.password} />
       </div>

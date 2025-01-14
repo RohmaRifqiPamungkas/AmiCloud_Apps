@@ -8,7 +8,7 @@ import useSWR from 'swr';
 export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
   const router = useRouter();
 
-
+// get userr we
   const { data: user, error: fetchError, mutate: mutateUser } = useSWR(
     '/api/v1/user', 
     async () => {
@@ -18,8 +18,10 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     { revalidateOnFocus: false }
   );
   
-
+  // get users => semuaaa user 
   
+
+  // ini buattt csrf
   const csrf = useCallback(async () => {
     try {
       await axios.get('/sanctum/csrf-cookie'); 
@@ -107,22 +109,26 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
   const forgotPassword = useCallback(
     async ({ email, setErrors, setStatus }) => {
       await csrf();
-      setErrors([]);
-      setStatus(null);
-
+      setErrors([]); 
+      setStatus(null); 
+  
       try {
         const response = await axios.post('/api/v1/forgot-password', { email });
-        setStatus(response.data.status); 
+
+        if (response.status === 200) {
+          setStatus(response.data.message || 'Password reset email sent successfully.');
+        }
       } catch (error) {
-        if (error.response?.status === 422) {
-          setErrors(error.response.data.errors);
+        if (error.response?.status === 422) {        
+           setErrors(error.response.data.errors || ['Invalid email address.']);
         } else {
-          setErrors(['An unexpected error occurred.']);
+          setErrors(['An unexpected error occurred. Please try again.']);
         }
       }
     },
     [csrf]
   );
+  
 
   // Fungsi Reset Password
   const resetPassword = useCallback(
@@ -162,7 +168,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     }
 
     if (fetchError && middleware === 'auth') {
-      router.push('/login'); // Redirect ke login jika tidak ada user
+      router.push('/login'); 
     }
   }, [middleware, user, fetchError, redirectIfAuthenticated, router, mutateUser]);
 
