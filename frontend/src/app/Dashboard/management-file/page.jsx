@@ -17,7 +17,7 @@ import useManagementFiles from "@/hooks/managementFile";
 
 export default function FileManagement() {
   const [activeTab, setActiveTab] = useState("Image");
-  const { loading, error, data, fetchFiles } = useManagementFiles();
+  const { data, fetchFiles } = useManagementFiles();
 
   useEffect(() => {
     if (activeTab === "Image") {
@@ -25,7 +25,7 @@ export default function FileManagement() {
     } else if (activeTab === "Link") {
       fetchFiles({ type: "link" });
     }
-  }, [activeTab,fetchFiles]);
+  }, [activeTab]);
 
   // image
   const imageData = data?.uploads.data || [];
@@ -99,8 +99,6 @@ export default function FileManagement() {
         </div>
       </div>
 
-      {loading && <p>Loading...</p>}
-      {error && <p>Error: {error}</p>}
 
       {activeTab === "Image" ? (
         <div>
