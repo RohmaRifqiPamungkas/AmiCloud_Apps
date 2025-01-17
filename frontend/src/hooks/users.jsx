@@ -1,49 +1,111 @@
+import { useAuth } from '@/hooks/auth';
+import axios from '@/lib/axios';
 import { useState } from 'react';
 import useSWR from 'swr';
-import axios from '@/lib/axios';
-import { useAuth } from '@/hooks/auth';
 
-// Fetch all users with search and pagination
-export const useUsers = (page, perPage, search = '') => {
+export const useUsers = (page, perPage, searchQuery = "") => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   const fetcher = async (url) => {
-    const response = await axios.get(url, {
-      params: { page, perPage, search },
-    });
-    return response.data.users;
+    try {
+      const response = await axios.get(url, {
+        params: { page, perPage },
+      });
+      return response.data.users;
+    } catch (err) {
+      setError(err);
+      throw err;
+    }
   };
 
-  const { data, error, isLoading, mutate } = useSWR(
-    () => (page && perPage ? `/api/v1/users?page=${page}&perPage=${perPage}&search=${search}` : null),
-    fetcher,
-    { revalidateOnFocus: false, shouldRetryOnError: false }
+  const { data, error: swrError, isLoading: swrLoading, mutate } = useSWR(
+    [`/api/v1/users`, page, perPage],
+    ([url, page, perPage]) => {
+      return fetcher(`${url}?page=${page || 1}&perPage=${perPage || 10}&search=${searchQuery}`);
+    },
+    {
+      revalidateOnFocus: false,
+      shouldRetryOnError: false,
+    }
   );
 
+  // Delete user
+  const deleteUser = async (id) => {
+    setIsLoading(true);
+    try {
+      await axios.delete(`/api/v1/users/${id}`);
+      setIsLoading(false);
+      mutate();
+      return id;
+    } catch (err) {
+      setIsLoading(false);
+      setError(err);
+      throw err;
+    }
+  };
+
+  const getUserById = async (id) => {
+    try {
+      const response = await axios.get(`/api/v1/users?per_page=999`);
+      const user = response.data.users.data.find((user) => user.id == id);
+      return user
+    } catch (err) {
+      setError(err);
+      throw err;
+    }
+  }
+
   return {
-    users: data?.data || [],
-    pagination: data?.links || {},
-    isLoading,
-    isError: !!error,
+    users: data,
+    isLoading: swrLoading || isLoading,
+    isError: swrError || error,
+    getUserById,
+    deleteUser,
     mutateUsers: mutate,
   };
 };
 
-// Create a new user
+
+
+export const useGetUserById = (id) => {
+  const fetcher = async (url) => {
+    const response = await axios.get(url);
+    const data = response.data;
+    const userList = data.users
+    const user = userList.find((user) => user.id == id);
+    return user;
+  };
+
+  const { data, error: isError, isLoading: isFetching } = useSWR(
+    id ? `/api/v1/users/` : null,
+    fetcher
+  );
+
+  return {
+    user: data,
+    isUserLoading: isFetching,
+    isError,
+  };
+};
+
 export const useCreateUser = () => {
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const createUser = async (userData) => {
-    if (!user) throw new Error('Unauthorized: User not authenticated');
+    if (!user) {
+      throw new Error("Unauthorized: User not authenticated");
+    }
 
     setIsLoading(true);
     setError(null);
-
     try {
       const response = await axios.post('/api/v1/users', userData);
-      return response.data.user;
+      return response.data;
     } catch (err) {
-      setError(err.response?.data.errors || err.message);
+      setError(err);
       throw err;
     } finally {
       setIsLoading(false);
@@ -53,9 +115,13 @@ export const useCreateUser = () => {
   return { createUser, isLoading, error };
 };
 
-// Fetch user details for editing
 export const useUserForEdit = (id) => {
+  const { user } = useAuth(); // Autentikasi pengguna
   const fetcher = async (url) => {
+    if (!user) {
+      throw new Error("Unauthorized: User not authenticated");
+    }
+
     const response = await axios.get(url);
     return response.data;
   };
@@ -66,30 +132,29 @@ export const useUserForEdit = (id) => {
   );
 
   return {
-    user: data?.user || null,
-    roles: data?.roles || [],
-    hasRoles: data?.hasRoles || [],
+    user: data,
     isLoading,
-    isError: !!error,
+    isError: error,
   };
 };
 
-// Update a user by ID
 export const useUpdateUser = (id) => {
+  const { user } = useAuth(); // Verifikasi autentikasi
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const updateUser = async (userData) => {
-    if (!id) throw new Error('Invalid ID: ID cannot be null');
+    if (!user) {
+      throw new Error("Unauthorized: User not authenticated");
+    }
 
     setIsLoading(true);
     setError(null);
-
     try {
       const response = await axios.put(`/api/v1/users/${id}`, userData);
-      return response.data.user;
+      return response.data;
     } catch (err) {
-      setError(err.response?.data.errors || err.message);
+      setError(err);
       throw err;
     } finally {
       setIsLoading(false);
@@ -99,22 +164,23 @@ export const useUpdateUser = (id) => {
   return { updateUser, isLoading, error };
 };
 
-// Delete a user by ID
 export const useDeleteUser = () => {
+  const { user } = useAuth(); // Verifikasi autentikasi
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const deleteUser = async (id) => {
-    if (!id) throw new Error('Invalid ID: ID cannot be null');
+    if (!user) {
+      throw new Error("Unauthorized: User not authenticated");
+    }
 
     setIsLoading(true);
     setError(null);
-
     try {
       await axios.delete(`/api/v1/users/${id}`);
       return id;
     } catch (err) {
-      setError(err.response?.data.errors || err.message);
+      setError(err);
       throw err;
     } finally {
       setIsLoading(false);

@@ -65,16 +65,18 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     async ({ email, password, setErrors }) => {
       await csrf();
       setErrors([]);
-
+  
       try {
         const response = await axios.post('/api/v1/login', { email, password });
-
-        localStorage.setItem('auth_token', response.data.token); 
-        await mutateUser(); 
-        router.push('/Dashboard'); 
+  
+        localStorage.setItem('auth_token', response.data.token);
+        await mutateUser();
+        router.push('/Dashboard');
       } catch (error) {
         if (error.response?.status === 422) {
           setErrors(error.response.data.errors);
+        } else if (error.response?.data?.message) {
+          setErrors([error.response.data.message]);
         } else {
           setErrors(['An unexpected error occurred.']);
         }
@@ -82,6 +84,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     },
     [csrf, mutateUser, router]
   );
+  
 
   // Fungsi Logout
   const logout = useCallback(async () => {
@@ -186,3 +189,4 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
   };
 
 };
+

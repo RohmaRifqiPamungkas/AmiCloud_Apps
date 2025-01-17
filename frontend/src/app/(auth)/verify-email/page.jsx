@@ -11,36 +11,22 @@ import {useRouter} from "next/navigation";
 
 export default function VerificationPage() {
   const router = useRouter();
-  const { logout, resendEmailVerification } = useAuth({
-    middleware: 'auth',
-    redirectIfAuthenticated: '/Dashboard',
-  });
+  const { logout, resendEmailVerification } = useAuth();
 
   const [status, setStatus] = useState(null);
-
- 
-  // useEffect(() => {
-  //   const checkEmailVerification = async () => {
-  //     try {
-  //       const response = await axios.get('/api/v1/email/verification-status');
-  //       if (response.data.verified) {
-  //         router.push('/Dashboard'); 
-  //       }
-  //     } catch (error) {
-  //       console.error("Failed to check email verification status:", error);
-  //     }
-  //   };
-
-  //   checkEmailVerification();
-  // }, [router]);
+  const [isLoading, setIsLoading] = useState(false); 
 
   const handleResendEmail = async () => {
+    setIsLoading(true); 
     try {
       await resendEmailVerification({ setStatus });
     } catch (error) {
       console.error("Failed to resend email verification:", error);
+    } finally {
+      setIsLoading(false); 
     }
   };
+
 
   return (
     <>
@@ -54,12 +40,17 @@ export default function VerificationPage() {
       )}
 
       <div className="mt-6 flex justify-center">
-        <button
-          onClick={handleResendEmail}
-          className="bg-secondary text-foreground font-semibold py-2 px-4 rounded md:rounded-2xl hover:bg-primary hover:text-white w-full"
-        >
-          Resend Verification Email
-        </button>
+      <button
+            onClick={handleResendEmail}
+            disabled={isLoading} 
+            className={`w-full py-2 px-4 font-bold rounded-2xl shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              isLoading
+                  ? 'bg-gray-400 text-gray-700 cursor-not-allowed'
+                  : 'bg-secondary text-black hover:bg-primary hover:text-white'
+          }`}
+          >
+            {isLoading ? 'Resend Verification Email' : 'Resend Verification Email'} 
+          </button>
       </div>
 
       <p className="mt-6 text-center text-sm md:text-base text-gray-500">

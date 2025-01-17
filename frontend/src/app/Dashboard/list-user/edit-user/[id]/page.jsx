@@ -1,31 +1,62 @@
-
-
 "use client";
 import withAuth from "@/components/AuthProvider";
-import { useCreateUser } from "@/hooks/users";
-import { useRouter } from "next/navigation";
-import React from "react";
+import useRoleManagement from "@/hooks/role";
+import { useUpdateUser, useUsers } from "@/hooks/users";
+import { useParams, useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
-function Adduser() {
+function Edituser() {
   const {
     register,
     handleSubmit,
+    reset,
     watch,
     formState: { errors },
   } = useForm();
   const router = useRouter();
+  const params = useParams();
+  const userId = params.id;
+  const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState(null);
 
-  const { createUser, isLoading, error } = useCreateUser();
+  const { roleList } = useRoleManagement();
 
+  // const { user, isUserLoading } = useGetUserById(userId);
+
+  const { users, isUserLoading, getUserById } = useUsers();
+
+  const { updateUser } = useUpdateUser(userId);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (users) {
+        const user = await getUserById(userId);
+        setUser(user);
+        reset(user);
+      }
+    };
+
+    fetchUser();
+  }, [users, getUserById, reset, userId]);
 
   const handleSave = async (data) => {
     try {
-      await createUser(data);
+      setIsLoading(true);
+      const payload = {
+        full_name: data.full_name,
+        email: data.email,
+        username: data.username,
+        password: data.password,
+        password_confirmation: data.confirmPassword,
+        roles: [data.role],
+      }
+      await updateUser(payload);
       router.push("/Dashboard/list-user?success=true");
     } catch (error) {
       console.error("Gagal memperbarui profil:", error);
     } finally {
+      setIsLoading(false);
     }
   };
 
@@ -35,13 +66,11 @@ function Adduser() {
 
   return (
     <div className="p-6 min-h-screen">
+      <p></p>
       <div className="flex flex-col justify-start items-start mb-6">
-        <p className="text-foreground text-xl">Add User</p>
         <h1 className="text-xl font-bold text-primary mt-2">
-          Management User
+          Edit User
         </h1>
-        <p className="text-foreground text-lg">Create a new user</p>
-
       </div>
 
       <div className="bg-white shadow-lg p-6 rounded-3xl">
@@ -61,7 +90,7 @@ function Adduser() {
             )}
           </div>
 
-          {/* Username */}
+          {/* Name */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Username
@@ -69,7 +98,7 @@ function Adduser() {
             <input
               type="text"
               className="w-full px-4 py-2 mt-2 border rounded-2xl bg-tertiary-25 focus:ring-purple-500 focus:border-purple-500"
-              {...register("username", { required: "Username is required" })}
+              {...register("username", { required: "username is required" })}
             />
             {errors.username && (
               <p className="text-sm text-red-500">{errors.username.message}</p>
@@ -133,24 +162,42 @@ function Adduser() {
             <input
               type="password"
               id="confirm-password"
-              {...register("password_confirmation", {
+              {...register("confirmPassword", {
                 required: "Password confirmation is required",
                 validate: (value) =>
                   value === watch("password") || "Passwords do not match",
               })}
               className="w-full px-4 py-2 mt-2 border rounded-2xl bg-tertiary-25 focus:ring-purple-500 focus:border-purple-500"
             />
-            {errors.password_confirmation && (
+            {errors.confirmPassword && (
               <span className="text-red-500 text-xs">
-                {errors.password_confirmation.message}
+                {errors.confirmPassword.message}
               </span>
             )}
           </div>
-          {error && (
-            <span className="text-red-500 text-base mt-2">
-              Terjadi error Saat Membuat User
-            </span>)
-          }
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Role Name
+            </label>
+            <select
+              className="w-full px-4 py-2 mt-2 border rounded-2xl bg-tertiary-25 focus:ring-purple-500 focus:border-purple-500"
+              {...register("role", {
+                required: "Role name is required",
+              })}
+            >
+              {roleList?.data.map((role) => (
+                <option key={role.id} value={role.id}>
+                  {role.name}
+                </option>
+              ))}
+            </select>
+            {errors.role && (
+              <p className="text-sm text-red-500">{errors.role.message}</p>
+            )}
+          </div>
+
+
           <div className="flex justify-start items-start gap-4">
             <button
               onClick={handleSubmit(handleSave)}
@@ -160,6 +207,7 @@ function Adduser() {
               {isLoading ? "Saving..." : "Save"}
             </button>
             <button
+              type="button"
               onClick={handleCancel}
               className="border border-primary text-primary px-6 py-2 rounded-2xl hover:bg-primary hover:text-white"
             >
@@ -172,4 +220,5 @@ function Adduser() {
   );
 }
 
-export default withAuth(Adduser, 'admin');
+
+export default withAuth(Edituser, 'admin');
