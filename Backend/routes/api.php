@@ -37,20 +37,20 @@ Route::prefix('v1')->middleware([StartSession::class])->group(function () {
                 'action' => $route->getActionName(),
             ];
         });
-    
+
         if ($routes->isEmpty()) {
             return response()->json([
                 'message' => 'No API routes found!',
                 'data' => [],
             ], 404);
         }
-    
+
         return response()->json([
             'message' => 'API route list retrieved successfully.',
             'data' => $routes,
         ], 200);
     });
-    
+
     // Route Clear Cache
     Route::get('/clear-cache', function () {
         Artisan::call('optimize:clear');
@@ -78,10 +78,10 @@ Route::prefix('v1')->middleware([StartSession::class])->group(function () {
     Route::get('/features/not-login', function () {
         return view('features.not_login.landing');
     })->name('features.not_login.landing');
-    
+
     // Rute untuk upload image
     Route::post('/file/upload/image', [ImageUploadController::class, 'upload'])
-        ->middleware(['throttle:upload-image']) 
+        ->middleware(['throttle:upload-image'])
         ->name('file.upload.image');
 
     // Rute Reupload Link
@@ -161,8 +161,8 @@ Route::prefix('v1')->middleware([StartSession::class])->group(function () {
 
         // Rute Profile
         Route::get('/profile', [ProfileController::class, 'index'])->name('api.profile.index');
-        Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('api.profile.edit');
-        Route::patch('/profile', [ProfileController::class, 'update'])->name('api.profile.update');
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('api.profile.edit');
+        Route::post('/profile', [ProfileController::class, 'update'])->name('api.profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('api.profile.destroy');
 
         // Rute Permissions
@@ -175,6 +175,7 @@ Route::prefix('v1')->middleware([StartSession::class])->group(function () {
 
         // Rute Roles
         Route::get('/roles', [RoleController::class, 'index'])->name('api.roles.index');
+        Route::get('/roles/{id}', [RoleController::class, 'show'])->name('api.roles.show');
         Route::get('/roles/create', [RoleController::class, 'create'])->name('api.roles.create');
         Route::post('/roles', [RoleController::class, 'store'])->name('api.roles.store');
         Route::get('/roles/{id}/edit', [RoleController::class, 'edit'])->name('api.roles.edit');
@@ -191,10 +192,9 @@ Route::prefix('v1')->middleware([StartSession::class])->group(function () {
 
         // Rute Users
         Route::get('/users', [UserController::class, 'index'])->name('api.users.index');
-        Route::get('/roles/{id}', [RoleController::class, 'show'])->name('api.roles.show');
         Route::get('/users/create', [UserController::class, 'create'])->name('api.users.create');
         Route::post('/users', [UserController::class, 'store'])->name('api.users.store');
-        Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('api.users.edit');
+        Route::post('/users/{id}/edit', [UserController::class, 'edit'])->name('api.users.edit');
         Route::put('/users/{id}', [UserController::class, 'update'])->name('api.users.update');
         Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('api.users.destroy');
 

@@ -25,18 +25,32 @@ class RoleController extends Controller implements HasMiddleware
     /**
      * Display a listing of the resource.
      */
+
     public function index(Request $request)
     {
-        $roles = Role::orderBy('name', 'DESC')->paginate(10);
+        $perPage = $request->query('per_page', 10);
+
+        $rolesPaginated = Role::with('permissions')->orderBy('name', 'DESC')->paginate($perPage);
+
+        $rolesPaginated->setCollection(
+            $rolesPaginated->getCollection()->map(function ($role) {
+                return [
+                    'id' => $role->id,
+                    'name' => $role->name,
+                    'access' => $role->permissions->pluck('name')->implode(', '),
+                    'created_at' => $role->created_at->toIso8601String(),
+                    'updated_at' => $role->updated_at->toIso8601String(),
+                    'permission_id' => $role->permissions->pluck('id')->toArray(),
+                ];
+            })
+        );
 
         if ($request->expectsJson()) {
-            return response()->json([
-                'roles' => $roles,
-            ]);
+            return response()->json($rolesPaginated, 200);
         }
 
         return view('roles.list', [
-            'roles' => $roles
+            'roles' => $rolesPaginated,
         ]);
     }
 
@@ -105,7 +119,7 @@ class RoleController extends Controller implements HasMiddleware
     public function show(string $id)
     {
         $role = Role::findOrFail($id);
-        
+
         return view('roles.index', [
             'role' => $role,
         ]);
@@ -118,7 +132,8 @@ class RoleController extends Controller implements HasMiddleware
     {
         $role = Role::findOrFail($id);
         $permissions = Permission::orderBy('name', 'desc')->get();
-        $hasPermissions = $role->permissions->pluck('name');
+        // $hasPermissions = $role->permissions->pluck('name');
+        $hasPermissions = $role->permissions->pluck('id')->toArray();
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -161,16 +176,22 @@ class RoleController extends Controller implements HasMiddleware
         $role->save();
 
         if ($request->has('permissions')) {
-            $permissionNames = Permission::whereIn('id', $request->permissions)->pluck('name');
-            $role->syncPermissions($permissionNames);
+            // $permissionNames = Permission::whereIn('id', $request->permissions)->pluck('name');
+            // $role->syncPermissions($permissionNames);
+            $permissionIds = $request->permissions;
+            $role->syncPermissions($permissionIds);
         } else {
             $role->syncPermissions([]);
         }
+
+        // Mengambil permissions yang sudah disinkronkan
+        $role->load('permissions');  // Mengambil relation permissions yang terkait dengan role
 
         if ($request->expectsJson()) {
             return response()->json([
                 'message' => 'Role updated successfully.',
                 'role' => $role,
+                'permissions' => $role->permissions,  // Tambahkan permissions dalam response
             ]);
         }
 
