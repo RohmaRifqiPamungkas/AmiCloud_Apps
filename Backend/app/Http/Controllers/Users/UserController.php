@@ -29,36 +29,33 @@ class UserController extends Controller implements HasMiddleware
     public function index(Request $request)
     {
         $searchTerm = $request->input('search');
+        $perPage = $request->query('per_page', 10);
 
         $usersQuery = User::with('roles');
 
         if ($searchTerm) {
             $usersQuery->where(function ($query) use ($searchTerm) {
-                $query->where('name', 'like', '%' . $searchTerm . '%')
+                $query->where('full_name', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('name', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('username', 'like', '%' . $searchTerm . '%')
                     ->orWhere('email', 'like', '%' . $searchTerm . '%');
             });
         }
 
         $users = $usersQuery->latest()->paginate(10);
 
-        $users->getCollection()->transform(function ($user) {
-
-            $userArray = $user->toArray();
-            $userArray['roles'] = $user->roles->pluck('name')->toArray();
-            return $userArray;
-        });
-
         if ($request->expectsJson()) {
             return response()->json([
-                'users' => $users,
+                'users' => $users->through(function ($user) {
+                    return array_merge($user->toArray(), [
+                        'roles' => $user->roles->pluck('name'),
+                    ]);
+                }),
             ]);
         }
 
-        return view('users.list', [
-            'users' => $users,
-        ]);
+        return view('users.list', compact('users'));
     }
-
 
     /**
      * Show the form for creating a new resource.
@@ -68,9 +65,7 @@ class UserController extends Controller implements HasMiddleware
         $roles = Role::orderBy('name', 'ASC')->get();
 
         if ($request->expectsJson()) {
-            return response()->json([
-                'roles' => $roles,
-            ]);
+            return response()->json(['roles' => $roles]);
         }
 
         return view('users.create', compact('roles'));
@@ -82,7 +77,8 @@ class UserController extends Controller implements HasMiddleware
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|min:3',
+            'full_name' => 'required|string|min:3',
+            'username' => 'required|string|min:3',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
             'roles' => 'nullable|array',
@@ -100,9 +96,11 @@ class UserController extends Controller implements HasMiddleware
         }
 
         $user = User::create([
-            'name' => $request->name,
+            'full_name' => $request->full_name,
+            'username' => $request->username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'image_profile' => 'images/profiles/default-profile.png',
         ]);
 
         if ($request->has('roles')) {
@@ -115,24 +113,14 @@ class UserController extends Controller implements HasMiddleware
         if ($request->expectsJson()) {
             return response()->json([
                 'message' => 'User created successfully.',
-                'user' => $user,
-                'token' => $token
+                'user' => array_merge($user->toArray(), [
+                    'roles' => $user->getRoleNames(),
+                ]),
+                'token' => $token,
             ], 201);
         }
 
         return redirect()->route('users.index')->with('success', 'User created successfully.');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        $user = User::findOrFail($id);
-
-        return view('users.index', [
-            'user' => $user,
-        ]);
     }
 
     /**
@@ -148,15 +136,11 @@ class UserController extends Controller implements HasMiddleware
             return response()->json([
                 'user' => $user,
                 'roles' => $roles,
-                'hasRoles' => $hasRoles
+                'hasRoles' => $hasRoles,
             ]);
         }
 
-        return view('users.edit', [
-            'user' => $user,
-            'roles' => $roles,
-            'hasRoles' => $hasRoles
-        ]);
+        return view('users.edit', compact('user', 'roles', 'hasRoles'));
     }
 
     /**
@@ -166,10 +150,13 @@ class UserController extends Controller implements HasMiddleware
     {
         $user = User::findOrFail($id);
 
+        // Validasi data input
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|min:3',
-            'email' => 'required|email|unique:users,email,' . $id,
+            'full_name' => 'required|string|min:3',
+            'username' => 'required|string|min:3|unique:users,username,' . $user->id,
+            'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
+            'roles' => 'nullable|array',
         ]);
 
         if ($validator->fails()) {
@@ -183,14 +170,11 @@ class UserController extends Controller implements HasMiddleware
             return redirect()->route('users.edit', $id)->withInput()->withErrors($validator);
         }
 
-        $user->name = $request->name;
-        $user->email = $request->email;
-
+        $data = $request->only(['full_name', 'username', 'email']);
         if ($request->filled('password')) {
-            $user->password = Hash::make($request->password);
+            $data['password'] = Hash::make($request->password);
         }
-
-        $user->save();
+        $user->update($data);
 
         if ($request->has('roles')) {
             $roles = Role::whereIn('id', $request->roles)->pluck('name')->toArray();
@@ -202,7 +186,9 @@ class UserController extends Controller implements HasMiddleware
         if ($request->expectsJson()) {
             return response()->json([
                 'message' => 'User updated successfully.',
-                'user' => $user,
+                'user' => array_merge($user->toArray(), [
+                    'roles' => $user->roles->pluck('name')->toArray(),
+                ]),
             ]);
         }
 

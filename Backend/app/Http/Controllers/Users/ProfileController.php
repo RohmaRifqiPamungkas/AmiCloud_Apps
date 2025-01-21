@@ -10,24 +10,58 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 
 class ProfileController extends Controller
 {
     /**
      * Display the user's profile form.
      */
-    public function edit(Request $request): View
+    public function index(string $id, Request $request)
     {
+        // Ambil data user beserta role-nya
+        $user = User::with('roles')->findOrFail($id);
+
+        // Jika request JSON, kembalikan profile beserta roles-nya
         if ($request->expectsJson()) {
             return response()->json([
-                'user' => $request->user(),
+                'user' => array_merge($user->toArray(), [
+                    'roles' => $user->roles->pluck('name'),
+                ]),
             ]);
         }
 
-        return view('profile.edit', [
-            'user' => $request->user(),
+        // Untuk view biasa (non-API)
+        return view('profile.index', [
+            'user' => $user,
         ]);
     }
+
+
+    /**
+     * Display the user's profile form.
+     */
+    public function edit(Request $request)
+    {
+        // Ambil data user yang sedang terautentikasi beserta roles-nya
+        $user = $request->user()->load('roles');
+
+        // Jika request JSON, kembalikan profile beserta roles-nya
+        if ($request->expectsJson()) {
+            return response()->json([
+                'user' => $user->makeHidden(['roles']), // Menyembunyikan data 'roles' dari objek utama 'user'
+                'image_profile' => $request->image_profile,
+                'roles' => $user->roles->pluck('name'),
+            ]);
+        }
+
+        // Untuk view biasa (non-API)
+        return view('profile.edit', [
+            'user' => $user,
+        ]);
+    }
+
+
 
     /**
      * Update the user's profile information.
@@ -41,7 +75,7 @@ class ProfileController extends Controller
         if ($request->hasFile('image_profile')) {
             $image = $request->file('image_profile');
             $imageName = 'profile_' . time() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('images/profiles'), $imageName);
+            $image->move(base_path('../public_html/api-amicloud.temukreatif.id/images/profiles'), $imageName);
 
             $validatedData['image_profile'] = 'images/profiles/' . $imageName;
         }
@@ -58,7 +92,7 @@ class ProfileController extends Controller
             return response()->json([
                 'message' => 'Profile updated successfully.',
                 'user' => $user,
-                'image_profile' => $user
+                'image_profile' => $user->image_profile,
             ]);
         }
 
@@ -77,7 +111,6 @@ class ProfileController extends Controller
         $user = $request->user();
 
         Auth::logout();
-
         $user->delete();
 
         $request->session()->invalidate();
@@ -89,6 +122,8 @@ class ProfileController extends Controller
             ], 200);
         }
 
-        return Redirect::to('/');
+        return response()->json([
+            'message' => 'Failed to delete user account.',
+        ], 400);
     }
 }
