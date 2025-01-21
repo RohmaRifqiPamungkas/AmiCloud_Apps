@@ -23,14 +23,11 @@ class PermissionController extends Controller implements HasMiddleware
 
     public function index(Request $request)
     {
-        $permissions = Permission::orderBy('created_at', 'desc')->paginate(10);
+        $perPage = $request->query('per_page', 10);
+        $permissions = Permission::orderBy('created_at', 'DESC')->paginate($perPage);
 
         if ($request->expectsJson()) {
-            return response()->json([
-                'status' => true,
-                'permissions' => $permissions,
-                'message' => 'Permissions retrieved successfully.',
-            ], 200);
+            return response()->json($permissions, 200);
         }
 
         return view('permissions.list', [
