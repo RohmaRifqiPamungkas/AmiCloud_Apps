@@ -1,7 +1,10 @@
+
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import axios from "@/lib/axios";
 import { FiLogOut } from "react-icons/fi";
 import Image from "next/image";
 import Logo from "../../../public/Navbar/Navbar.png";
@@ -11,27 +14,38 @@ import { AiOutlineUserAdd } from "react-icons/ai";
 import { LuUserRoundCog } from "react-icons/lu";
 import { PiListDashesBold } from "react-icons/pi";
 import { useAuth } from "@/hooks/auth";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
 export default function Sidebar({ isCollapsed }) {
   const pathname = usePathname();
-  const { logout, user } = useAuth();
-  const router = useRouter();
+  const { logout } = useAuth();
+  const [userRoles, setUserRoles] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Navigasi jika user tidak ada
+
   useEffect(() => {
-    if (!user) {
-      router.push("/login");
+    const fetchProfile = async () => {
+      try {
+        const response = await axios.get("/api/v1/profile");
+        console.log("Fetched Profile Data:", response.data); 
+        setUserRoles(response.data.roles || []); 
+      } catch (error) {
+        console.error("Error fetching profile data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  // Validasi roles
+  const getMenuSections = (roles) => {
+    if (!Array.isArray(roles)) {
+      console.error("Roles is not a valid array:", roles);
+      return [];
     }
-  }, [router, user]);
 
-  if (!user) {
-    return null; // Tidak render apapun jika user belum ada
-  }
-
-  const getMenuSections = (userId) => {
-    if (userId === 1) {
+    if (roles.includes("admin")) {
       return [
         {
           title: "Features App",
@@ -92,7 +106,11 @@ export default function Sidebar({ isCollapsed }) {
     ];
   };
 
-  const menuSections = getMenuSections(user.id);
+  const menuSections = getMenuSections(userRoles);
+
+  if (loading) {
+    return <div>Loading Sidebar...</div>;
+  }
 
   return (
     <aside
@@ -178,24 +196,12 @@ export default function Sidebar({ isCollapsed }) {
             aria-hidden="true"
           ></span>
 
-          <span
-            className={`text-lg z-10 relative pl-1 ${
-              pathname === "/logout"
-                ? "text-primary"
-                : "group-hover:text-primary"
-            }`}
-          >
+          <span className="text-lg z-10 relative pl-1 group-hover:text-primary">
             <FiLogOut />
           </span>
 
           {!isCollapsed && (
-            <span
-              className={`z-10 relative ${
-                pathname === "/logout"
-                  ? "text-primary"
-                  : "group-hover:text-primary"
-              }`}
-            >
+            <span className="z-10 relative group-hover:text-primary">
               Log Out
             </span>
           )}

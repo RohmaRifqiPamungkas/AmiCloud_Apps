@@ -14,14 +14,13 @@ export default function NavbarDashboard({ toggleSidebar }) {
   const { user } = useAuth(); 
   const router = useRouter();
 
-  // Navigasi ke login jika user tidak ada
+
   useEffect(() => {
     if (!user) {
       router.push("/login");
     }
   }, [router, user]);
 
-  // Jangan render navbar jika user belum tersedia
   if (!user) {
     return null;
   }
@@ -32,7 +31,6 @@ export default function NavbarDashboard({ toggleSidebar }) {
 
   return (
     <header className="bg-tertiary-25 px-6 py-4 flex justify-between items-center">
-      {/* Sidebar Toggle dan Breadcrumb */}
       <div className="flex items-center space-x-4">
         <button
           onClick={toggleSidebar}

@@ -40,15 +40,15 @@ function FileManagement() {
     Swal.fire({
       html: alertContent,
       showConfirmButton: true,
-      confirmButtonText: "OK",
+      confirmButtonText: "Delete",
       showCancelButton: true,
       cancelButtonText: "Cancel",
       customClass: {
         confirmButton:
-          "bg-red-500 text-white px-6 py-2 rounded-full font-semibold hover:bg-red-600",
-        cancelButton:
-          "bg-gray-300 text-black px-6 py-2 rounded-full font-semibold hover:bg-gray-400", 
-        popup: "rounded-3xl p-6 shadow-lg",
+                "bg-secondary text-black px-6 py-2 rounded-full font-semibold hover:bg-primary hover:text-white",
+            cancelButton:
+                "border-primary bg-transparant text-primary px-6 py-2 rounded-full font-semibold hover:bg-primary hover:text-white",
+            popup: "rounded-3xl p-6 shadow-lg",
       },
       showCloseButton: true,
     }).then((result) => {

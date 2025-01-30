@@ -16,8 +16,8 @@ export default function EditInformationProfile() {
   } = useForm();
   const router = useRouter();
   const {user} = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
-  // const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); 
+  // const [showPassword, setShowPassword] = useState(false); 
 
 
   useEffect(() => {
@@ -188,34 +188,6 @@ export default function EditInformationProfile() {
             )}
           </div>
 
-          {/* Password */}
-          {/* <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <div className="relative">
-
-              <input
-              id="password"
-                type={showPassword ? "text" : "password"}
-                className="w-full px-4 py-2 mt-2 border rounded-2xl bg-tertiary-25 focus:ring-purple-500 focus:border-purple-500"
-                {...register("password", { required: "Password is required" })}
-              />
-              <span
-                className="absolute inset-y-0 right-5 flex items-center cursor-pointer"
-                onClick={togglePasswordVisibility}
-              >
-                {showPassword ? (
-                  <FiEyeOff size={16} className="text-black mt-3" />
-                ) : (
-                  <FiEye size={16} className="text-black mt-3" />
-                )}
-              </span>
-            </div>
-            {errors.password && (
-              <p className="text-sm text-red-500">{errors.password.message}</p>
-            )}
-          </div> */}
         </form>
       </div>
     </div>

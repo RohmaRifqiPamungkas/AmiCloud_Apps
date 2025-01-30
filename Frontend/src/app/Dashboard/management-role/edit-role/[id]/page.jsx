@@ -27,39 +27,22 @@ const EditRole = () => {
 
   const { roleList, permissionList, updateRole, getRoleById } = useRoleManagement();
 
-  // useEffect(() => {
-  //   const fetchRole = async () => {
-  //     if (!roleList || !permissionList) {
-  //       return;
-  //     }
-
-  //     const foundRole = await getRoleById(roleId);
-
-  //     if (foundRole) {
-  //       setRole(foundRole);
-  //       setSelectedPermissions(foundRole.permission_id);
-  //     }
-  //   };
-
-  //   fetchRole();
-  // }, [roleList, permissionList]);
-
   useEffect(() => {
     const fetchRole = async () => {
       if (!roleList || !permissionList) {
         return;
       }
-  
+
       const foundRole = await getRoleById(roleId);
-  
+
       if (foundRole) {
         setRole(foundRole);
         setSelectedPermissions(foundRole.permission_id);
       }
     };
-  
+
     fetchRole();
-  }, [roleList, permissionList, getRoleById, roleId]);
+  }, [roleList, permissionList]);
 
   const onSubmit = async (data) => {
     const payload = {
@@ -117,7 +100,6 @@ const EditRole = () => {
           <input
             type="text"
             id="roleName"
-            value={role?.name}
             placeholder="Enter role name"
             {...register("roleName", { required: "Role name is required" })}
             className={`w-full px-4 py-2 mt-2 border rounded-2xl bg-tertiary-25 focus:ring-purple-500 focus:border-purple-500 ${errors.roleName ? "border-red-500" : "border-gray-300"

@@ -38,7 +38,7 @@ function Edituser() {
     };
 
     fetchUser();
-  }, [users, getUserById, reset, userId]);
+  }, [users]);
 
   const handleSave = async (data) => {
     try {

@@ -145,7 +145,7 @@ function FileManagement() {
 
   const handleDelete = async (fileId, type = "upload") => {
     showConfirmDialog({
-      alertContent: "Are you sure you want to delete this file?",
+      alertContent: "You won't be able to revert this !",
       onConfirm: () => {
         try {
           deleteFile(fileId, type).then(() => {

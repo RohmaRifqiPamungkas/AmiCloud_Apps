@@ -1,31 +1,30 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useAuth } from "@/hooks/auth";
 import { useForm } from "react-hook-form";
 import axios from "@/lib/axios";
 import { BASE_URL } from "@/lib/constant";
 
 export default function EditProfilePage() {
   const router = useRouter();
-  const { user } = useAuth();
-  const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [userData, setUserData] = useState(null); 
+  const [loading, setLoading] = useState(false); 
+  const [error, setError] = useState(null); 
+
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true); // Start loading
+      setLoading(true); 
       try {
-        const response = await axios.get("/api/v1/users");
-        const user = response.data.users[0];
-        setUserData(user);
+        const response = await axios.get("/api/v1/profile");
+        setUserData(response.data); 
       } catch (err) {
         setError(err.message || "Failed to fetch data.");
       } finally {
-        setLoading(false); // Stop loading
+        setLoading(false); 
       }
     };
     fetchData();
@@ -33,12 +32,14 @@ export default function EditProfilePage() {
 
   const { register, setValue, handleSubmit } = useForm({
     defaultValues: {
-      image_profile: user?.profile_picture || null,
+      image_profile: userData?.user?.image_profile || null,
     },
   });
 
   const [previewImage, setPreviewImage] = useState(
-    user?.profile_picture || `${BASE_URL}${user?.image_profile}`
+    userData?.user?.image_profile
+      ? `${BASE_URL}${userData.user.image_profile}`
+      : "https://via.placeholder.com/150"
   );
 
   const handleChangePicture = () => {
@@ -65,7 +66,7 @@ export default function EditProfilePage() {
 
   const onSubmit = async (data) => {
     try {
-      setLoading(true); 
+      setLoading(true);
 
       const formData = new FormData();
       if (data.image_profile) {
@@ -85,9 +86,17 @@ export default function EditProfilePage() {
         error.response?.data || error.message
       );
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div className="p-6 min-h-screen">
@@ -124,7 +133,8 @@ export default function EditProfilePage() {
             alt="Profile Picture"
             className="w-16 h-16 lg:w-32 lg:h-32 rounded-full object-cover"
             width={128}
-            height={128} priority
+            height={128}
+            priority
           />
           <button
             onClick={handleChangePicture}
@@ -151,11 +161,15 @@ export default function EditProfilePage() {
         <div className="grid grid-cols-4 gap-4 mt-6">
           <div>
             <label className="text-gray-500">Full Name</label>
-            <p className="font-medium">{user?.full_name || "N/A"}</p>
+            <p className="font-medium">
+              {userData?.user?.full_name || "N/A"}
+            </p>
           </div>
           <div>
             <label className="text-gray-500">Role Name</label>
-            <p className="font-medium">{userData?.roles?.join(", ") || "N/A"}</p>
+            <p className="font-medium">
+              {userData?.roles?.join(", ") || "N/A"}
+            </p>
           </div>
         </div>
       </div>

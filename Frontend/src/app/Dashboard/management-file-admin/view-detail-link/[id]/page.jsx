@@ -37,7 +37,7 @@ const FileDetails = () => {
 
   const handleDelete = () => {
     showConfirmDialog({
-      alertContent: "Are you sure you want to delete this file?",
+      alertContent: "You won't be able to revert this !",
       onConfirm: () => {
         try {
           deleteFile(fileId, "link").then(() => {

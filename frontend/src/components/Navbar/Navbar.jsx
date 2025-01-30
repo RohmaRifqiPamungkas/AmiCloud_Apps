@@ -22,7 +22,7 @@ export default function Navbar() {
     <nav className="fixed top-0 w-full z-50 bg-tertiary-25 shadow-md">
       <div className="container mx-auto flex items-center justify-between py-4 px-6 md:px-20">
         <div className="text-lg font-bold text-black">
-          <Image src={Logo} alt="logo" />
+          <Image src={Logo} alt="logo" priority/>
         </div>
 
         {/* Nav Desktop */}

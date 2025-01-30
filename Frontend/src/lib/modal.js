@@ -9,10 +9,12 @@ const showConfirmDialog = async ({
     alertContent = <AlertDanger />,
     onConfirm,
     onCancel,
-    confirmButtonText = "OK",
+    confirmButtonText = "Delete",
     cancelButtonText = "Cancel",
 }) => {
     return Swal.fire({
+        icon: "warning",
+        title: "Are you sure you want to delete this?",
         html: ReactDOMServer.renderToString(alertContent),
         showConfirmButton: true,
         confirmButtonText,
