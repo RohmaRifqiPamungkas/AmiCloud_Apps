@@ -3,16 +3,34 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\RoleController;
-use App\Http\Controllers\UserController;
-use App\Http\Middleware\HandleRateLimit;
-use App\Http\Controllers\ArticleController;
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\RateLimiter;
-use App\Http\Controllers\PermissionController;
-use App\Http\Controllers\FileManagementController;
-use App\Http\Controllers\Features\ImageUploadController;
-use App\Http\Controllers\Features\LinkReuploadController;
+use App\Http\Controllers\Articles\ArticleController;
+use App\Http\Controllers\Users\ProfileController;
+use App\Http\Controllers\Users\UserController;
+use App\Http\Controllers\Features\RolesAndPermissions\PermissionController;
+use App\Http\Controllers\Features\RolesAndPermissions\RoleController;
+use App\Http\Controllers\Features\FileManagement\ImageUploadController;
+use App\Http\Controllers\Features\FileManagement\LinkReuploadController;
+use App\Http\Controllers\Features\FileManagement\FileManagementController;
+
+Route::get('/route-list', function () {
+    $routes = collect(Route::getRoutes())->filter(function ($route) {
+        return strpos($route->uri(), 'api/') === 0;
+    })->map(function ($route) {
+        return [
+            'uri' => $route->uri(),
+            'method' => implode('|', $route->methods()),
+            'name' => $route->getName(),
+            'action' => $route->getActionName(),
+        ];
+    });
+
+    if (empty($routes)) {
+        dd('No API routes found!');
+    }
+
+    return view('api.apis', ['json' => json_encode($routes, JSON_PRETTY_PRINT)]);
+});
 
 // Route untuk pengujian kirim email
 Route::middleware('auth')->get('/send-test-email', function () {
@@ -27,8 +45,8 @@ Route::middleware('auth')->get('/send-test-email', function () {
 // Rate Limiting: Batasi unggahan file hanya untuk pengguna publik
 RateLimiter::for('upload-image', function (Request $request) {
     return $request->user()
-    ? \Illuminate\Cache\RateLimiting\Limit::none()
-    : \Illuminate\Cache\RateLimiting\Limit::perDay(3)->by($request->ip());
+        ? \Illuminate\Cache\RateLimiting\Limit::none()
+        : \Illuminate\Cache\RateLimiting\Limit::perDay(3)->by($request->ip());
 });
 
 // Rate Limiting: Batasi unggahan link hanya untuk pengguna publik
@@ -49,12 +67,12 @@ Route::get('/features/not-login', function () {
 
 // Rute Upload Image 
 Route::post('/file/upload/image', [ImageUploadController::class, 'upload'])
-    ->middleware([HandleRateLimit::class])
+    ->middleware('throttle:upload-image')
     ->name('file.upload.image');
 
 // Rute Reupload Link
 Route::post('/file/link-upload', [LinkReuploadController::class, 'createLink'])
-    ->middleware(['throttle:link-upload', HandleRateLimit::class])
+    ->middleware(['throttle:link-upload'])
     ->name('file.link.create');
 
 // Rute dashboard 
@@ -63,7 +81,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Rute yang membutuhkan autentikasi
-Route::middleware('auth')->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
     // Profil Pengguna
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

@@ -931,10 +931,14 @@
                                     Dashboard
                                 </a>
                             @else
+                                <a href="{{ url('/route-list') }}"
+                                    class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white">
+                                    API Documentation
+                                </a>
                                 <!-- Tautan untuk pengguna tidak login -->
                                 <a href="{{ route('features.not_login.landing') }}"
                                     class="rounded-md px-3 py-2 text-black ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white">
-                                    Features Landing
+                                    Features
                                 </a>
 
                                 <a href="{{ route('login') }}"
@@ -966,19 +970,22 @@
                                                 {{ session('error') }}
                                             </div>
                                         @endif
-                                        
+
                                         <!-- Upload Image Heading and Form -->
                                         <div class="mb-4">
-                                            <h3 class="text-xl font-medium text-gray-800 dark:text-gray-200 mb-4"> 
+                                            <h3 class="text-xl font-medium text-gray-800 dark:text-gray-200 mb-4">
                                                 Upload Image
                                             </h3>
-                                            <form method="POST" action="{{ route('file.upload.image') }}" enctype="multipart/form-data">
+                                            <form method="POST" action="{{ route('file.upload.image') }}"
+                                                enctype="multipart/form-data">
                                                 @csrf
                                                 <div class="mb-4">
-                                                    <label for="image" class="block text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">
+                                                    <label for="image"
+                                                        class="block text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">
                                                         Select Image File
                                                     </label>
-                                                    <input type="file" name="image" id="image" accept="image/*" required
+                                                    <input type="file" name="image" id="image" accept="image/*"
+                                                        required
                                                         class="block w-full text-sm text-gray-800 border border-gray-300 rounded-lg shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
                                                 </div>
 
@@ -992,7 +999,8 @@
                                         @if (session('image_url'))
                                             <div class="mt-4 text-green-500">
                                                 File berhasil diunggah. Akses file di:
-                                                <a href="{{ session('image_url') }}" target="_blank" class="text-blue-500 underline">
+                                                <a href="{{ session('image_url') }}" target="_blank"
+                                                    class="text-blue-500 underline">
                                                     {{ session('image_url') }}
                                                 </a>
                                             </div>
@@ -1004,22 +1012,25 @@
                                     </div>
 
                                     <!-- Separator -->
-                                    <div class="border-t border-gray-300 py-4"></div> 
+                                    <div class="border-t border-gray-300 py-4"></div>
 
                                     <!-- Upload Image via URL Section -->
                                     <div>
                                         <div class="mb-4">
-                                            <h3 class="text-xl font-medium text-gray-800 dark:text-gray-200 mb-4"> <!-- Added mb-4 -->
+                                            <h3 class="text-xl font-medium text-gray-800 dark:text-gray-200 mb-4">
+                                                <!-- Added mb-4 -->
                                                 Upload Image via URL
                                             </h3>
                                             <form method="POST" action="{{ route('file.link.create') }}">
                                                 @csrf
                                                 <div class="mb-4">
-                                                    <label for="image_url" class="block text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">
+                                                    <label for="image_url"
+                                                        class="block text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">
                                                         Paste Image URL
                                                     </label>
-                                                    <input type="url" name="image_url" id="image_url" placeholder="https://example.com/image.jpg"
-                                                        required class="block w-full text-sm text-gray-800 border border-gray-300 rounded-lg shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
+                                                    <input type="url" name="image_url" id="image_url"
+                                                        placeholder="https://example.com/image.jpg" required
+                                                        class="block w-full text-sm text-gray-800 border border-gray-300 rounded-lg shadow-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-indigo-500 focus:border-indigo-500">
                                                 </div>
 
                                                 <div class="flex justify-start">

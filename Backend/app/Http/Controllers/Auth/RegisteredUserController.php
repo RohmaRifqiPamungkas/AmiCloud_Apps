@@ -28,32 +28,52 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'is_active' => 0, 
-        ]);
+        try {
+            $user = User::create([
+                'name' => $validatedData['name'],
+                'email' => $validatedData['email'],
+                'password' => Hash::make($validatedData['password']),
+                'image_profile' => 'images/default-profile.png',
+                'is_active' => 0,
+            ]);
 
-        $role = Role::where('name', 'user')->first(); 
-        if ($role) {
-            $user->roles()->attach($role); 
+            $role = Role::where('name', 'user')->first();
+            if ($role) {
+                $user->roles()->attach($role);
+            }
+
+            event(new Registered($user));
+
+            Auth::login($user);
+
+            $token = $user->createToken('API Token')->plainTextToken;
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Registrasi berhasil.',
+                    'user' => $user,
+                    'token' => $token,
+                ], 201);
+            }
+
+            return redirect(route('dashboard'))->with('success', 'Registrasi berhasil!');
+        } catch (\Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Terjadi kesalahan saat registrasi.',
+                    'error' => $e->getMessage(),
+                ], 500);
+            }
+
+            return redirect()->back()->withInput()->withErrors('Terjadi kesalahan saat registrasi.');
         }
-
-        event(new Registered($user));
-        
-        Auth::login($user);
-
-        $token = $user->createToken('API Token')->plainTextToken;
-
-        return redirect(route('dashboard'))->with('token', $token);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\FileLink;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -28,14 +29,11 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
         $request->session()->regenerate();
 
-        // Perbarui unggahan anonim ke pengguna yang login
         $this->assignUploadsToUser($request);
 
-        // Periksa apakah ini permintaan API
         if ($request->expectsJson()) {
             $user = $request->user();
 
-            // Hasilkan token menggunakan Sanctum
             $token = $user->createToken('API Token')->plainTextToken;
 
             return response()->json([
@@ -45,7 +43,6 @@ class AuthenticatedSessionController extends Controller
             ]);
         }
 
-        // Jika bukan API, gunakan alur berbasis sesi
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
@@ -58,8 +55,11 @@ class AuthenticatedSessionController extends Controller
             $userId = Auth::id();
             $ipAddress = $request->ip();
 
-            // Cari unggahan anonim berdasarkan IP dan perbarui user_id
             FileUpload::where('ip_address', $ipAddress)
+                ->whereNull('user_id')
+                ->update(['user_id' => $userId]);
+
+            FileLink::where('ip_address', $ipAddress)
                 ->whereNull('user_id')
                 ->update(['user_id' => $userId]);
         }
@@ -68,13 +68,15 @@ class AuthenticatedSessionController extends Controller
     /**
      * Destroy an authenticated session.
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request)
     {
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return response()->json([
+            'message' => 'Successfully logged out.'
+        ], 200);
     }
 }

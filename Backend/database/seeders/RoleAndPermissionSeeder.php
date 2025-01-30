@@ -10,7 +10,7 @@ class RoleAndPermissionSeeder extends Seeder
 {
     public function run()
     {
-        // Membuat Permissions
+
         $permissions = [
             // Articles Management
             'view articles',
@@ -29,6 +29,10 @@ class RoleAndPermissionSeeder extends Seeder
             'create permissions',
             'edit permissions',
             'delete permissions',
+            
+            // Permission Features
+            'view features',
+            'create features',
 
             // File Management
             'view file management',
@@ -38,20 +42,16 @@ class RoleAndPermissionSeeder extends Seeder
             'delete file management',
         ];
 
-        // Membuat permissions
         foreach ($permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission]);
         }
 
-        // Membuat Roles
         $admin = Role::firstOrCreate(['name' => 'admin']);
         $user = Role::firstOrCreate(['name' => 'user']);
         $public = Role::firstOrCreate(['name' => 'public']);
 
-        // Memberikan Permissions pada Role admin
-        $admin->givePermissionTo(Permission::all()); // Semua permissions untuk admin
+        $admin->givePermissionTo(Permission::all()); 
 
-        // Memberikan Permissions pada Role user
         $user->givePermissionTo([
             'view articles',
             'edit articles',
@@ -62,7 +62,6 @@ class RoleAndPermissionSeeder extends Seeder
             'create file management',
         ]);
 
-        // Memberikan Permissions pada Role public
         $public->givePermissionTo([
             'view articles',
         ]);

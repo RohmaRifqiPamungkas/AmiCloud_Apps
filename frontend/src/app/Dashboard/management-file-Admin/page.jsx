@@ -2,15 +2,15 @@
 
 import withAuth from "@/components/AuthProvider";
 import Notification from "@/components/Notification/Notification";
-import { useAuth } from "@/hooks/auth";
 import useManagementFiles from "@/hooks/managementFile";
 import { formatDate } from "@/lib/date";
 import { generateLink } from "@/lib/image";
 import { showConfirmDialog } from "@/lib/modal";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { use, useEffect, useState } from "react";
-import { set } from "react-hook-form";
+import React, { Suspense, useEffect, useState } from "react";
+
+import Image from "next/image";
 import { AiOutlineEye, AiOutlineSearch } from "react-icons/ai";
 import {
   MdDeleteOutline,
@@ -20,22 +20,16 @@ import {
 import { RiEdit2Line } from "react-icons/ri";
 import { VscSettings } from "react-icons/vsc";
 import DashboardCards from "./cardAdmin";
-import Image from "next/image";
 
-// image
-const generateImageData = (count) => {
-  const roles = ["admin", "user", "user public"];
-  return Array.from({ length: count }, (_, i) => ({
-    id: i + 1,
-    name: `User ${i + 1}`,
-    thumbnail: "https://via.placeholder.com",
-    shortlink: `https://short.link/user${i + 1}`,
-    role: roles[i % roles.length],
-    dateCreated: `2025-01-${String(i + 1).padStart(2, "0")}`,
-  }));
-};
 
-const imageData = generateImageData(5);
+function FileManagementPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <FileManagement />
+    </Suspense>
+  );
+}
+
 
 function FileManagement() {
   const { fetchFiles, uploads, links, deleteFile } = useManagementFiles();
@@ -86,18 +80,18 @@ function FileManagement() {
     } else if (activeTab === "Link") {
       fetchFiles("link");
     }
-  }, [activeTab, fetchFiles ]);
+  }, [activeTab, fetchFiles]);
 
 
   const [currentImagePage, setCurrentImagePage] = useState(1);
 
- 
+
   useEffect(() => {
     fetchFiles(activeTab === "Image" ? "upload" : "link", {
       page: pageImage,
       limit: perPageImage,
     });
-  }, [pageImage, perPageImage, activeTab,  fetchFiles]);
+  }, [pageImage, perPageImage, activeTab, fetchFiles]);
 
   useEffect(() => {
     if (uploads) {
@@ -149,9 +143,9 @@ function FileManagement() {
     }, 3000);
   }
 
-  const handleDelete = (fileId, type = "upload") => {
+  const handleDelete = async (fileId, type = "upload") => {
     showConfirmDialog({
-      alertContent: "Are you sure you want to delete this file?",
+      alertContent: "You won't be able to revert this !",
       onConfirm: () => {
         try {
           deleteFile(fileId, type).then(() => {
@@ -239,9 +233,9 @@ function FileManagement() {
                     <td className="px-4 py-2">
                       <Image
                         src={generateLink(user.file_path)}
-                        alt="Thumbnail"
+                        alt={`Thumbnail of ${user.filename}`}
                         className="w-10 h-10 object-cover rounded-full"
-                        height={40} width={40} priority
+                        height={40} width={40}
                       />
                     </td>
                     <td className="px-4 py-2">
@@ -449,4 +443,4 @@ function FileManagement() {
 }
 
 
-export default withAuth(FileManagement, 'admin');
+export default withAuth(FileManagementPage, 'admin');

@@ -58,7 +58,7 @@ function ListUser() {
     }
   }, [pagination.currentPage, pagination.perPage, searchQuery, mutateUsers, users]);
 
-  if (!user) {
+  if (!users) {
     return null; 
   }
 
@@ -96,7 +96,7 @@ function ListUser() {
 
   const handleDelete = (id) => {
     showConfirmDialog({
-      alertContent: "Are you sure you want to delete this User?",
+      alertContent: "You won't be able to revert this !",
       onConfirm: () => {
         try {
           deleteUser(id).then(() => {

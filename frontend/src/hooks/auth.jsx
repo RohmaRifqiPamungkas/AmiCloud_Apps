@@ -9,16 +9,18 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
   const router = useRouter();
 
 // get userr we
-  const { data: user, error: fetchError, mutate: mutateUser } = useSWR(
-    '/api/v1/user', 
-    async () => {
-      const res = await axios.get('/api/v1/user');
-      return res.data;
-    },
-    { revalidateOnFocus: false }
-  );
+const { data: user, error: fetchError, mutate: mutateUser } = useSWR(
+  typeof window !== 'undefined' && localStorage.getItem('auth_token') 
+    ? '/api/v1/user' 
+    : null, 
+  async () => {
+    const res = await axios.get('/api/v1/user');
+    return res.data;
+  },
+  { revalidateOnFocus: false }
+);
   
-  // get users => semuaaa user 
+
   
 
   // ini buattt csrf
