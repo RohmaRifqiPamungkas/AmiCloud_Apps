@@ -1,9 +1,9 @@
 
 
 
-import axios from '../lib/axios';
-import { useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/auth';
+import { useCallback, useState } from 'react';
+import axios from '../lib/axios';
 
 const useManagementFiles = () => {
   const [loading, setLoading] = useState(false);
@@ -13,8 +13,11 @@ const useManagementFiles = () => {
   const [data, setData] = useState(null);
   const { user } = useAuth();
 
-  const fetchFiles = useCallback(async (type = null, params = {}) => {
-    if (loading) return; 
+  const fetchFiles = useCallback(async (type = null, params = {
+    page: 1,
+    limit: 999,
+  },) => {
+    if (loading) return;
     setLoading(true);
     setError(null);
     try {
@@ -33,7 +36,7 @@ const useManagementFiles = () => {
         setLinks(response.data.links || []);
       }
 
-      setData(response.data); 
+      setData(response.data);
     } catch (err) {
       setError(err.response?.data || err.message);
     } finally {
@@ -41,12 +44,12 @@ const useManagementFiles = () => {
     }
   }, [loading]);
 
-  const fetchFile = useCallback(async (id) => {
-    if (loading) return; 
+  const fetchFile = useCallback(async (id, type = "upload") => {
+    if (loading) return;
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get(`api/v1/management_files/${id}`);
+      const response = await axios.get(`api/v1/management_files/${id}?type=${type}`);
       setData(response.data);
     } catch (err) {
       setError(err.response?.data || err.message);
@@ -81,12 +84,12 @@ const useManagementFiles = () => {
     }
   }, []);
 
-  const deleteFile = useCallback(async (id) => {
+  const deleteFile = useCallback(async (id, type = "upload") => {
     setLoading(true);
     setError(null);
     try {
-      await axios.delete(`api/v1/management_files/${id}`);
-      setData({ message: 'File deleted successfully' });
+      await axios.delete(`api/v1/management_files/${id}?type=${type}`);
+      // setData({ message: 'File deleted successfully' });
     } catch (err) {
       setError(err.response?.data || err.message);
     } finally {

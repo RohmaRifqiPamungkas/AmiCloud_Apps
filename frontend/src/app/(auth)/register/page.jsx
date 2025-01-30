@@ -8,10 +8,7 @@ import { useAuth } from "@/hooks/auth";
 import Link from "next/link";
 
 const Register = () => {
-  const { register: registerUser } = useAuth({
-    middleware: "guest",
-    redirectIfAuthenticated: "/Dashboard",
-  });
+  const { register: registerUser } = useAuth();
 
   const {
     handleSubmit,
@@ -22,8 +19,10 @@ const Register = () => {
 
   const [serverErrors, setServerErrors] = useState([]);
   const [status, setStatus] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = async (data) => {
+    setIsLoading(true);
     try {
       await registerUser({
         name: data.name,
@@ -34,13 +33,14 @@ const Register = () => {
         setStatus,
       });
 
-  
-      if (status) {
+      if (!serverErrors.length && status) {
         reset();
         console.log("Redirecting to verify email page...");
       }
     } catch (error) {
       console.error("Register error:", error);
+    } finally {
+      setIsLoading(false);  
     }
   };
 
@@ -153,9 +153,14 @@ const Register = () => {
 
         <button
           type="submit"
-          className="w-full py-2 px-4 bg-secondary text-reguler text-black font-bold rounded-2xl shadow-md hover:bg-primary hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className={`w-full py-2 px-4 font-bold rounded-2xl shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            isLoading
+              ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+              : "bg-secondary text-black hover:bg-primary hover:text-white"
+          }`}
+          disabled={isLoading}  
         >
-          Create Account
+          {isLoading ? "Creating Account" : "Create Account"}
         </button>
       </form>
 

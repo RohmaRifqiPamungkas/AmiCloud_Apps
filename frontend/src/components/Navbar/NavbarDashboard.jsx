@@ -1,14 +1,13 @@
-
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiMenu, FiChevronDown } from "react-icons/fi";
 import Breadcrumb from "../Breadcrumb/Breadcrumb";
 import Image from "next/image";
-import defaultProfile from "../../../public/Navbar/Profile.png"; 
 import { useAuth } from "@/hooks/auth"; 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { BASE_URL } from "@/lib/constant";
 
 export default function NavbarDashboard({ toggleSidebar }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -16,9 +15,14 @@ export default function NavbarDashboard({ toggleSidebar }) {
   const router = useRouter();
 
 
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    }
+  }, [router, user]);
+
   if (!user) {
-    router.push("/login");
-    return null; 
+    return null;
   }
 
   const toggleDropdown = () => {
@@ -36,20 +40,21 @@ export default function NavbarDashboard({ toggleSidebar }) {
         </button>
         <Breadcrumb />
       </div>
+
+      {/* Profil User */}
       <div className="relative">
         <button
           onClick={toggleDropdown}
           className="flex items-center gap-2 sm:gap-4 focus:outline-none"
         >
-          <span className="text-gray-800 font-semibold">
-            {user.name}  
-          </span>
+          <span className="text-gray-800 font-semibold">{user.name}</span>
           <Image
-            src={user.profileImage || defaultProfile} 
+            src={`${BASE_URL}${user.image_profile}`}
             alt="profile"
             width={40}
             height={40}
             className="rounded-full"
+            priority
           />
           <FiChevronDown size={20} className="text-gray-600" />
         </button>
@@ -59,10 +64,11 @@ export default function NavbarDashboard({ toggleSidebar }) {
           <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200">
             <Link
               href="/Dashboard/profile"
-              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:rounded-lg"
             >
               My Profile
             </Link>
+            
           </div>
         )}
       </div>
