@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
@@ -9,11 +7,10 @@ import { RiEdit2Line } from "react-icons/ri";
 import { FaRegCircleCheck } from "react-icons/fa6";
 import { useAuth } from "@/hooks/auth";
 import defaultProfile from "../../../../public/Navbar/Profile.png"; 
+import axios from "@/lib/axios";
+import { BASE_URL } from "@/lib/constant";
 
 export default function ProfilePage() {
- 
-
-
   return (
     <Suspense fallback={<p>Loading...</p>}>
       <ProfileContent />
@@ -21,24 +18,17 @@ export default function ProfilePage() {
   );
 }
 
-
-
-
-
 function ProfileContent() {
-
-
-
   const { user } = useAuth(); 
   const router = useRouter();
   const searchParams = useSearchParams();
   const [notification, setNotification] = useState(false);
 
-
-  if (!user) {
-    router.push("/login");
-    return null; 
-  }
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    }
+  }, [user, router]);
 
   useEffect(() => {
     if (searchParams.get("success") === "true") {
@@ -57,20 +47,15 @@ function ProfileContent() {
 
   return (
     <div className="p-6 min-h-screen relative">
-      {/* Header */}
       <h1 className="text-xl font-bold text-primary">My Profile</h1>
       <p className="text-foreground text-lg">Complete your profile now!</p>
 
-      {/* Notification */}
-      {notification && (
-        <Notification message="Information Profile successfully updated" />
-      )}
+      {notification && <Notification message="Profile successfully updated" />}
 
-      {/* User Card */}
       <UserCard data={user} onEditClick={goToEditProfile} />
-
-      {/* Information Card */}
+      
       <InformationCard data={user} onEditClick={goToEditInformation} />
+      
     </div>
   );
 }
@@ -78,32 +63,48 @@ function ProfileContent() {
 function Notification({ message }) {
   return (
     <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-[#B6D7A8] border border-green-700 rounded-2xl flex items-center p-4 w-auto">
-    <FaRegCircleCheck className="mr-4 text-green-700" />
-    <span className="text-black font-medium">{message}</span>
-  </div>
+      <FaRegCircleCheck className="mr-4 text-green-700" />
+      <span className="text-black font-medium">{message}</span>
+    </div>
   );
 }
 
 function UserCard({ data, onEditClick }) {
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get("/api/v1/users");
+        const user = response.data.users[0]; 
+        setUserData(user);
+      } catch (err) {
+        setError(err.message || "Failed to fetch data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (loading) return <p>Loading user data...</p>;
+  if (error) return <p>Error: {error}</p>;
+
   return (
     <div className="flex items-center bg-white shadow-lg py-10 px-10 rounded-3xl mt-6">
-      {/* <Image
-        src={data.profilePicture}
+      <Image
+        src={data?.image_profile ? `${BASE_URL}${data.image_profile}` : defaultProfile}
         alt="Profile Picture"
         width={128}
         height={128}
-        className="w-16 h-16 lg:w-32 lg:h-32 rounded-full object-cover"
-      /> */}
-       <Image
-                  src={data.profileImage || defaultProfile} 
-                  alt="Profile Picture"
-                  width={128}
-                  height={128}
-                  className="w-16 h-16 lg:w-32 lg:h-32 rounded-full object-cover"
-                />
+        className="w-16 h-16 lg:w-32 lg:h-32 rounded-full object-cover" 
+        priority
+      />
       <div className="ml-6 flex-1 space-y-2">
         <h2 className="font-bold">{data.full_name}</h2>
-        <p className="text-gray-600">admin</p>
+        <p className="text-gray-600">{userData?.roles?.join(", ")}</p>
       </div>
       <button
         onClick={onEditClick}
@@ -126,7 +127,6 @@ function InformationCard({ data, onEditClick }) {
         <Detail label="Date of Birth" value={data.birthday_date} />
         <Detail label="Username" value={data.username} />
         <Detail label="E-mail" value={data.email} />
-        <Detail label="Password" value={data.password} />
       </div>
       <button
         onClick={onEditClick}
@@ -146,4 +146,3 @@ function Detail({ label, value }) {
     </div>
   );
 }
-

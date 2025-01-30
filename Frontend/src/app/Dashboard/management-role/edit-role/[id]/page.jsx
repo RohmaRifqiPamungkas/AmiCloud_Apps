@@ -1,19 +1,83 @@
 
 "use client";
 
-import React from "react";
-import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
+import withAuth from "@/components/AuthProvider";
+import useRoleManagement from "@/hooks/role";
+import { useParams, useRouter } from "next/navigation";
+import React, { use, useEffect, useState } from "react";
+import { set, useForm } from "react-hook-form";
 
 const EditRole = () => {
   const { register, handleSubmit, watch, formState: { errors } } = useForm();
-  const router = useRouter();
+  const [selectedPermissions, setSelectedPermissions] = useState([]);
 
-  const onSubmit = (data) => {
-    console.log(data); 
-    setTimeout(() => {
+  const handleCheckboxChange = (id) => {
+    setSelectedPermissions((prev) =>
+      prev.includes(id)
+        ? prev.filter((permissionId) => permissionId !== id)
+        : [...prev, id]
+    );
+  };
+
+  const [role, setRole] = useState(null);
+
+  const router = useRouter();
+  const params = useParams();
+  const roleId = params.id;
+
+  const { roleList, permissionList, updateRole, getRoleById } = useRoleManagement();
+
+  // useEffect(() => {
+  //   const fetchRole = async () => {
+  //     if (!roleList || !permissionList) {
+  //       return;
+  //     }
+
+  //     const foundRole = await getRoleById(roleId);
+
+  //     if (foundRole) {
+  //       setRole(foundRole);
+  //       setSelectedPermissions(foundRole.permission_id);
+  //     }
+  //   };
+
+  //   fetchRole();
+  // }, [roleList, permissionList]);
+
+  useEffect(() => {
+    const fetchRole = async () => {
+      if (!roleList || !permissionList) {
+        return;
+      }
+  
+      const foundRole = await getRoleById(roleId);
+  
+      if (foundRole) {
+        setRole(foundRole);
+        setSelectedPermissions(foundRole.permission_id);
+      }
+    };
+  
+    fetchRole();
+  }, [roleList, permissionList, getRoleById, roleId]);
+
+  const onSubmit = async (data) => {
+    const payload = {
+      name: data.roleName,
+      permissions: selectedPermissions
+    }
+
+    try {
+      await updateRole({ payload, id: roleId });
       router.push("/Dashboard/management-role?success=true");
-    }, 500);
+    } catch (error) {
+      alert("An error occurred");
+      console.error(error);
+    }
+
+
+    // setTimeout(() => {
+    // }, 500);
   };
 
   const handleCancel = () => {
@@ -53,11 +117,11 @@ const EditRole = () => {
           <input
             type="text"
             id="roleName"
+            value={role?.name}
             placeholder="Enter role name"
             {...register("roleName", { required: "Role name is required" })}
-            className={`w-full px-4 py-2 mt-2 border rounded-2xl bg-tertiary-25 focus:ring-purple-500 focus:border-purple-500 ${
-              errors.roleName ? "border-red-500" : "border-gray-300"
-            } rounded-2xl focus:ring-purple-500 focus:border-purple-500`}
+            className={`w-full px-4 py-2 mt-2 border rounded-2xl bg-tertiary-25 focus:ring-purple-500 focus:border-purple-500 ${errors.roleName ? "border-red-500" : "border-gray-300"
+              } rounded-2xl focus:ring-purple-500 focus:border-purple-500`}
           />
           {errors.roleName && (
             <p className="text-red-500 text-sm mt-1">{errors.roleName.message}</p>
@@ -76,25 +140,18 @@ const EditRole = () => {
                 </tr>
               </thead>
               <tbody>
-                {[
-                  "My Profile",
-                  "Features",
-                  "Management File",
-                  "Add User",
-                  "List User",
-                  "Management Role",
-                ].map((action, index) => (
+                {permissionList?.data.map((permission, index) => (
                   <tr
-                    key={index}
-                    className={`border-t ${index % 2 === 0 ? "bg-white" : "bg-tertiary-10"}`}
+                    key={permission.id}
+                    className={`border-t ${index % 2 === 0 ? "bg-white" : "bg-gray-100"}`}
                   >
-                    <td className="px-4 py-2">{action}</td>
+                    <td className="px-4 py-2">{permission.name}</td>
                     <td className="px-4 py-2">
                       <input
                         type="checkbox"
-                        {...register("permissions", { required: false })}
-                        value={action}
-                        defaultChecked
+                        value={permission.id}
+                        checked={selectedPermissions.includes(role?.permission_id) || selectedPermissions.includes(permission.id)}
+                        onChange={() => handleCheckboxChange(permission.id)}
                         className="h-5 w-5 text-primary"
                       />
                     </td>
@@ -109,4 +166,4 @@ const EditRole = () => {
   );
 };
 
-export default EditRole;
+export default withAuth(EditRole, 'admin');

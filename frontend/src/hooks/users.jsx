@@ -1,31 +1,96 @@
+import { useAuth } from '@/hooks/auth';
+import axios from '@/lib/axios';
 import { useState } from 'react';
 import useSWR from 'swr';
-import axios from '@/lib/axios'; 
-import { useAuth } from '@/hooks/auth'; 
 
-export const useUsers = (page, perPage) => {
+export const useUsers = (page, perPage, searchQuery = "") => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   const fetcher = async (url) => {
-    const response = await axios.get(url, {
-      params: { page, perPage },
-    });
-    return response.data;
+    try {
+      const response = await axios.get(url, {
+        params: { page, perPage },
+      });
+      return response.data.users;
+    } catch (err) {
+      setError(err);
+      throw err;
+    }
   };
 
-  const { data, error, isLoading, mutate } = useSWR('/api/v1/users', fetcher, {
-    revalidateOnFocus: false,
-    shouldRetryOnError: false,
-  });
+  const { data, error: swrError, isLoading: swrLoading, mutate } = useSWR(
+    [`/api/v1/users`, page, perPage],
+    ([url, page, perPage]) => {
+      return fetcher(`${url}?page=${page || 1}&perPage=${perPage || 10}&search=${searchQuery}`);
+    },
+    {
+      revalidateOnFocus: false,
+      shouldRetryOnError: false,
+    }
+  );
+
+  // Delete user
+  const deleteUser = async (id) => {
+    setIsLoading(true);
+    try {
+      await axios.delete(`/api/v1/users/${id}`);
+      setIsLoading(false);
+      mutate();
+      return id;
+    } catch (err) {
+      setIsLoading(false);
+      setError(err);
+      throw err;
+    }
+  };
+
+  const getUserById = async (id) => {
+    try {
+      const response = await axios.get(`/api/v1/users?per_page=999`);
+      const user = response.data.users.data.find((user) => user.id == id);
+      return user
+    } catch (err) {
+      setError(err);
+      throw err;
+    }
+  }
 
   return {
     users: data,
-    isLoading,
-    isError: error,
+    isLoading: swrLoading || isLoading,
+    isError: swrError || error,
+    getUserById,
+    deleteUser,
     mutateUsers: mutate,
   };
 };
 
+
+
+export const useGetUserById = (id) => {
+  const fetcher = async (url) => {
+    const response = await axios.get(url);
+    const data = response.data;
+    const userList = data.users
+    const user = userList.find((user) => user.id == id);
+    return user;
+  };
+
+  const { data, error: isError, isLoading: isFetching } = useSWR(
+    id ? `/api/v1/users/` : null,
+    fetcher
+  );
+
+  return {
+    user: data,
+    isUserLoading: isFetching,
+    isError,
+  };
+};
+
 export const useCreateUser = () => {
-  const { user } = useAuth(); 
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 

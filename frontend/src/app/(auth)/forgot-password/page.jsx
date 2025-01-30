@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useEffect, useState } from "react";
 import { useAuth } from '@/hooks/auth';
@@ -11,19 +11,18 @@ const ForgotPassword = () => {
   const [status, setStatus] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const [isClient, setIsClient] = useState(false); 
-
-
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setIsClient(true); 
   }, []);
-
 
   const { register, handleSubmit, formState: { errors }, setError } = useForm();
 
   const onSubmit = async (data) => {
     setStatus(null);
     setErrorMessage(null);
+    setIsLoading(true);
 
     try {
       await forgotPassword({
@@ -41,10 +40,10 @@ const ForgotPassword = () => {
     } catch (error) {
       console.error("Unexpected error:", error);
       setErrorMessage("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false); 
     }
   };
-
-
 
   if (!isClient) return null;
 
@@ -57,13 +56,12 @@ const ForgotPassword = () => {
       </p>
 
       <div>
-  {errorMessage ? (
-    <p className="mt-4 text-red-600 text-left">{errorMessage}</p>
-  ) : status ? (
-    <p className="mt-4 text-green-600 text-left">{status}</p>
-  ) : null}
-</div>
-
+        {errorMessage ? (
+          <p className="mt-4 text-red-600 text-left">{errorMessage}</p>
+        ) : status ? (
+          <p className="mt-4 text-green-600 text-left">{status}</p>
+        ) : null}
+      </div>
 
       <div className="mt-6">
         <label
@@ -95,9 +93,14 @@ const ForgotPassword = () => {
       <div className="mt-6 flex justify-center">
         <button
           type="submit"
-          className="bg-secondary text-foreground font-semibold py-3 px-4 rounded-2xl hover:bg-primary hover:text-white w-full"
+          disabled={isLoading}  
+          className={`w-full py-2 px-4 font-bold rounded-2xl shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            isLoading
+                ? 'bg-gray-400 text-gray-700 cursor-not-allowed'
+                : 'bg-secondary text-black hover:bg-primary hover:text-white'
+        }`}
         >
-          Email Password Reset Link
+          {isLoading ? 'Email Password Reset Link' : 'Email Password Reset Link'}  
         </button>
       </div>
     </form>

@@ -4,7 +4,6 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useAuth } from "@/hooks/auth";
 import axios from "@/lib/axios";
 
@@ -37,7 +36,7 @@ export default function EditInformationProfile() {
   const handleSave = async (data) => {
     try {
       setIsLoading(true);
-      const response = await axios.patch("api/v1/profile", data);
+      const response = await axios.post("api/v1/profile", data);
       console.log("Profil berhasil diperbarui:", response.data);
       router.push("/Dashboard/profile?success=true");
     } catch (error) {
@@ -222,3 +221,5 @@ export default function EditInformationProfile() {
     </div>
   );
 }
+
+
