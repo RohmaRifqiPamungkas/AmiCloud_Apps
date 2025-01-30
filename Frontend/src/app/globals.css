@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --primary:#590d82;
+  --secondary:#FFC107;
+  --tertiary:#7A318B;
+  --font-inter: 'Inter', sans-serif;
+  
+}
+
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+} */
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-inter);
+}
+
+.swal2-cancel {
+  background-color: transparent !important;
+  border: 2px solid var(--primary) !important; /* Sesuaikan dengan primary color */
+  color: var(--primary) !important; /* Sesuaikan dengan primary text color */
+}
+
+.swal2-cancel:hover {
+  background-color: var(--primary) !important;
+  color: white !important;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
