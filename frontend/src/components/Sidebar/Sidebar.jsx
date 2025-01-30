@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import Link from "next/link";
@@ -14,21 +12,26 @@ import { LuUserRoundCog } from "react-icons/lu";
 import { PiListDashesBold } from "react-icons/pi";
 import { useAuth } from "@/hooks/auth";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Sidebar({ isCollapsed }) {
   const pathname = usePathname();
-  const { logout, user } = useAuth();  
+  const { logout, user } = useAuth();
   const router = useRouter();
 
-  
+  // Navigasi jika user tidak ada
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    }
+  }, [router, user]);
+
   if (!user) {
-    router.push("/login");
-    return null; 
+    return null; // Tidak render apapun jika user belum ada
   }
 
- 
   const getMenuSections = (userId) => {
-    if (userId === 1) { 
+    if (userId === 1) {
       return [
         {
           title: "Features App",
@@ -41,7 +44,7 @@ export default function Sidebar({ isCollapsed }) {
           items: [
             {
               name: "Management File",
-              href: "/Dashboard/management-file-Admin",
+              href: "/Dashboard/management-file-admin",
               icon: <RiFolderSettingsLine />,
             },
           ],
@@ -69,7 +72,6 @@ export default function Sidebar({ isCollapsed }) {
       ];
     }
 
-    // Untuk user biasa
     return [
       {
         title: "Features App",

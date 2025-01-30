@@ -18,7 +18,7 @@ export default function AuthLayout({ children }) {
               Sign in and enjoy the ease of managing your links!
             </p>
             <div className="w-3/4 max-w-md h-auto flex justify-center text-center items-center">
-             <Image src={Login} alt="Login" />
+             <Image src={Login} alt="Login" width="auto" height="auto" priority/>
             </div>
           </div>
         
